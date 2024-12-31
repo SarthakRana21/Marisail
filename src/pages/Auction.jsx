@@ -1,22 +1,22 @@
-import AuctionAdvert from "../components/Auction/AuctionAdvert";
-import AuctionSearch from "../components/Auction/AuctionSearch";
 import PropTypes from "prop-types";
+import AuctionSearch from "../components/Auction/AuctionSearch";
+import BerthAdvert from "../components/Berth/BerthAdvert";
 
-const Auction = ({ type }) => {
-    return (
-        <main
-            style={{
-                minHeight: `100vh`,
-                overflow: "hidden",
-            }}
-        >
-            {type === "search" ? <AuctionSearch /> : <AuctionAdvert />}
-        </main>
-    );
+const Auctions = ({ type }) => {
+  return (
+    <main
+      style={{
+        minHeight: `100vh`,
+        overflow: "hidden",
+      }}
+    >
+      {type === "search" ? <AuctionSearch /> : <BerthAdvert />}
+    </main>
+  );
 };
 
-Auction.propTypes = {
-    type: PropTypes.string.isRequired,
+Auctions.propTypes = {
+  type: PropTypes.string.isRequired,
 };
 
-export default Auction;
+export default Auctions;
