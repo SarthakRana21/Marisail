@@ -25,7 +25,10 @@ server.get("/server/healthCheck", (req, res) => {
 server.use(function (req, res, next) {
   next(createError(404));
 });
-server.listen(3001, () => {
+
+var port = normalizePort(process.env.PORT || '3000');
+
+server.listen(port, () => {
   console.log(`Running on 3001`);
 });
 export default server; 
