@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import "./MediaUpload.scss"
 
 export default function PriceLabel() {
-  const [value, setValue] = useState();
+  const [value, setValue] = useState('');
   const [good, setGood] = useState(false);
   const [high, setHigh] = useState(false);
   const [VeryHigh, setVeryHigh] = useState(false);
@@ -17,8 +17,17 @@ export default function PriceLabel() {
     setBest(false);
   };
 
+  // thousand comma pattern regex logic
+  const formatNumber = (value) => {
+    const numericValue = value.replace(/[^0-9]/g, '');
+    return numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  };
+
+
   const handleOnchange = (e) => {
-    setValue(e.target.value);
+    let rawValue = e.target.value;
+    const formattedValue = formatNumber(rawValue);
+    setValue(formattedValue)
   };
 
   // average calculation of previous prices
@@ -49,8 +58,15 @@ export default function PriceLabel() {
     }
   };
   useEffect(() => {
-    if (value !== "" && value > 0) {
-      priceLabel(value);
+    if (value) {
+      // Converting the string value back to a number, removing the commas (priceLabel fn only takes nums)
+      const num = parseFloat(value.replace(/,/g, ""));
+       // console.log('type: ', typeof num);
+      if (num > 0) {
+        priceLabel(num);
+      } else {
+        allPriceStatusFalse();
+      }
     } else {
       allPriceStatusFalse();
     }
@@ -58,7 +74,7 @@ export default function PriceLabel() {
 
   return (
     <div className='label-container'>
-      <input type="number" value={value} onChange={handleOnchange} min={0} placeholder="Enter your Price" step={10000} pattern="" required />
+      <input type="text" value={value} onChange={handleOnchange} placeholder="Enter your Price" required />
       <br />
       { best && <div className="price-label visible">
         <img src={'/svg/best-price.svg'} alt="Best Price" width={100} height={50} />
