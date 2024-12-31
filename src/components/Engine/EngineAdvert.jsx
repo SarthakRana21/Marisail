@@ -7,6 +7,7 @@ import SubmitButton from "../SubmitButton";
 import { keyToExpectedValueMap, typeDef } from "./EngineAdvertInfo";
 import { makeString } from "../../services/common_functions";
 import { useNavigate } from "react-router-dom"; 
+import FormFieldCard from "../../services/FormFieldCard";
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
 export default function EngineAdvert() {
@@ -770,6 +771,7 @@ export default function EngineAdvert() {
                 })}
               </Col>
             ))}
+            <FormFieldCard countryVisible={true} />
           </Row>
           <SubmitButton
             text="Submit"

@@ -11,6 +11,7 @@ import {
 } from "../../services/common_functions";
 import DatePickerComponent from "../DatePickerComponent";
 import InputComponentDual from "../InputComponentDual";
+import FormFieldCard from "../../services/FormFieldCard";
 
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -563,6 +564,7 @@ export default function TransportAdvert() {
                                 })}
                             </Col>
                         ))}
+                        <FormFieldCard countryVisible={true} />
                     </Row>
                     <SubmitButton
                         text="Submit"

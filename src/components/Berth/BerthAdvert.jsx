@@ -11,6 +11,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import InputComponentDynamic from "../InputComponentDynamic";
 import InputComponentDual from "../InputComponentDual";
+import FormFieldCard from "../../services/FormFieldCard";
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
 export default function BerthAdvert() {
@@ -725,6 +726,7 @@ export default function BerthAdvert() {
                                 })}
                             </Col>
                         ))}
+                        <FormFieldCard countryVisible={true} />
                     </Row>
                     <SubmitButton
                         text="Submit"
