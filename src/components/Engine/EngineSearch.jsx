@@ -1,24 +1,26 @@
-import { useState, useEffect } from "react";
-import { Form, Container, Row, Col } from "react-bootstrap";
+import { useEffect, useState } from "react";
+import { Col, Container, Form, Row } from "react-bootstrap";
+import { useLocation, useNavigate } from "react-router-dom";
 import DropdownWithCheckBoxes from "../DropdownWithCheckBoxes2";
 import EngineCard from "../EngineCard";
-import SearchBar from "../SearchBar";
+// import CustomDatePicker from "../CustomDatePicker";
 import Pagination from "../CustomPagination";
-import {
-  fetchColumns,
-} from "../../api/searchEngineApi";
+import SearchBar from "../SearchBar";
+// import axios from "axios";
+import { fetchColumns } from "../../api/searchEngineApi";
 import DropdownWithRadioButtons from "../DropdownWithRadioButtons";
-const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
-import "./engineSearch.scss";
 import Loader from "../Loader";
+import "./engineSearch.scss";
 const Engines = () => {
   const [columns, setColumns] = useState([]);
   const [selectedColumn, setSelectedColumn] = useState("");
+  const [distinctValues, setDistinctValues] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [engines, setEngines] = useState([]);
   const [page, setPage] = useState(1);
+  const [limit] = useState(27); // Fixed limit
   const [search, setSearch] = useState([]);
   const [pagination, setPagination] = useState({
     currentPage: 1,
@@ -26,6 +28,8 @@ const Engines = () => {
     totalRecords: 0,
     limit: 21,
   });
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const [selectedOptions, setSelectedOptions] = useState({
     condition_1: "",
@@ -486,7 +490,7 @@ const Engines = () => {
       let { tables = [], columns = [], values = [] } = getSelectionData();
 
       // Construct the API URL
-      const url = apiUrl +`/search_engine/engines?tables=${tables}&columns=${columns}&values=${values}&page=${pagination.currentPage}&limit=${pagination.limit}`; 
+      const url = `http://localhost:3001/api/search_engine/engines?tables=${tables}&columns=${columns}&values=${values}&page=${pagination.currentPage}&limit=${pagination.limit}`;
 
       // Fetch data from the API
       const response = await fetch(url, {
