@@ -16,6 +16,6 @@ const connection = mysql.createPool({
   debug: true, // Activa el modo debug
 });
 
-
+//dont change
 
 export default connection;
