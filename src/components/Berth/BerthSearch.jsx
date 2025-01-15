@@ -6,11 +6,16 @@ import Loader from "../Loader";
 import BerthCard from "../BerthCard";
 import ResetBar from "../ResetBar";
 import { varToScreen } from "./BerthInfo";
-import { v4 as uuidv4 } from 'uuid';
-
+import { v4 as uuidv4 } from "uuid";
+import { setAllFilters, getAllFilters } from "../../store/filtersSlice";
+import { fetchData } from "../../fatch/fatch";
+import { useSelector, useDispatch } from "react-redux";
+import { api } from "../../api/api";
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
 export default function BerthSearch() {
+  const allFilters = useSelector(getAllFilters);
+  const dispatche = useDispatch(); //be catre full on here is dispatche not dispatch
   const [selectedRadios, setSelectedRadios] = useState({});
   const [page, setPage] = useState(0);
   const [fromValue, setFromValue] = useState("");
@@ -262,6 +267,164 @@ export default function BerthSearch() {
       fetchFilterData();
     }
   }, []);
+  useEffect(() => {
+    setLoading(true);
+    dispatche(fetchData({
+      method: "GET",
+      endpoint: api.searchBerth,
+      headers: {
+        "Content-Type": "application/json",
+      }
+    }))
+    .then((result) => {
+      setSiteDetails(result.payload.tables); // Update state with the fetched data
+      setLoading(false);
+    })
+    .catch((error) => {
+      console.error("Error fetching site data:", error);
+      setLoading(false);
+    });
+  }, []);
+  useEffect(() => {
+    dispatche(fetchData({
+      method: "GET",
+      endpoint: api.allFilters,
+      headers: {
+        "Content-Type": "application/json",
+      }
+    }))
+    .then((result) => {
+      dispatch(setAllFilters(result.payload.filters));
+      setLoading(false);
+    })
+    .catch((error) => {
+      console.error("Error fetching filter data:", error);
+      setLoading(false);
+    });
+  }, []);
+
+  // useEffect(() => {
+  //   if (allFilters) {
+  //     console.log("All filters", allFilters);
+  //     setSiteDetails({
+  //       siteDetails: allFilters.siteDetails || [],
+  //       termsAndConditions: allFilters.termsAndConditions || [],
+  //       type: allFilters.type || [],
+  //       marinaName: allFilters.marinaName || [],
+  //       location: allFilters.location || [],
+  //       ownership: allFilters.ownership || [],
+  //       yearEstablished: allFilters.yearEstablished || [],
+  //       operatingHours: allFilters.operatingHours || [],
+  //       seasonalOperation: allFilters.seasonalOperation || [],
+  //       languageServices: allFilters.languageServices || [],
+  //     });
+
+  //     setGeneralInformation({
+  //       dockTypes: allFilters.dockTypes || [],
+  //       numberOfDocks: allFilters.numberOfDocks || [],
+  //       boatSlipSizes: allFilters.boatSlipSizes || [],
+  //       numberOfBerthsAvailable: allFilters.numberOfBerthsAvailable || [],
+  //       length: allFilters.length || [],
+  //       beam: allFilters.beam || [],
+  //       draft: allFilters.draft || [],
+  //       slipWidth: allFilters.slipWidth || [],
+  //       slipLength: allFilters.slipLength || [],
+  //       mooringType: allFilters.mooringType || [],
+  //       tideRange: allFilters.tideRange || [],
+  //     });
+
+  //     setAmenitiesAndServices({
+  //       electricityAvailable: allFilters.electricityAvailable || [],
+  //       waterSupply: allFilters.waterSupply || [],
+  //       wifiAvailability: allFilters.wifiAvailability || [],
+  //       carParking: allFilters.carParking || [],
+  //     });
+
+  //     setFamilyFacilities({
+  //       laundryFacilities: allFilters.laundryFacilities || [],
+  //       restaurantsAndCafes: allFilters.restaurantsAndCafes || [],
+  //       restaurant: allFilters.restaurant || [],
+  //       bar: allFilters.bar || [],
+  //       shoppingFacilities: allFilters.shoppingFacilities || [],
+  //       retailShops: allFilters.retailShops || [],
+  //       hospitalityServices: allFilters.hospitalityServices || [],
+  //       clubhouseAccess: allFilters.clubhouseAccess || [],
+  //       swimmingPool: allFilters.swimmingPool || [],
+  //       fitnessCenter: allFilters.fitnessCenter || [],
+  //       marinaStore: allFilters.marinaStore || [],
+  //       chandlery: allFilters.chandlery || [],
+  //       restroomAndShowers: allFilters.restroomAndShowers || [],
+  //       laundryServices: allFilters.laundryServices || [],
+  //       gymFacilities: allFilters.gymFacilities || [],
+  //       familyFriendlyAmenities: allFilters.familyFriendlyAmenities || [],
+  //       petFriendlyServices: allFilters.petFriendlyServices || [],
+  //     });
+
+  //     setCommunityAndSocial({
+  //       yachtClubMembership: allFilters.yachtClubMembership || [],
+  //     });
+
+  //     setServices({
+  //       docksideTrolley: allFilters.docksideTrolley || [],
+  //       fuelTypesAvailable: allFilters.fuelTypesAvailable || [],
+  //       fuelDock: allFilters.fuelDock || [],
+  //       electricalHookupSpecifications:
+  //         allFilters.electricalHookupSpecifications || [],
+  //     });
+
+  //     setRepairAndMaintenance({
+  //       boatLiftSpecifications: allFilters.boatLiftSpecifications || [],
+  //     });
+
+  //     setAccessibility({
+  //       handicapAccessibleSlips: allFilters.handicapAccessibleSlips || [],
+  //       proximityToHandicapParking: allFilters.proximityToHandicapParking || [],
+  //       accessibleFacilities: allFilters.accessibleFacilities || [],
+  //       assistanceServicesForDisabled:
+  //         allFilters.assistanceServicesForDisabled || [],
+  //       signageAndDirections: allFilters.signageAndDirections || [],
+  //       accessibleRestroomsAndShowers:
+  //         allFilters.accessibleRestroomsAndShowers || [],
+  //     });
+
+  //     setconnectivityAndTransportation({
+  //       taxiServices: allFilters.taxiServices || [],
+  //     });
+
+  //     setEnvironmentalConsiderations({
+  //       wasteDisposal: allFilters.wasteDisposal || [],
+  //       waterHookupSpecifications: allFilters.waterHookupSpecifications || [],
+  //     });
+
+  //     setSecurityAndSafety({
+  //       fireSafetyEquipment: allFilters.fireSafetyEquipment || [],
+  //       firstAidKits: allFilters.firstAidKits || [],
+  //       securityPatrol: allFilters.securityPatrol || [],
+  //       cctvSurveillance: allFilters.cctvSurveillance || [],
+  //     });
+
+  //     setFinancialInformation({
+  //       currency: allFilters.currency || [],
+  //     });
+
+  //     setPricingAndLeaseTerms({
+  //       pricePerAnnum: allFilters.pricePerAnnum || [],
+  //       pricePerMonth: allFilters.pricePerMonth || [],
+  //       pricePerWeek: allFilters.pricePerWeek || [],
+  //       availability: allFilters.availability || [],
+  //       annualLeaseRenewable: allFilters.annualLeaseRenewable || [],
+  //       cancellationPolicy: allFilters.cancellationPolicy || [],
+  //     });
+
+  //     setNotDefined({
+  //       priceLabel: allFilters.priceLabel || [],
+  //       priceDrop: allFilters.priceDrop || [],
+  //       country: allFilters.country || [],
+  //       addressDetails: allFilters.addressDetails || [],
+  //       distance: allFilters.distance || [],
+  //     });
+  //   }
+  // }, [allFilters]);
 
   const [berths, setBerths] = useState([]);
 
@@ -272,6 +435,11 @@ export default function BerthSearch() {
       page: page,
     };
     const fetchBerthData = async () => {
+      setLoading(true);
+      let currInfo = {
+        selectedOptions: allSelectedOptions,
+        page: page,
+      };
       try {
         const response = await fetch(`${URL}berthsData`, {
           method: "POST",
@@ -432,7 +600,7 @@ export default function BerthSearch() {
               </button> */}
               <button
                 onClick={() => handlePageChange(page + 1)}
-              // disabled={page === pagination.totalPages}
+                // disabled={page === pagination.totalPages}
               >
                 Next
               </button>
