@@ -16,7 +16,7 @@ server.use("/api", authRoutes);
 server.get("/", (req, res) => {
   return res.status(200).json({
     ok: true,
-    message: "root route",
+    message: "root route, tested deploy 1",
   });
 });
 server.get("/server/healthCheck", (req, res) => {
