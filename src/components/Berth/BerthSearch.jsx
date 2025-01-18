@@ -269,39 +269,37 @@ export default function BerthSearch() {
   }, []);
 
   useEffect(() => {
-    // Define the fetch function
     const fetchFilters = async () => {
       try {
-        // Send POST request to your API
-        const response = await fetch('http://localhost:3007/api/search_berth/filterByTable', {
+        const response = await fetch(api.filterByTable, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            tableName: 'siteDetails', 
-            filterColumns: ['location', 'ownership'], 
-            filterName: 'siteDetails'
+            tableName: 'siteDetails',
+            filterColumns: ['location', 'ownership'],
+            filterName: 'siteDetails',
           }),
         });
 
-        // Parse the response data
         const data = await response.json();
 
         if (response.ok) {
-          // setFilters(data.filters);  // Store the filters in state
+          setFilters(data.data); // Assuming `data.data` contains the relevant filters
         } else {
           throw new Error(data.message || 'Failed to fetch filters');
         }
       } catch (err) {
-        // setError(err.message);
+        setError(err.message);
       } finally {
-        // setLoading(false);  // Stop loading state
+        setLoading(false);
       }
     };
 
-    fetchFilters();  // Call the function to fetch data
-  }, []);
+    fetchFilters();
+  }, [api.filterByTable]);
+  
   useEffect(() => {
     setLoading(true);
     dispatche(fetchData({

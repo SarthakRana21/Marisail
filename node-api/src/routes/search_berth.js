@@ -178,63 +178,63 @@ searchBerthRouter.get("/allFilters", async (req, res) => {
     const filtersConfig = {
       // Site Details
       siteDetails: { table: varToTable.siteDetails, column: varToColumn.siteDetails },
-      termsAndConditions: { table: varToTable.siteDetails, column: varToColumn.termsAndConditions },
-      type: { table: varToTable.siteDetails, column: varToColumn.type },
-      marinaName: { table: varToTable.siteDetails, column: varToColumn.marinaName },
-      location: { table: varToTable.siteDetails, column: varToColumn.location },
-      ownership: { table: varToTable.siteDetails, column: varToColumn.ownership },
-      yearEstablished: { table: varToTable.siteDetails, column: varToColumn.yearEstablished },
-      operatingHours: { table: varToTable.siteDetails, column: varToColumn.operatingHours },
-      contactDetails: { table: varToTable.siteDetails, column: varToColumn.contactDetails },
-      seasonalOperation: { table: varToTable.siteDetails, column: varToColumn.seasonalOperation },
-      languageServices: { table: varToTable.siteDetails, column: varToColumn.languageServices },
+      // termsAndConditions: { table: varToTable.siteDetails, column: varToColumn.termsAndConditions },
+      // type: { table: varToTable.siteDetails, column: varToColumn.type },
+      // marinaName: { table: varToTable.siteDetails, column: varToColumn.marinaName },
+      // location: { table: varToTable.siteDetails, column: varToColumn.location },
+      // ownership: { table: varToTable.siteDetails, column: varToColumn.ownership },
+      // yearEstablished: { table: varToTable.siteDetails, column: varToColumn.yearEstablished },
+      // operatingHours: { table: varToTable.siteDetails, column: varToColumn.operatingHours },
+      // contactDetails: { table: varToTable.siteDetails, column: varToColumn.contactDetails },
+      // seasonalOperation: { table: varToTable.siteDetails, column: varToColumn.seasonalOperation },
+      // languageServices: { table: varToTable.siteDetails, column: varToColumn.languageServices },
 
-      // General Information
-      dockTypes: { table: varToTable.generalInformation, column: varToColumn.dockTypes },
-      numberOfDocks: { table: varToTable.generalInformation, column: varToColumn.numberOfDocks },
-      boatSlipSizes: { table: varToTable.generalInformation, column: varToColumn.boatSlipSizes },
-      numberOfBerthsAvailable: { table: varToTable.generalInformation, column: varToColumn.numberOfBerthsAvailable },
-      length: { table: varToTable.generalInformation, column: varToColumn.length },
-      beam: { table: varToTable.generalInformation, column: varToColumn.beam },
-      draft: { table: varToTable.generalInformation, column: varToColumn.draft },
-      slipWidth: { table: varToTable.generalInformation, column: varToColumn.slipWidth },
-      slipLength: { table: varToTable.generalInformation, column: varToColumn.slipLength },
-      mooringType: { table: varToTable.generalInformation, column: varToColumn.mooringType },
-      tideRange: { table: varToTable.generalInformation, column: varToColumn.tideRange },
+      // // General Information
+      // dockTypes: { table: varToTable.generalInformation, column: varToColumn.dockTypes },
+      // numberOfDocks: { table: varToTable.generalInformation, column: varToColumn.numberOfDocks },
+      // boatSlipSizes: { table: varToTable.generalInformation, column: varToColumn.boatSlipSizes },
+      // numberOfBerthsAvailable: { table: varToTable.generalInformation, column: varToColumn.numberOfBerthsAvailable },
+      // length: { table: varToTable.generalInformation, column: varToColumn.length },
+      // beam: { table: varToTable.generalInformation, column: varToColumn.beam },
+      // draft: { table: varToTable.generalInformation, column: varToColumn.draft },
+      // slipWidth: { table: varToTable.generalInformation, column: varToColumn.slipWidth },
+      // slipLength: { table: varToTable.generalInformation, column: varToColumn.slipLength },
+      // mooringType: { table: varToTable.generalInformation, column: varToColumn.mooringType },
+      // tideRange: { table: varToTable.generalInformation, column: varToColumn.tideRange },
 
-      // Amenities & Services
-      storage: { table: varToTable.amenitiesAndServices, column: varToColumn.storage },
-      electricityAvailable: { table: varToTable.amenitiesAndServices, column: varToColumn.electricityAvailable },
-      waterSupply: { table: varToTable.amenitiesAndServices, column: varToColumn.waterSupply },
-      wifiAvailability: { table: varToTable.amenitiesAndServices, column: varToColumn.wifiAvailability },
-      carParking: { table: varToTable.amenitiesAndServices, column: varToColumn.carParking },
-      conciergeServices: { table: varToTable.amenitiesAndServices, column: varToColumn.conciergeServices },
-      businessServices: { table: varToTable.amenitiesAndServices, column: varToColumn.businessServices },
-      conferenceRooms: { table: varToTable.amenitiesAndServices, column: varToColumn.conferenceRooms },
+      // // Amenities & Services
+      // storage: { table: varToTable.amenitiesAndServices, column: varToColumn.storage },
+      // electricityAvailable: { table: varToTable.amenitiesAndServices, column: varToColumn.electricityAvailable },
+      // waterSupply: { table: varToTable.amenitiesAndServices, column: varToColumn.waterSupply },
+      // wifiAvailability: { table: varToTable.amenitiesAndServices, column: varToColumn.wifiAvailability },
+      // carParking: { table: varToTable.amenitiesAndServices, column: varToColumn.carParking },
+      // conciergeServices: { table: varToTable.amenitiesAndServices, column: varToColumn.conciergeServices },
+      // businessServices: { table: varToTable.amenitiesAndServices, column: varToColumn.businessServices },
+      // conferenceRooms: { table: varToTable.amenitiesAndServices, column: varToColumn.conferenceRooms },
 
-      // Family Facilities
-      laundryFacilities: { table: varToTable.familyFacilities, column: varToColumn.laundryFacilities },
-      restaurant: { table: varToTable.familyFacilities, column: varToColumn.restaurant },
-      bar: { table: varToTable.familyFacilities, column: varToColumn.bar },
-      shoppingFacilities: { table: varToTable.familyFacilities, column: varToColumn.shoppingFacilities },
-      retailShops: { table: varToTable.familyFacilities, column: varToColumn.retailShops },
-      hospitalityServices: { table: varToTable.familyFacilities, column: varToColumn.hospitalityServices },
-      clubhouseAccess: { table: varToTable.familyFacilities, column: varToColumn.clubhouseAccess },
-      swimmingPool: { table: varToTable.familyFacilities, column: varToColumn.swimmingPool },
-      fitnessCenter: { table: varToTable.familyFacilities, column: varToColumn.fitnessCenter },
-      marinaStore: { table: varToTable.familyFacilities, column: varToColumn.marinaStore },
-      chandlery: { table: varToTable.familyFacilities, column: varToColumn.chandlery },
-      laundryServices: { table: varToTable.familyFacilities, column: varToColumn.laundryServices },
-      gymFacilities: { table: varToTable.familyFacilities, column: varToColumn.gymFacilities },
-      sanitationnFacilities: { table: varToTable.familyFacilities, column: varToColumn.sanitationnFacilities },
-      familyFriendlyAmenities: { table: varToTable.familyFacilities, column: varToColumn.familyFriendlyAmenities },
-      petFriendlyServices: { table: varToTable.familyFacilities, column: varToColumn.petFriendlyServices },
-      iceAvailability: { table: varToTable.familyFacilities, column: varToColumn.iceAvailability },
-      picnicAndBBQAreas: { table: varToTable.familyFacilities, column: varToColumn.picnicAndBBQAreas },
-      childrensPlayArea: { table: varToTable.familyFacilities, column: varToColumn.childrensPlayArea },
+      // // Family Facilities
+      // laundryFacilities: { table: varToTable.familyFacilities, column: varToColumn.laundryFacilities },
+      // restaurant: { table: varToTable.familyFacilities, column: varToColumn.restaurant },
+      // bar: { table: varToTable.familyFacilities, column: varToColumn.bar },
+      // shoppingFacilities: { table: varToTable.familyFacilities, column: varToColumn.shoppingFacilities },
+      // retailShops: { table: varToTable.familyFacilities, column: varToColumn.retailShops },
+      // hospitalityServices: { table: varToTable.familyFacilities, column: varToColumn.hospitalityServices },
+      // clubhouseAccess: { table: varToTable.familyFacilities, column: varToColumn.clubhouseAccess },
+      // swimmingPool: { table: varToTable.familyFacilities, column: varToColumn.swimmingPool },
+      // fitnessCenter: { table: varToTable.familyFacilities, column: varToColumn.fitnessCenter },
+      // marinaStore: { table: varToTable.familyFacilities, column: varToColumn.marinaStore },
+      // chandlery: { table: varToTable.familyFacilities, column: varToColumn.chandlery },
+      // laundryServices: { table: varToTable.familyFacilities, column: varToColumn.laundryServices },
+      // gymFacilities: { table: varToTable.familyFacilities, column: varToColumn.gymFacilities },
+      // sanitationnFacilities: { table: varToTable.familyFacilities, column: varToColumn.sanitationnFacilities },
+      // familyFriendlyAmenities: { table: varToTable.familyFacilities, column: varToColumn.familyFriendlyAmenities },
+      // petFriendlyServices: { table: varToTable.familyFacilities, column: varToColumn.petFriendlyServices },
+      // iceAvailability: { table: varToTable.familyFacilities, column: varToColumn.iceAvailability },
+      // picnicAndBBQAreas: { table: varToTable.familyFacilities, column: varToColumn.picnicAndBBQAreas },
+      // childrensPlayArea: { table: varToTable.familyFacilities, column: varToColumn.childrensPlayArea },
 
-      // Financial Information
-      currency: { table: varToTable.financialInformation, column: varToColumn.currency },
+      // // Financial Information
+      // currency: { table: varToTable.financialInformation, column: varToColumn.currency },
     };
 
     const queries = [];
@@ -357,7 +357,7 @@ searchBerthRouter.post("/filterByTable", async (req, res) => {
     const queries = filterColumns.map(col => {
       if (col !== filterConfig.column) {
         return null;
-      }
+    }
       return `SELECT \`${col}\`, COUNT(*) AS occurrence_cnt FROM \`${tableName}\` GROUP BY \`${col}\`;`;
     }).filter(query => query !== null);
 
