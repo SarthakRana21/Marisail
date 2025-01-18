@@ -31,7 +31,7 @@ router.use("/search_trailer", searchTrailerRouter);
 
 router.use("/search_berth", searchBerthRouter);
 
-router.use("/search_Shop", searchShopRouter);
+router.use("/search_shop", searchShopRouter);
 
 router.use("/search_charter", searchCharterRouter);
 
