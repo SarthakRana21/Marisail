@@ -22,10 +22,13 @@ server.get("/", (req, res) => {
 server.get("/server/healthCheck", (req, res) => {
   res.json({ message: "Hello from the backend!" });
 });
-server.use(function (req, res, next) {
-  next(createError(404));
+server.use((req, res, next) => {
+  res.status(404).json({ message: 'Not Found' });
 });
-
+server.use((req, res, next) => {
+  console.log(`Incoming request: ${req.method} ${req.url}`);
+  next();
+});
 // usin .env PORT value or the pm2 its ok
 var port = (process.env.PORT || '3000'); 
 
