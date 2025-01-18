@@ -267,6 +267,41 @@ export default function BerthSearch() {
       fetchFilterData();
     }
   }, []);
+
+  useEffect(() => {
+    // Define the fetch function
+    const fetchFilters = async () => {
+      try {
+        // Send POST request to your API
+        const response = await fetch('http://localhost:3007/api/search_berth/filterByTable', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            tableName: 'siteDetails', 
+            filterColumns: ['location', 'ownership'], 
+            filterName: 'siteDetails'
+          }),
+        });
+
+        // Parse the response data
+        const data = await response.json();
+
+        if (response.ok) {
+          // setFilters(data.filters);  // Store the filters in state
+        } else {
+          throw new Error(data.message || 'Failed to fetch filters');
+        }
+      } catch (err) {
+        // setError(err.message);
+      } finally {
+        // setLoading(false);  // Stop loading state
+      }
+    };
+
+    fetchFilters();  // Call the function to fetch data
+  }, []);
   useEffect(() => {
     setLoading(true);
     dispatche(fetchData({
