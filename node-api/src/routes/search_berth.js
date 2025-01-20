@@ -11,38 +11,67 @@ const searchBerthRouter = Router();
 searchBerthRouter.get("/berths", async (req, res) => {
   let connection;
   try {
-      let tableNames = [];
-      connection = await dbConnection.getConnection();
+    connection = await dbConnection.getConnection();
+    console.log("Database connection established.");
 
-      // Check if the column exists
-      const columnCheck = await connection.query(
-          `SELECT COLUMN_NAME
-          FROM information_schema.columns
-          WHERE table_name = 'Marina_Port'
-          AND table_schema = 'Marisail'
-          AND column_name = 'Site_Details'`
-      );
+    const siteDetailsTable = varToTable.siteDetails;
+    const siteDetailsColumn = varToColumn.siteDetails;
 
-      // Check if the column exists
-      if (columnCheck[0].length > 0) {
-          const tables = await connection.query(
-              `SELECT Site_Details, COUNT(*) AS occurrence_cnt
-              FROM Marina_Port
-              GROUP BY Site_Details;`
-          );
-          tableNames = tables[0].map((table) => Object.values(table));
+    // Check if the column exists in the table
+    const columnCheckQuery = `
+      SELECT column_name
+      FROM information_schema.columns
+      WHERE table_name = '${siteDetailsTable}'
+      AND table_schema = 'marisail'
+      AND column_name = '${siteDetailsColumn}';
+    `;
+
+    const columnCheck = await connection.query(columnCheckQuery);
+
+    if (columnCheck[0].length === 0) {
+      return res.status(400).json({
+        ok: false,
+        message: `Column '${siteDetailsColumn}' does not exist in table '${siteDetailsTable}'.`
+      });
+    }
+
+    // Fetch data from the specified table and column
+    const dataQuery = `
+      SELECT ${siteDetailsColumn}, COUNT(*) AS occurrence_cnt
+      FROM ${siteDetailsTable}
+      GROUP BY ${siteDetailsColumn};
+    `;
+
+    const dataResults = await connection.query(dataQuery);
+
+    // Extract the site details
+    const siteDetailsData = dataResults[0].map(row => row[siteDetailsColumn]);
+
+    // Prepare the response
+    res.status(200).json({
+      ok: true,
+      siteDetails: {
+        table: siteDetailsTable,
+        column: siteDetailsColumn,
+        data: siteDetailsData
       }
+    });
 
-      return res.status(200).json({ ok: true, tables: tableNames });
   } catch (err) {
-      console.error("Error in /berths GET:", err);
-      return res.status(500).json({ ok: false, message: err.message });
+    console.error("Error in /berths GET:", err);
+    res.status(500).json({
+      ok: false,
+      message: "An error occurred while fetching berth data.",
+      details: err.message
+    });
   } finally {
-      if (connection) {
-          connection.release();
-      }
+    if (connection) {
+      connection.release();
+      console.log("Database connection released.");
+    }
   }
 });
+
 searchBerthRouter.post("/berths", async (req, res) => {
   let connection;
   const filter = req.body.filter;
@@ -357,7 +386,7 @@ searchBerthRouter.post("/filterByTable", async (req, res) => {
     const queries = filterColumns.map(col => {
       if (col !== filterConfig.column) {
         return null;
-    }
+      }
       return `SELECT \`${col}\`, COUNT(*) AS occurrence_cnt FROM \`${tableName}\` GROUP BY \`${col}\`;`;
     }).filter(query => query !== null);
 
