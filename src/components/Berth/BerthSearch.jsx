@@ -268,37 +268,37 @@ export default function BerthSearch() {
     }
   }, []);
 
-  useEffect(() => {
-    const fetchFilters = async () => {
-      try {
-        const response = await fetch(api.filterByTable, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            tableName: 'siteDetails',
-            filterColumns: ['location', 'ownership'],
-            filterName: 'siteDetails',
-          }),
-        });
+  // useEffect(() => {
+  //   const fetchFilters = async () => {
+  //     try {
+  //       const response = await fetch(api.filterByTable, {
+  //         method: 'POST',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //         },
+  //         body: JSON.stringify({
+  //           tableName: 'siteDetails',
+  //           filterColumns: ['location', 'ownership'],
+  //           filterName: 'siteDetails',
+  //         }),
+  //       });
 
-        const data = await response.json();
+  //       const data = await response.json();
 
-        if (response.ok) {
-          setFilters(data.data); // Assuming `data.data` contains the relevant filters
-        } else {
-          throw new Error(data.message || 'Failed to fetch filters');
-        }
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+  //       if (response.ok) {
+  //         setFilters(data.data); // Assuming `data.data` contains the relevant filters
+  //       } else {
+  //         throw new Error(data.message || 'Failed to fetch filters');
+  //       }
+  //     } catch (err) {
+  //       setError(err.message);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
-    fetchFilters();
-  }, [api.filterByTable]);
+  //   fetchFilters();
+  // }, [api.filterByTable]);
   
   useEffect(() => {
     setLoading(true);
@@ -603,7 +603,7 @@ export default function BerthSearch() {
               )}
             </Row>
           )}
-          {/* {!loading ? <Pagination totalPages={pagination.totalPages} /> : <></>} */}
+          {!loading ? <Pagination totalPages={pagination.totalPages} /> : <></>}
 
           <Row style={{ marginBottom: "20px" }}>
             <div
