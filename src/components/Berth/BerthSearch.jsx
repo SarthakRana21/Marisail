@@ -14,7 +14,8 @@ import { api } from "../../api/api";
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
 export default function BerthSearch() {
-  const allFilters = useSelector(getAllFilters);
+  const allFilters = useSelector(getAllFilters)?.filters;
+  console.log('allFilters :>> ', allFilters);
   const dispatche = useDispatch(); //be catre full on here is dispatche not dispatch
   const [selectedRadios, setSelectedRadios] = useState({});
   const [page, setPage] = useState(0);
@@ -37,6 +38,7 @@ export default function BerthSearch() {
   const toggleAccordion = (key) => {
     dispatch({ type: "TOGGLE", key });
   };
+
   const [siteDetails, setSiteDetails] = useState({
     siteDetails: [],
     termsAndConditions: [],
@@ -171,6 +173,8 @@ export default function BerthSearch() {
     notDefined,
   };
 
+  console.log('filters :>> ', filters);
+
   const setStateFunctions = {
     siteDetails: setSiteDetails,
     generalInformation: setGeneralInformation,
@@ -229,95 +233,95 @@ export default function BerthSearch() {
 
   // fetch all the count of the available columns
   var data;
-  const fetchFilterData = async () => {
-    for (const key of Object.keys(filters)) {
-      try {
-        const response = await fetch(`${URL}berths`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            tableName: key,
-            filter: filters[key],
-          }),
-        });
+  // const fetchFilterData = async () => {
+  //   for (const key of Object.keys(filters)) {
+  //     try {
+  //       const response = await fetch(`${URL}berths`, {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify({
+  //           tableName: key,
+  //           filter: filters[key],
+  //         }),
+  //       });
 
-        data = await response.json();
-        setFilters(key, data?.res);
-      } catch (err) {
-        console.log(err);
-      } finally {
-        console.log("done");
-      }
-    }
-  };
+  //       data = await response.json();
+  //       setFilters(key, data?.res);
+  //     } catch (err) {
+  //       console.log(err);
+  //     } finally {
+  //       console.log("done");
+  //     }
+  //   }
+  // };
 
   function mergeSpaces(str) {
     return str.replace(/\s+/g, ' ').trim();
   }
 
-  useEffect(() => {
-    const cachedData = localStorage.getItem(cacheKey);
-    if (cachedData) {
-      setFilters(JSON.parse(cachedData));
-      console.log("Data fetched from cache", JSON.parse(cachedData));
-    } else {
-      // Fetch data if not cached
-      fetchFilterData();
-    }
-  }, []);
+  // useEffect(() => {
+  //   const cachedData = localStorage.getItem(cacheKey);
+  //   if (cachedData) {
+  //     setFilters(JSON.parse(cachedData));
+  //     console.log("Data fetched from cache", JSON.parse(cachedData));
+  //   } else {
+  //     // Fetch data if not cached
+  //     fetchFilterData();
+  //   }
+  // }, []);
 
-  useEffect(() => {
-    const fetchFilters = async () => {
-      try {
-        const response = await fetch(api.filterByTable, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            tableName: 'siteDetails',
-            filterColumns: ['location', 'ownership'],
-            filterName: 'siteDetails',
-          }),
-        });
+  // useEffect(() => {
+  //   const fetchFilters = async () => {
+  //     try {
+  //       const response = await fetch(api.filterByTable, {
+  //         method: 'POST',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //         },
+  //         body: JSON.stringify({
+  //           tableName: 'siteDetails',
+  //           filterColumns: ['location', 'ownership'],
+  //           filterName: 'siteDetails',
+  //         }),
+  //       });
 
-        const data = await response.json();
+  //       const data = await response.json();
 
-        if (response.ok) {
-          setFilters(data.data); // Assuming `data.data` contains the relevant filters
-        } else {
-          throw new Error(data.message || 'Failed to fetch filters');
-        }
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+  //       if (response.ok) {
+  //         setFilters(data.data); // Assuming `data.data` contains the relevant filters
+  //       } else {
+  //         throw new Error(data.message || 'Failed to fetch filters');
+  //       }
+  //     } catch (err) {
+  //       setError(err.message);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
-    fetchFilters();
-  }, [api.filterByTable]);
+  //   fetchFilters();
+  // }, [api.filterByTable]);
   
-  useEffect(() => {
-    setLoading(true);
-    dispatche(fetchData({
-      method: "GET",
-      endpoint: api.searchBerth,
-      headers: {
-        "Content-Type": "application/json",
-      }
-    }))
-    .then((result) => {
-      setSiteDetails(result.payload.tables); // Update state with the fetched data
-      setLoading(false);
-    })
-    .catch((error) => {
-      console.error("Error fetching site data:", error);
-      setLoading(false);
-    });
-  }, []);
+  // useEffect(() => {
+  //   setLoading(true);
+  //   dispatche(fetchData({
+  //     method: "GET",
+  //     endpoint: api.searchBerth,
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     }
+  //   }))
+  //   .then((result) => {
+  //     setSiteDetails(result.payload.tables); // Update state with the fetched data
+  //     setLoading(false);
+  //   })
+  //   .catch((error) => {
+  //     console.error("Error fetching site data:", error);
+  //     setLoading(false);
+  //   });
+  // }, []);
   useEffect(() => {
     dispatche(fetchData({
       method: "GET",
@@ -327,7 +331,8 @@ export default function BerthSearch() {
       }
     }))
     .then((result) => {
-      dispatch(setAllFilters(result.payload.filters));
+      console.log('Full result :>> ', result); // Debug API response
+      dispatch(setAllFilters(result.payload.filters))
       setLoading(false);
     })
     .catch((error) => {
@@ -335,129 +340,130 @@ export default function BerthSearch() {
       setLoading(false);
     });
   }, []);
+  
 
-  // useEffect(() => {
-  //   if (allFilters) {
-  //     console.log("All filters", allFilters);
-  //     setSiteDetails({
-  //       siteDetails: allFilters.siteDetails || [],
-  //       termsAndConditions: allFilters.termsAndConditions || [],
-  //       type: allFilters.type || [],
-  //       marinaName: allFilters.marinaName || [],
-  //       location: allFilters.location || [],
-  //       ownership: allFilters.ownership || [],
-  //       yearEstablished: allFilters.yearEstablished || [],
-  //       operatingHours: allFilters.operatingHours || [],
-  //       seasonalOperation: allFilters.seasonalOperation || [],
-  //       languageServices: allFilters.languageServices || [],
-  //     });
+  useEffect(() => {
+    if (allFilters) {
+      console.log("All filters", allFilters);
+      setSiteDetails({
+        siteDetails: allFilters.siteDetails || [],
+        termsAndConditions: allFilters.termsAndConditions || [],
+        type: allFilters.type || [],
+        marinaName: allFilters.marinaName || [],
+        location: allFilters.location || [],
+        ownership: allFilters.ownership || [],
+        yearEstablished: allFilters.yearEstablished || [],
+        operatingHours: allFilters.operatingHours || [],
+        seasonalOperation: allFilters.seasonalOperation || [],
+        languageServices: allFilters.languageServices || [],
+      });
 
-  //     setGeneralInformation({
-  //       dockTypes: allFilters.dockTypes || [],
-  //       numberOfDocks: allFilters.numberOfDocks || [],
-  //       boatSlipSizes: allFilters.boatSlipSizes || [],
-  //       numberOfBerthsAvailable: allFilters.numberOfBerthsAvailable || [],
-  //       length: allFilters.length || [],
-  //       beam: allFilters.beam || [],
-  //       draft: allFilters.draft || [],
-  //       slipWidth: allFilters.slipWidth || [],
-  //       slipLength: allFilters.slipLength || [],
-  //       mooringType: allFilters.mooringType || [],
-  //       tideRange: allFilters.tideRange || [],
-  //     });
+      setGeneralInformation({
+        dockTypes: allFilters.dockTypes || [],
+        numberOfDocks: allFilters.numberOfDocks || [],
+        boatSlipSizes: allFilters.boatSlipSizes || [],
+        numberOfBerthsAvailable: allFilters.numberOfBerthsAvailable || [],
+        length: allFilters.length || [],
+        beam: allFilters.beam || [],
+        draft: allFilters.draft || [],
+        slipWidth: allFilters.slipWidth || [],
+        slipLength: allFilters.slipLength || [],
+        mooringType: allFilters.mooringType || [],
+        tideRange: allFilters.tideRange || [],
+      });
 
-  //     setAmenitiesAndServices({
-  //       electricityAvailable: allFilters.electricityAvailable || [],
-  //       waterSupply: allFilters.waterSupply || [],
-  //       wifiAvailability: allFilters.wifiAvailability || [],
-  //       carParking: allFilters.carParking || [],
-  //     });
+      setAmenitiesAndServices({
+        electricityAvailable: allFilters.electricityAvailable || [],
+        waterSupply: allFilters.waterSupply || [],
+        wifiAvailability: allFilters.wifiAvailability || [],
+        carParking: allFilters.carParking || [],
+      });
 
-  //     setFamilyFacilities({
-  //       laundryFacilities: allFilters.laundryFacilities || [],
-  //       restaurantsAndCafes: allFilters.restaurantsAndCafes || [],
-  //       restaurant: allFilters.restaurant || [],
-  //       bar: allFilters.bar || [],
-  //       shoppingFacilities: allFilters.shoppingFacilities || [],
-  //       retailShops: allFilters.retailShops || [],
-  //       hospitalityServices: allFilters.hospitalityServices || [],
-  //       clubhouseAccess: allFilters.clubhouseAccess || [],
-  //       swimmingPool: allFilters.swimmingPool || [],
-  //       fitnessCenter: allFilters.fitnessCenter || [],
-  //       marinaStore: allFilters.marinaStore || [],
-  //       chandlery: allFilters.chandlery || [],
-  //       restroomAndShowers: allFilters.restroomAndShowers || [],
-  //       laundryServices: allFilters.laundryServices || [],
-  //       gymFacilities: allFilters.gymFacilities || [],
-  //       familyFriendlyAmenities: allFilters.familyFriendlyAmenities || [],
-  //       petFriendlyServices: allFilters.petFriendlyServices || [],
-  //     });
+      setFamilyFacilities({
+        laundryFacilities: allFilters.laundryFacilities || [],
+        restaurantsAndCafes: allFilters.restaurantsAndCafes || [],
+        restaurant: allFilters.restaurant || [],
+        bar: allFilters.bar || [],
+        shoppingFacilities: allFilters.shoppingFacilities || [],
+        retailShops: allFilters.retailShops || [],
+        hospitalityServices: allFilters.hospitalityServices || [],
+        clubhouseAccess: allFilters.clubhouseAccess || [],
+        swimmingPool: allFilters.swimmingPool || [],
+        fitnessCenter: allFilters.fitnessCenter || [],
+        marinaStore: allFilters.marinaStore || [],
+        chandlery: allFilters.chandlery || [],
+        restroomAndShowers: allFilters.restroomAndShowers || [],
+        laundryServices: allFilters.laundryServices || [],
+        gymFacilities: allFilters.gymFacilities || [],
+        familyFriendlyAmenities: allFilters.familyFriendlyAmenities || [],
+        petFriendlyServices: allFilters.petFriendlyServices || [],
+      });
 
-  //     setCommunityAndSocial({
-  //       yachtClubMembership: allFilters.yachtClubMembership || [],
-  //     });
+      setCommunityAndSocial({
+        yachtClubMembership: allFilters.yachtClubMembership || [],
+      });
 
-  //     setServices({
-  //       docksideTrolley: allFilters.docksideTrolley || [],
-  //       fuelTypesAvailable: allFilters.fuelTypesAvailable || [],
-  //       fuelDock: allFilters.fuelDock || [],
-  //       electricalHookupSpecifications:
-  //         allFilters.electricalHookupSpecifications || [],
-  //     });
+      setServices({
+        docksideTrolley: allFilters.docksideTrolley || [],
+        fuelTypesAvailable: allFilters.fuelTypesAvailable || [],
+        fuelDock: allFilters.fuelDock || [],
+        electricalHookupSpecifications:
+          allFilters.electricalHookupSpecifications || [],
+      });
 
-  //     setRepairAndMaintenance({
-  //       boatLiftSpecifications: allFilters.boatLiftSpecifications || [],
-  //     });
+      setRepairAndMaintenance({
+        boatLiftSpecifications: allFilters.boatLiftSpecifications || [],
+      });
 
-  //     setAccessibility({
-  //       handicapAccessibleSlips: allFilters.handicapAccessibleSlips || [],
-  //       proximityToHandicapParking: allFilters.proximityToHandicapParking || [],
-  //       accessibleFacilities: allFilters.accessibleFacilities || [],
-  //       assistanceServicesForDisabled:
-  //         allFilters.assistanceServicesForDisabled || [],
-  //       signageAndDirections: allFilters.signageAndDirections || [],
-  //       accessibleRestroomsAndShowers:
-  //         allFilters.accessibleRestroomsAndShowers || [],
-  //     });
+      setAccessibility({
+        handicapAccessibleSlips: allFilters.handicapAccessibleSlips || [],
+        proximityToHandicapParking: allFilters.proximityToHandicapParking || [],
+        accessibleFacilities: allFilters.accessibleFacilities || [],
+        assistanceServicesForDisabled:
+          allFilters.assistanceServicesForDisabled || [],
+        signageAndDirections: allFilters.signageAndDirections || [],
+        accessibleRestroomsAndShowers:
+          allFilters.accessibleRestroomsAndShowers || [],
+      });
 
-  //     setconnectivityAndTransportation({
-  //       taxiServices: allFilters.taxiServices || [],
-  //     });
+      setconnectivityAndTransportation({
+        taxiServices: allFilters.taxiServices || [],
+      });
 
-  //     setEnvironmentalConsiderations({
-  //       wasteDisposal: allFilters.wasteDisposal || [],
-  //       waterHookupSpecifications: allFilters.waterHookupSpecifications || [],
-  //     });
+      setEnvironmentalConsiderations({
+        wasteDisposal: allFilters.wasteDisposal || [],
+        waterHookupSpecifications: allFilters.waterHookupSpecifications || [],
+      });
 
-  //     setSecurityAndSafety({
-  //       fireSafetyEquipment: allFilters.fireSafetyEquipment || [],
-  //       firstAidKits: allFilters.firstAidKits || [],
-  //       securityPatrol: allFilters.securityPatrol || [],
-  //       cctvSurveillance: allFilters.cctvSurveillance || [],
-  //     });
+      setSecurityAndSafety({
+        fireSafetyEquipment: allFilters.fireSafetyEquipment || [],
+        firstAidKits: allFilters.firstAidKits || [],
+        securityPatrol: allFilters.securityPatrol || [],
+        cctvSurveillance: allFilters.cctvSurveillance || [],
+      });
 
-  //     setFinancialInformation({
-  //       currency: allFilters.currency || [],
-  //     });
+      setFinancialInformation({
+        currency: allFilters.currency || [],
+      });
 
-  //     setPricingAndLeaseTerms({
-  //       pricePerAnnum: allFilters.pricePerAnnum || [],
-  //       pricePerMonth: allFilters.pricePerMonth || [],
-  //       pricePerWeek: allFilters.pricePerWeek || [],
-  //       availability: allFilters.availability || [],
-  //       annualLeaseRenewable: allFilters.annualLeaseRenewable || [],
-  //       cancellationPolicy: allFilters.cancellationPolicy || [],
-  //     });
+      setPricingAndLeaseTerms({
+        pricePerAnnum: allFilters.pricePerAnnum || [],
+        pricePerMonth: allFilters.pricePerMonth || [],
+        pricePerWeek: allFilters.pricePerWeek || [],
+        availability: allFilters.availability || [],
+        annualLeaseRenewable: allFilters.annualLeaseRenewable || [],
+        cancellationPolicy: allFilters.cancellationPolicy || [],
+      });
 
-  //     setNotDefined({
-  //       priceLabel: allFilters.priceLabel || [],
-  //       priceDrop: allFilters.priceDrop || [],
-  //       country: allFilters.country || [],
-  //       addressDetails: allFilters.addressDetails || [],
-  //       distance: allFilters.distance || [],
-  //     });
-  //   }
-  // }, [allFilters]);
+      setNotDefined({
+        priceLabel: allFilters.priceLabel || [],
+        priceDrop: allFilters.priceDrop || [],
+        country: allFilters.country || [],
+        addressDetails: allFilters.addressDetails || [],
+        distance: allFilters.distance || [],
+      });
+    }
+  }, [allFilters]);
 
   const [berths, setBerths] = useState([]);
 
@@ -515,7 +521,9 @@ export default function BerthSearch() {
             />
           </Row>
           <Row>
-            {Object.keys(filters).map((key) => (
+            {Object.keys(filters).map((key) => { 
+              // console.log('key :>> ', key);
+              return(
               <fieldset
                 // style={{ borderBottom: "2px solid #f5f5f5", width: "80%" }}
                 key={uuidv4()}
@@ -529,7 +537,9 @@ export default function BerthSearch() {
                     {varToScreen[key]?.displayText}
                   </h6>
                 </legend>
-                {Object.keys(filters[key]).map((key2) => (
+                {Object.keys(filters[key]).map((key2) => {
+                  console.log('key2 :>> ',  key, filters[key][key2]);
+                  return (
                   <Row key={uuidv4()} className="row-margin">
                     <Col md={12}>
                       <Form.Group>
@@ -563,9 +573,9 @@ export default function BerthSearch() {
                       </Form.Group>
                     </Col>
                   </Row>
-                ))}
+                )})}
               </fieldset>
-            ))}
+            )})}
           </Row>
         </Col>
         <Col md={9}>

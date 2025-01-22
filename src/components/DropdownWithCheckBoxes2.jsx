@@ -16,6 +16,7 @@ const DropdownWithCheckBoxes = ({
   const handleDropdownToggle = () => {
     setIsOpen((prev) => !prev);
   };
+  console.log('list :>> ', list);
 
   const inputHandler = (e) => {
     setInputText(e.target.value);
@@ -100,17 +101,19 @@ const DropdownWithCheckBoxes = ({
             <div className="custom-dropdown-options">
               <Form>
                 {list.length > 0 ? (
-                  list.map((item) => (
+                  list.map((item) => { 
+                    console.log('item :>> ', item);
+                    return (
                     <div key={item[0]} className="custom-dropdown-option">
                       <Form.Check
                         type="checkbox"
                         name={`checkbox-options`}
-                        label={`${item[0]}${item[1] !== undefined ? ` (${item[1]})` : ''}`}
+                        label={`${item}`}
                         checked={Boolean(selectedOptions[item[0]])}
                         onChange={() => handleOptionChange(item[0])}
                       />
                     </div>
-                  ))
+                  )})
                 ) : (
                   <div className="custom-dropdown-no-results">
                     No options available
