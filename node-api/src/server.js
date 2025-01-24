@@ -16,16 +16,23 @@ server.use("/api", authRoutes);
 server.get("/", (req, res) => {
   return res.status(200).json({
     ok: true,
-    message: "root route",
+    message: "root route, tested deploy 5",
   });
 });
 server.get("/server/healthCheck", (req, res) => {
   res.json({ message: "Hello from the backend!" });
 });
-server.use(function (req, res, next) {
-  next(createError(404));
+server.use((req, res, next) => {
+  res.status(404).json({ message: 'Not Found' });
 });
-server.listen(3001, () => {
-  console.log(`Running on 3001`);
+server.use((req, res, next) => {
+  console.log(`Incoming request: ${req.method} ${req.url}`);
+  next();
+});
+// usin .env PORT value or the pm2 its ok
+var port = (process.env.PORT || '3000'); 
+
+server.listen(port, () => {
+  console.log(`Running on port ` + port);
 });
 export default server; 
