@@ -7,6 +7,7 @@ import SubmitButton from "../SubmitButton";
 import { keyToExpectedValueMap, typeDef } from "./CharterAdvertInfo";
 import { makeString } from "../../services/common_functions";
 import { useNavigate } from "react-router-dom"; 
+import FormFieldCard from "../../services/FormFieldCard";
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
 export default function CharterAdvert() {
@@ -484,6 +485,7 @@ export default function CharterAdvert() {
                                 })}
                             </Col>
                         ))}
+                        <FormFieldCard countryVisible={true} dateVisible={true} />
                     </Row>
                     <SubmitButton
                         text="Submit"

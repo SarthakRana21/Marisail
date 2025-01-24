@@ -11,6 +11,7 @@ import {
   convertUnitsInFormData,
 } from "../../services/common_functions";
 import InputComponentDual from "../InputComponentDual";
+import FormFieldCard from "../../services/FormFieldCard";
 
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -652,6 +653,7 @@ export default function TrailersAdvert() {
                 })}
               </Col>
             ))}
+            <FormFieldCard countryVisible={true} />
           </Row>
           <SubmitButton
             text="Submit"
