@@ -5,10 +5,7 @@ import cookieParser from "cookie-parser";
 import logger from "morgan";
 import authRoutes from "./index.js";
 var server = express();
-server.use(cors({
-  origin: process.env.frontend_url, // Replace with your frontend's actual port or domain
-  credentials: true,
-}));
+server.use(cors());
 server.use(logger("dev"));
 server.use(json());
 server.use(urlencoded({ extended: false }));
