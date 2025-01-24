@@ -1,1 +1,8 @@
 @import "./sass/styles.scss";
+
+.uploader__btn {
+    width: 40%;
+}
+.uploader__file {
+    width: 10%
+}
