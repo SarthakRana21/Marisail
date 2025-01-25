@@ -6,7 +6,7 @@ import logger from "morgan";
 import authRoutes from "./index.js";
 var server = express();
 const corsOptions = {
-  origin: '*',
+  origin: ['https://test.marisail.com', 'http://localhost:5173'],
   methods: ['GET', 'POST', 'PUT'], // Allow the necessary methods
 };
 server.use(cors(corsOptions));
