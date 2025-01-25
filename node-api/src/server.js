@@ -19,7 +19,12 @@ server.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', 'https://test.marisail.com');
   res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE');
   res.header('Access-Control-Allow-Headers', 'Content-Type');
-  next();
+  if (req.method === 'OPTIONS') {
+    console.log("Preflight request handling")
+    return res.sendStatus(200);
+}
+next();
+  
 });
 
 
