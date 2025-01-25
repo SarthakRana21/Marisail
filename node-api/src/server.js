@@ -6,8 +6,8 @@ import logger from "morgan";
 import authRoutes from "./index.js";
 var server = express();
 const corsOptions = {
-  origin: "*",
-  optionsSuccessStatus: 200,
+  origin: 'https://test.marisail.com',
+  methods: ['GET', 'POST', 'PUT'], // Allow the necessary methods
 };
 server.use(cors(corsOptions));
 server.use(logger("dev"));
@@ -15,17 +15,6 @@ server.use(json());
 server.use(urlencoded({ extended: false }));
 server.use(cookieParser());
 server.use("/api", authRoutes);
-server.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'https://test.marisail.com');
-  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-  if (req.method === 'OPTIONS') {
-    console.log("Preflight request handling")
-    return res.sendStatus(200);
-}
-next();
-  
-});
 
 
 // catch 404 and forward to error handler
