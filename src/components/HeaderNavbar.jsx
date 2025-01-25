@@ -55,7 +55,7 @@ const HeaderNavbar = ({ navbarRef }) => {
                   advertise a berth
                 </NavDropdown.Item>
               </NavDropdown>
-              <NavDropdown title="auction">
+              {/* <NavDropdown title="auction">
                 <NavDropdown.Item
                   as={NavLink}
                   to="/auction"
@@ -70,7 +70,7 @@ const HeaderNavbar = ({ navbarRef }) => {
                 >
                   advertise an auction
                 </NavDropdown.Item>
-              </NavDropdown>
+              </NavDropdown> */}
               <NavDropdown title="engines">
                 <NavDropdown.Item
                   as={NavLink}
@@ -135,7 +135,7 @@ const HeaderNavbar = ({ navbarRef }) => {
                   advertise an charter
                 </NavDropdown.Item>
               </NavDropdown>
-              <NavDropdown title="chandlery">
+              {/* <NavDropdown title="chandlery">
                 <NavDropdown.Item
                   as={NavLink}
                   to="/chandlery"
@@ -150,7 +150,7 @@ const HeaderNavbar = ({ navbarRef }) => {
                 >
                   advertise an chandlery
                 </NavDropdown.Item>
-              </NavDropdown>
+              </NavDropdown> */}
 
               <NavDropdown title='services'>
                 <NavDropdown.Item

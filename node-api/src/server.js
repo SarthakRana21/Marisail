@@ -5,7 +5,11 @@ import cookieParser from "cookie-parser";
 import logger from "morgan";
 import authRoutes from "./index.js";
 var server = express();
-server.use(cors());
+const corsOptions = {
+  origin: "*",
+  optionsSuccessStatus: 200,
+};
+server.use(cors(corsOptions));
 server.use(logger("dev"));
 server.use(json());
 server.use(urlencoded({ extended: false }));
