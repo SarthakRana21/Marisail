@@ -15,6 +15,13 @@ server.use(json());
 server.use(urlencoded({ extended: false }));
 server.use(cookieParser());
 server.use("/api", authRoutes);
+server.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://test.marisail.com');
+  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  next();
+});
+
 
 // catch 404 and forward to error handler
 server.get("/", (req, res) => {
