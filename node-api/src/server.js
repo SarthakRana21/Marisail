@@ -5,9 +5,13 @@ import cookieParser from "cookie-parser";
 import logger from "morgan";
 import authRoutes from "./index.js";
 var server = express();
+const allowOrigins = ['https://test.marisail.com', 'http://localhost:5173']
 const corsOptions = {
-  origin: ['https://test.marisail.com', 'http://localhost:5173'],
+  // origin: ['*'],
+  origin: allowOrigins,
   methods: ['GET', 'POST', 'PUT'], // Allow the necessary methods
+  allowedHeaders: ['Content-Type', 'Authorization'], // allowed content types
+  
 };
 server.use(cors(corsOptions));
 server.use(logger("dev"));
