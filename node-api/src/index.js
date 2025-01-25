@@ -13,7 +13,7 @@ import advertCharterRouter from "./routes/advert_charter.js";
 import advertTransportRouter from "./routes/advert_transport.js";
 import advertChandleryRouter from "./routes/advert_shop.js";
 import advertAuctionRouter from "./routes/advert_auction.js";
-import handler from "./routes/upload-media.js";
+// import handler from "./routes/upload-media.js";
 
 const router = Router();
 
@@ -46,7 +46,7 @@ router.use("/advert_chandlery", advertChandleryRouter);
 
 router.use("/advert_auction", advertAuctionRouter);
 
-router.use("/upload-media", handler); // upload-media upload
+// router.use("/upload-media", handler); // upload-media upload
 
 // Export the router
 export default router;
