@@ -9,52 +9,62 @@ const DropdownWithCheckBoxes = ({
   options,
   selectedOptions,
   setSelectedOptions,
+  onOpen,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [inputText, setInputText] = useState("");
-  const [list, setList] = useState(options);
+  const [filteredOptions, setFilteredOptions] = useState(options);
+
+  // Toggle dropdown visibility
   const handleDropdownToggle = () => {
+    if (!isOpen) {
+      onOpen(); // Call onOpen when the dropdown is opened
+    }
     setIsOpen((prev) => !prev);
   };
 
-  const inputHandler = (e) => {
-    setInputText(e.target.value);
+  // Handle search input
+  const handleInputChange = (e) => {
+    const searchText = e.target.value;
+    setInputText(searchText);
+
+    // Filter options based on search text
+    const filtered = options.filter((option) =>
+      option.toLowerCase().includes(searchText.toLowerCase())
+    );
+    setFilteredOptions(filtered);
   };
 
-  const handleOptionChange = (optionName) => {
-    if (selectedOptions[optionName] !== undefined) {
-      setSelectedOptions((prev) => {
-        delete prev[optionName];
-        return { ...prev };
-      });
-    } else {
-      setSelectedOptions((prev) => {
-        return { ...prev, [optionName]: heading };
-      });
-    }
+  // Handle checkbox selection
+  const handleOptionChange = (option, e) => {
+    e.stopPropagation(); // Stop event propagation to prevent dropdown from closing
+    setSelectedOptions((prev) => {
+      const currentSelections = prev[heading] || [];
+      const updatedSelections = currentSelections.includes(option)
+        ? currentSelections.filter((item) => item !== option) // Remove if already selected
+        : [...currentSelections, option]; // Add if not selected
+
+      return {
+        ...prev,
+        [heading]: updatedSelections,
+      };
+    });
   };
 
+  // Update filtered options when the options prop changes
   useEffect(() => {
-    if (inputText === "") {
-      setList(options);
-    } else {
-      setList(
-        options.filter((item) =>
-          item[0].toLowerCase().includes(inputText.toLowerCase())
-        )
-      );
-    }
-  }, [inputText, options]);
-  const placeholder = defaultUnit ? `Search in ${defaultUnit}..` : 'Search...';
+    setFilteredOptions(options);
+  }, [options]);
 
   return (
     <div className="custom-dropdown-container">
+      {/* Dropdown Header */}
       <div
         className="custom-dropdown-header"
         onClick={handleDropdownToggle}
         aria-expanded={isOpen}
         aria-controls="dropdown-content"
-        style={{ marginBottom: "10px" }}
+        style={{ marginBottom: "10px", cursor: "pointer" }}
       >
         {title}
         <span className={`dropdown-icon ${isOpen ? "open" : ""}`}>
@@ -74,40 +84,47 @@ const DropdownWithCheckBoxes = ({
         </span>
       </div>
 
+      {/* Dropdown Content */}
       {isOpen && (
         <div>
-          {options.length > 5 ? (
+          {/* Search Input */}
+          {options.length > 5 && (
             <input
               type="text"
-              placeholder={placeholder}
-              id="myInput"
+              placeholder={defaultUnit ? `Search in ${defaultUnit}...` : "Search..."}
+              value={inputText}
+              onChange={handleInputChange}
               style={{
                 width: "100%",
-                padding: "8px 0px 8px 14px",
-                margin: "0px 0 12px 0",
-                display: "inline-block",
-                border: "1px solid #fff",
+                padding: "8px 14px",
+                margin: "0 0 12px 0",
+                border: "1px solid #ccc",
                 borderRadius: "4px",
                 outline: "none",
-                boxSizing: "",
                 backgroundColor: "#f5f5f5",
               }}
-              value={inputText}
-              onChange={inputHandler}
-            ></input>
-          ) : null}
+            />
+          )}
+
+          {/* Options List */}
           <div id="dropdown-content" className="custom-dropdown-content">
             <div className="custom-dropdown-options">
               <Form>
-                {list.length > 0 ? (
-                  list.map((item) => (
-                    <div key={item[0]} className="custom-dropdown-option">
+                {filteredOptions.length > 0 ? (
+                  filteredOptions.map((option) => (
+                    <div
+                      key={option}
+                      className="custom-dropdown-option"
+                      onClick={(e) => e.stopPropagation()} // Prevent clicks on the option from closing the dropdown
+                    >
                       <Form.Check
                         type="checkbox"
-                        name={`checkbox-options`}
-                        label={`${item[0]}${item[1] !== undefined ? ` (${item[1]})` : ''}`}
-                        checked={Boolean(selectedOptions[item[0]])}
-                        onChange={() => handleOptionChange(item[0])}
+                        id={`checkbox-${option}`}
+                        label={option}
+                        checked={
+                          selectedOptions[heading]?.includes(option) || false
+                        }
+                        onChange={(e) => handleOptionChange(option, e)}
                       />
                     </div>
                   ))
@@ -125,14 +142,15 @@ const DropdownWithCheckBoxes = ({
   );
 };
 
+// Prop Types Validation
 DropdownWithCheckBoxes.propTypes = {
   heading: PropTypes.string.isRequired,
-  subheading: PropTypes.string,
   title: PropTypes.string.isRequired,
-  options: PropTypes.arrayOf(PropTypes.array).isRequired,
+  options: PropTypes.arrayOf(PropTypes.string).isRequired,
   selectedOptions: PropTypes.object.isRequired,
   setSelectedOptions: PropTypes.func.isRequired,
   defaultUnit: PropTypes.string,
+  onOpen: PropTypes.func.isRequired,
 };
 
 export default DropdownWithCheckBoxes;

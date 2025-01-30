@@ -49,7 +49,7 @@ searchEngineRouter.get("/engine-detail/:id", async (req, res) => {
         eps.*,
         es.*,
         et.*
-      FROM Engine_general e
+      FROM general e
       LEFT JOIN engine_condition ec ON e.engine_id = ec.engine_id
       LEFT JOIN engine_cooling ecool ON e.engine_id = ecool.engine_id
       LEFT JOIN engine_dimensions ed ON e.engine_id = ed.engine_id

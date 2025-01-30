@@ -55,6 +55,22 @@ const HeaderNavbar = ({ navbarRef }) => {
                   advertise a berth
                 </NavDropdown.Item>
               </NavDropdown>
+              {/* <NavDropdown title="auction">
+                <NavDropdown.Item
+                  as={NavLink}
+                  to="/auction"
+                  className="text-capitalize"
+                >
+                  find an auction
+                </NavDropdown.Item>
+                <NavDropdown.Item
+                  as={NavLink}
+                  to="/advert-auction"
+                  className="text-capitalize"
+                >
+                  advertise an auction
+                </NavDropdown.Item>
+              </NavDropdown> */}
               <NavDropdown title="engines">
                 <NavDropdown.Item
                   as={NavLink}
@@ -113,6 +129,39 @@ const HeaderNavbar = ({ navbarRef }) => {
                   as={NavLink}
                   to="/services"
                   className="text-capitalize"
+                >
+                  find a charter
+                </NavDropdown.Item>
+                <NavDropdown.Item
+                  as={NavLink}
+                  to="/advert-charters"
+                  className="text-capitalize"
+                >
+                  advertise an charter
+                </NavDropdown.Item>
+              </NavDropdown>
+              {/* <NavDropdown title="chandlery">
+                <NavDropdown.Item
+                  as={NavLink}
+                  to="/chandlery"
+                  className="text-capitalize"
+                >
+                  find a chandlery
+                </NavDropdown.Item>
+                <NavDropdown.Item
+                  as={NavLink}
+                  to="/advert-chandlery"
+                  className="text-capitalize"
+                >
+                  advertise an chandlery
+                </NavDropdown.Item>
+              </NavDropdown> */}
+
+              <NavDropdown title='services'>
+                <NavDropdown.Item
+                  as={NavLink}
+                  to='/services'
+                  className='text-capitalize'
                 >
                   My Engines
                 </NavDropdown.Item>
