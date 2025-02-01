@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Form } from "react-bootstrap";
 import PropTypes from "prop-types";
+import { Loader } from "rsuite";
 
 const DropdownWithCheckBoxes = ({
   defaultUnit,
@@ -10,29 +11,39 @@ const DropdownWithCheckBoxes = ({
   selectedOptions,
   setSelectedOptions,
   onOpen,
+  fetching,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [inputText, setInputText] = useState("");
   const [filteredOptions, setFilteredOptions] = useState(options);
+  const dropdownRef = useRef(null); // Ref for the scrollable container
+  const [offSet, setOffSet] = useState(0);
 
   // Toggle dropdown visibility
   const handleDropdownToggle = () => {
     if (!isOpen) {
-      onOpen(); // Call onOpen when the dropdown is opened
+      onOpen(inputText,offSet); // Call onOpen when the dropdown is opened
     }
     setIsOpen((prev) => !prev);
+  };
+
+  const handleScroll = () => {
+    if (!dropdownRef.current) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = dropdownRef.current;
+
+    // Detect if the user has scrolled to the bottom
+    if (scrollTop + clientHeight >= scrollHeight) {
+      setOffSet(prev=> prev+20)
+      console.log("Scrolled to the end");
+    }
   };
 
   // Handle search input
   const handleInputChange = (e) => {
     const searchText = e.target.value;
+    setOffSet(0);
     setInputText(searchText);
-
-    // Filter options based on search text
-    const filtered = options.filter((option) =>
-      option.toLowerCase().includes(searchText.toLowerCase())
-    );
-    setFilteredOptions(filtered);
   };
 
   // Handle checkbox selection
@@ -51,6 +62,15 @@ const DropdownWithCheckBoxes = ({
     });
   };
 
+  useEffect(() => {
+    const debounceTimeout = setTimeout(() => {
+      onOpen(inputText,offSet);
+      console.log("here debouncing", inputText);
+    }, 500); // Debounce delay of 500ms
+
+    return () => clearTimeout(debounceTimeout); // Cleanup on re-renders
+  }, [inputText,offSet]); // Depend on `inputText` and `onOpen`
+
   // Update filtered options when the options prop changes
   useEffect(() => {
     setFilteredOptions(options);
@@ -67,28 +87,42 @@ const DropdownWithCheckBoxes = ({
         style={{ marginBottom: "10px", cursor: "pointer" }}
       >
         {title}
-        <span className={`dropdown-icon ${isOpen ? "open" : ""}`}>
-          <svg
-            width="10"
-            height="10"
-            viewBox="0 0 10 10"
-            xmlns="http://www.w3.org/2000/svg"
+        <div>
+          {Object.keys(selectedOptions).length > 0 && selectedOptions[heading] && (
+            <span
+              className="count-badge"
+              style={{
+                background: "#007BFF",
+                color: "#fff",
+                padding: "5px 12px",
+                borderRadius: "15px",
+                fontSize: "14px",
+                fontWeight: "600",
+              }}
+            >
+              {selectedOptions[heading].length}
+            </span>
+          )}
+          <span
+            className={`dropdown-icon ${isOpen ? "open" : ""}`}
+            style={{
+              display: "inline-block",
+              transition: "transform 0.3s ease-in-out",
+              transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
+            }}
           >
-            <path
-              d="M1 3 L5 7 L9 3"
-              fill="none"
-              stroke="black"
-              strokeWidth="1.5"
-            />
-          </svg>
-        </span>
+            <svg width="10" height="10" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1 3 L5 7 L9 3" fill="none" stroke="black" strokeWidth="1.5" />
+            </svg>
+          </span>
+        </div>
       </div>
 
       {/* Dropdown Content */}
       {isOpen && (
         <div>
           {/* Search Input */}
-          {options.length > 5 && (
+          {/* {options.length > 5 && ( */}
             <input
               type="text"
               placeholder={defaultUnit ? `Search in ${defaultUnit}...` : "Search..."}
@@ -104,36 +138,34 @@ const DropdownWithCheckBoxes = ({
                 backgroundColor: "#f5f5f5",
               }}
             />
-          )}
+          {/* // )} */}
 
           {/* Options List */}
           <div id="dropdown-content" className="custom-dropdown-content">
-            <div className="custom-dropdown-options">
-              <Form>
-                {filteredOptions.length > 0 ? (
-                  filteredOptions.map((option) => (
-                    <div
-                      key={option}
-                      className="custom-dropdown-option"
-                      onClick={(e) => e.stopPropagation()} // Prevent clicks on the option from closing the dropdown
-                    >
-                      <Form.Check
-                        type="checkbox"
-                        id={`checkbox-${option}`}
-                        label={option}
-                        checked={
-                          selectedOptions[heading]?.includes(option) || false
-                        }
-                        onChange={(e) => handleOptionChange(option, e)}
-                      />
-                    </div>
-                  ))
-                ) : (
-                  <div className="custom-dropdown-no-results">
-                    No options available
+            <div className="custom-dropdown-options" ref={dropdownRef} onScroll={handleScroll}>
+              {filteredOptions.length > 0 ? (
+                filteredOptions.map((option) => (
+                  <div
+                    key={option}
+                    className="custom-dropdown-option"
+                    onClick={(e) => e.stopPropagation()} // Prevent clicks on the option from closing the dropdown
+                  >
+                    <Form.Check
+                      type="checkbox"
+                      id={`checkbox-${option}`}
+                      label={option}
+                      checked={selectedOptions[heading]?.includes(option) || false}
+                      onChange={(e) => handleOptionChange(option, e)}
+                    />
                   </div>
-                )}
-              </Form>
+                ))
+              ) : (
+                fetching ? (
+                  <Loader />
+                ) : (
+                  <div className="custom-dropdown-no-results">No options available</div>
+                )
+              )}
             </div>
           </div>
         </div>
@@ -151,6 +183,7 @@ DropdownWithCheckBoxes.propTypes = {
   setSelectedOptions: PropTypes.func.isRequired,
   defaultUnit: PropTypes.string,
   onOpen: PropTypes.func.isRequired,
+  fetching: PropTypes.bool.isRequired,
 };
 
 export default DropdownWithCheckBoxes;

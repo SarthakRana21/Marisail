@@ -75,14 +75,14 @@ searchBerthRouter.get("/berths", async (req, res) => {
 searchBerthRouter.put("/berths", async (req, res) => {
   let connection;
   try {
-    const { siteDetailsTable, siteDetailsColumn } = req.body;
+    const { siteDetailsTable, siteDetailsColumn, searchString,offSet=0 } = req.body;
     connection = await dbConnection.getConnection();
     console.log("Database connection established.");
 
     // Get actual table/column names from config
     const actualTable = varToTable[siteDetailsTable];
     const actualColumn = varToColumn[siteDetailsColumn];
-
+    
     // Validate config mappings
     if (!actualTable || !actualColumn) {
       return res.status(400).json({
@@ -113,13 +113,21 @@ searchBerthRouter.put("/berths", async (req, res) => {
     }
 
     // Safe query using backticks for identifiers
-    const dataQuery = `
+    let dataQuery = `
       SELECT \`${actualColumn}\`, COUNT(*) AS occurrence_cnt
       FROM \`${actualTable}\`
-      GROUP BY \`${actualColumn}\`;
     `;
 
-    const [dataResults] = await connection.query(dataQuery);
+    // Apply search filtering if searchString is provided
+    let queryParams = [];
+    if (searchString) {
+      dataQuery += ` WHERE \`${actualColumn}\` LIKE ? `;
+      queryParams.push(`%${searchString}%`);
+    }
+
+    dataQuery += ` GROUP BY \`${actualColumn}\` LIMIT 20 OFFSET ${offSet};`;
+
+    const [dataResults] = await connection.query(dataQuery, queryParams);
 
     const siteDetailsData = dataResults.map(row => row[actualColumn]);
 
@@ -146,6 +154,8 @@ searchBerthRouter.put("/berths", async (req, res) => {
     }
   }
 });
+
+
 searchBerthRouter.put("/berths/mapping", async (req, res) => {
   let connection;
   try {
@@ -225,19 +235,12 @@ searchBerthRouter.put("/berths/mapping", async (req, res) => {
     if (connection) connection.release();
   }
 });
+
 searchBerthRouter.post("/berthsData", async (req, res) => {
   let connection;
   var page = req.body.page;
-  var filter = {};
-  for (const key of Object.keys(req.body.selectedOptions)) {
-    let val = key,
-      key2 = req.body.selectedOptions[key];
-    if (filter[key2] === undefined) {
-      filter[key2] = [val];
-    } else {
-      filter[key2].push(val);
-    }
-  }
+  var filter = req.body.selectedOptions;
+
 
   try {
     connection = await dbConnection.getConnection();
@@ -245,25 +248,30 @@ searchBerthRouter.post("/berthsData", async (req, res) => {
     var required1 = "Marisail_Berth_ID, Location, Type FROM Marina_Port";
 
     var basic = `SELECT ${required1} `;
-
+    const queryParams = [];
     if (Object.keys(filter).length > 0) {
-      basic += `WHERE `;
+      var temp = `WHERE `;
+
 
       for (const key of Object.keys(filter)) {
-        var temp = `${key} IN (`;
-        for (const val of filter[key]) {
-          temp += `'${val}',`;
+        if (filter[key].length > 0) {
+          const jointValues = filter[key].map(() => '?').join(', ');
+          temp += `${varToColumn[key]} IN (${jointValues}) AND `;
+          queryParams.push(...filter[key]);
         }
-        temp = temp.slice(0, -1);
-        temp += `) OR `;
-        basic += temp;
       }
 
-      basic = basic.slice(0, -3);
+      if (temp !== `WHERE `) {
+        temp = temp.slice(0, -5); // Remove trailing AND
+        basic += temp;
+      }
     }
 
-    basic += `LIMIT 60 OFFSET ${page * 30};`;
-    const tables = await connection.query(basic);
+    basic += ` LIMIT 60 OFFSET ${page * 30};`;
+
+
+    const tables = await connection.query(basic, queryParams);
+
     return res.status(200).json({ ok: true, res: tables });
   } catch (err) {
     console.error("Error in /berthsData POST:", err);
@@ -300,6 +308,7 @@ searchBerthRouter.get("/berth-detail/:id", async (req, res) => {
     if (connection) connection.release();
   }
 });
+
 searchBerthRouter.get("/allFilters", async (req, res) => {
   let connection;
   try {
@@ -397,6 +406,7 @@ searchBerthRouter.get("/allFilters", async (req, res) => {
     if (connection) connection.release();
   }
 });
+
 searchBerthRouter.post("/filterByTable", async (req, res) => {
   const { tableName, filterColumns, filterName } = req.body;
 

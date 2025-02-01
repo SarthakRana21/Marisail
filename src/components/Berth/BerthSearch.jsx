@@ -26,6 +26,8 @@ export default function BerthSearch() {
   const [selectedTable, setSelectedTable] = useState("");
   const [selectedColumn, setSelectedColumn] = useState("");
 
+  const [fetching, setFetching] = useState(true);
+
   const toggleReducer = (state, action) => {
     switch (action.type) {
       case "TOGGLE":
@@ -225,30 +227,37 @@ export default function BerthSearch() {
 
   const URL = apiUrl + "/search_berth/";
 
-  const fetchDropdownData = async (tableKey, columnKey) => {
-    if (
-      filters[tableKey]?.[columnKey]?.length > 0 ||
-      varToScreen[columnKey]?.type === "range"
-    )
-      return;
+  const fetchDropdownData = async (tableKey, columnKey,search,offSet) => {
+    console.log("Fetching dropdown data for: if before", tableKey, columnKey,search);
 
-    console.log("Fetching dropdown data for:", tableKey, columnKey);
+    if (
+      varToScreen[columnKey]?.type === "range"
+    ){
+      
+        return;
+      
+    }
+
+    console.log("Fetching dropdown data for:", tableKey, columnKey,search);
 
     try {
       if (!varToScreen[columnKey]) {
         console.error(`Missing varToScreen mapping for ${columnKey}`);
         return;
       }
-
+      console.log("/berths Put");
+      setFetching(true);
       const response = await fetch(`${URL}berths`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           siteDetailsTable: tableKey,
           siteDetailsColumn: columnKey,
+          searchString: search,
+          offSet:offSet
         }),
       });
-
+      setFetching(false);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -268,11 +277,13 @@ export default function BerthSearch() {
       // Update the state with the cleaned data
       const setStateFunction = setStateFunctions[tableKey];
       if (setStateFunction) {
+        console.log("***********",cleanData,filters[tableKey][columnKey].length,offSet, offSet ==0)
         setStateFunction((prev) => ({
           ...prev,
-          [columnKey]: cleanData,
+          [columnKey]: offSet !== 0 ? [...prev[columnKey],...cleanData] : cleanData,
         }));
       }
+      
     } catch (err) {
       console.error("Fetch error:", err);
     }
@@ -281,6 +292,16 @@ export default function BerthSearch() {
   const [berths, setBerths] = useState([]);
 
   // Fetch berth data when filters or page changes
+  const removeFilter = (key, filter) => {
+    const oldFilter = allSelectedOptions[key] || []; // Ensure it doesn't break if key is undefined
+    const newFilter = oldFilter.filter((currFilter) => currFilter !== filter);
+
+    setAllSelectedOptions((prev) => ({
+      ...prev,
+      [key]: newFilter, // Use newFilter instead of filter
+    }));
+  };
+
   useEffect(() => {
     const fetchBerthData = async () => {
       setLoading(true);
@@ -295,6 +316,7 @@ export default function BerthSearch() {
             page: page,
           }),
         });
+        console.log("/berthsData post", allSelectedOptions);
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -319,69 +341,105 @@ export default function BerthSearch() {
   }, [allSelectedOptions, page, URL]);
 
   return (
-    <Container>
+    <Container >
       <Row>
         <Col md={3}>
           <Row>
             <h4 className="py-3">Search For Berth</h4>
           </Row>
-          <Row>
+          <Row >
             <ResetBar
               selectedTags={allSelectedOptions}
               removeTag={removeTag}
               resetTags={resetTags}
+              removeFilter={removeFilter}
             />
           </Row>
-          <Row>
-            {Object.keys(filters).map((key) => (
-              <fieldset key={key} className="mb-4">
-                <legend className="fieldset-legend">
-                  <h6 style={{ padding: "15px 0px 0px 0px" }}>
-                    {varToScreen[key]?.displayText}
-                  </h6>
-                </legend>
-                {Object.keys(filters[key]).map((key2) => {
-                  const uniqueKey = `${key}-${key2}`; // Unique key for each filter
-                  return (
-                    <Row key={uniqueKey} className="row-margin">
-                      <Col md={12}>
-                        <Form.Group>
-                          {varToScreen[key2]?.type !== "range" ? (
-                            <DropdownWithCheckBoxes
-                              onOpen={() => fetchDropdownData(key, key2)}
-                              heading={key2}
-                              title={varToScreen[key2]?.displayText}
-                              options={filters[key][key2] || []}
-                              selectedOptions={allSelectedOptions}
-                              setSelectedOptions={setAllSelectedOptions}
-                            />
-                          ) : (
-                            <RangeInput
-                              key2={key2.replace(/\s+/g, " ").trim()}
-                              title={varToScreen[key2]?.displayText}
-                              fromValue={fromValue}
-                              toValue={toValue}
-                              setFromValue={setFromValue}
-                              radioOptions={varToScreen[key2]?.radioOptions}
-                              setToValue={setToValue}
-                              selectedRadio={
-                                selectedRadios[key2] ||
-                                varToScreen[key2]?.radioOptions[0]?.value
-                              }
-                              onRadioChange={(value) =>
-                                handleRadioChange(key2, value)
-                              }
-                              isOpen={!!openStates[key2]}
-                              toggleAccordion={() => toggleAccordion(key2)}
-                            />
-                          )}
-                        </Form.Group>
-                      </Col>
-                    </Row>
-                  );
-                })}
-              </fieldset>
-            ))}
+          <Row >
+            {Object.keys(filters).map((key) => {
+
+              return (
+                <fieldset key={key} className="mb-4">
+                  <legend className="fieldset-legend">
+                    <h6
+                      style={{
+                        padding: "15px 0px",
+
+                        width: "100%",
+                        display: "flex", // Use flex display
+                        flexDirection: "row", // Arrange elements in a row
+                        justifyContent: "space-between", // Space elements evenly
+                        alignItems: "center", // Align vertically
+
+                      }}
+                    >
+                      <span>{varToScreen[key]?.displayText}</span>
+                      {/* <span
+                        className="count-badge"
+                        style={{
+                          background: "#007BFF",
+                          color: "#fff",
+                          padding: "5px 12px",
+                          borderRadius: "15px",
+                          fontSize: "14px",
+                          fontWeight: "600",
+                        }}
+                      >
+                        {allSelectedOptions[key]}
+                      </span> */}
+                    </h6>
+
+
+                  </legend>
+                  {Object.keys(filters[key]).map((key2) => {
+                    const uniqueKey = `${key}-${key2}`; // Unique key for each filter
+                    return (
+
+                      <Row key={uniqueKey} className="row-margin">
+                        <Col md={12}>
+                          <Form.Group>
+                            {varToScreen[key2]?.type !== "range" ? (
+                              <DropdownWithCheckBoxes
+                                onOpen={(search,offSet) => fetchDropdownData(key, key2,search,offSet)}
+                                heading={key2}
+                                title={varToScreen[key2]?.displayText}
+                                options={filters[key][key2] || []}
+                                selectedOptions={allSelectedOptions}
+                                setSelectedOptions={setAllSelectedOptions}
+                                fetching={fetching}
+                              />
+                            ) : (
+                              <RangeInput
+                                key2={key2.replace(/\s+/g, " ").trim()}
+                                title={varToScreen[key2]?.displayText}
+                                fromValue={fromValue}
+                                toValue={toValue}
+                                setFromValue={setFromValue}
+                                radioOptions={varToScreen[key2]?.radioOptions}
+                                setToValue={setToValue}
+                                selectedRadio={
+                                  selectedRadios[key2] ||
+                                  varToScreen[key2]?.radioOptions[0]?.value
+                                }
+                                onRadioChange={(value) =>
+                                  handleRadioChange(key2, value)
+                                }
+                                isOpen={!!openStates[key2]}
+                                toggleAccordion={() => toggleAccordion(key2)}
+                              />
+                            )}
+                          </Form.Group>
+                        </Col>
+                      </Row>
+
+
+                    );
+                  })}
+                </fieldset>
+              )
+            }
+
+            )}
           </Row>
         </Col>
         <Col md={9}>
@@ -401,7 +459,7 @@ export default function BerthSearch() {
           {loading ? (
             <Loader />
           ) : (
-            <Row>
+            <Row >
               {berths.length === 0 ? (
                 <Col md={12}>
                   <p>No Results Found</p>
