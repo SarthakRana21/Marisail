@@ -35,7 +35,7 @@ server.use((req, res, next) => {
   res.status(404).json({ message: 'Not Found' });
 });
 server.use((req, res, next) => {
-  console.log(`Incoming request: ${req.method} ${req.url}`);
+  // console.log(`Incoming request: ${req.method} ${req.url}`);
   next();
 });
 // usin .env PORT value or the pm2 its ok

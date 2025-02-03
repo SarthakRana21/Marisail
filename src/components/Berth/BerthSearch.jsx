@@ -11,7 +11,6 @@ import { v4 as uuidv4 } from "uuid";
 import { setAllFilters, getAllFilters } from "../../store/filtersSlice";
 import { fetchData } from "../../fatch/fatch";
 import { useSelector, useDispatch } from "react-redux";
-import { api } from "../../api/api";
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
 export default function BerthSearch() {
@@ -227,18 +226,14 @@ export default function BerthSearch() {
 
   const URL = apiUrl + "/search_berth/";
 
-  const fetchDropdownData = async (tableKey, columnKey,search,offSet) => {
-    console.log("Fetching dropdown data for: if before", tableKey, columnKey,search);
+  const fetchDropdownData = async (tableKey, columnKey, search, offSet) => {
+    console.log("Fetching dropdown data for: if before", tableKey, columnKey, search);
 
-    if (
-      varToScreen[columnKey]?.type === "range"
-    ){
-      
-        return;
-      
-    }
+    if (varToScreen[columnKey]?.type === "range" || tableKey==='notDefined') return;
 
-    console.log("Fetching dropdown data for:", tableKey, columnKey,search);
+    
+
+    console.log("Fetching dropdown data for:", tableKey, columnKey, search);
 
     try {
       if (!varToScreen[columnKey]) {
@@ -254,7 +249,8 @@ export default function BerthSearch() {
           siteDetailsTable: tableKey,
           siteDetailsColumn: columnKey,
           searchString: search,
-          offSet:offSet
+          offSet: offSet,
+          appliedFilters: allSelectedOptions
         }),
       });
       setFetching(false);
@@ -270,24 +266,87 @@ export default function BerthSearch() {
       }
 
       // Clean and validate the data
-      const cleanData = data.siteDetails.data
+      var cleanData = data.siteDetails.data
         .filter(Boolean) // Remove null/undefined values
-        .map((value) => value.toString().trim()); // Convert to string and trim whitespace
+        .map((value) => value); // Convert to string and trim whitespace
 
       // Update the state with the cleaned data
+      // console.log(data,"Clean********************************")
       const setStateFunction = setStateFunctions[tableKey];
       if (setStateFunction) {
-        console.log("***********",cleanData,filters[tableKey][columnKey].length,offSet, offSet ==0)
+        // console.log("***********",cleanData,filters[tableKey][columnKey].length,offSet, offSet ==0)
         setStateFunction((prev) => ({
           ...prev,
-          [columnKey]: offSet !== 0 ? [...prev[columnKey],...cleanData] : cleanData,
+          [columnKey]: offSet !== 0 ? [...prev[columnKey], ...cleanData] : cleanData,
         }));
       }
-      
+
     } catch (err) {
       console.error("Fetch error:", err);
     }
   };
+
+
+  const fetchDropdownCounts = async()=>{
+    const fetchDropdownData = async (tableKey, columnKey, search, offSet) => {
+      console.log("Fetching dropdown data for: if before", tableKey, columnKey, search);
+  
+      if (varToScreen[columnKey]?.type === "range") {return;}
+  
+      console.log("Fetching dropdown data for:", tableKey, columnKey, search);
+  
+      try {
+        if (!varToScreen[columnKey]) {
+          console.error(`Missing varToScreen mapping for ${columnKey}`);
+          return;
+        }
+        console.log("/berths Put");
+        setFetching(true);
+        const response = await fetch(`${URL}berths`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            siteDetailsTable: tableKey,
+            siteDetailsColumn: columnKey,
+            searchString: search,
+            offSet: offSet,
+            
+          }),
+        });
+        setFetching(false);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+  
+        const data = await response.json();
+  
+        if (!data?.ok || !data?.siteDetails?.data) {
+          console.error("Invalid response format:", data);
+          return;
+        }
+  
+        // Clean and validate the data
+        var cleanData = data.siteDetails.data
+          .filter(Boolean) // Remove null/undefined values
+          .map((value) => value); // Convert to string and trim whitespace
+  
+        // Update the state with the cleaned data
+        // console.log(data,"Clean********************************")
+        const setStateFunction = setStateFunctions[tableKey];
+        if (setStateFunction) {
+          // console.log("***********",cleanData,filters[tableKey][columnKey].length,offSet, offSet ==0)
+          setStateFunction((prev) => ({
+            ...prev,
+            [columnKey]: offSet !== 0 ? [...prev[columnKey], ...cleanData] : cleanData,
+          }));
+        }
+  
+      } catch (err) {
+        console.error("Fetch error:", err);
+      }
+    };
+  
+  }
 
   const [berths, setBerths] = useState([]);
 
@@ -342,19 +401,20 @@ export default function BerthSearch() {
 
   return (
     <Container >
+      <Row >
+        <ResetBar
+          selectedTags={allSelectedOptions}
+          removeTag={removeTag}
+          resetTags={resetTags}
+          removeFilter={removeFilter}
+        />
+      </Row>
       <Row>
         <Col md={3}>
           <Row>
             <h4 className="py-3">Search For Berth</h4>
           </Row>
-          <Row >
-            <ResetBar
-              selectedTags={allSelectedOptions}
-              removeTag={removeTag}
-              resetTags={resetTags}
-              removeFilter={removeFilter}
-            />
-          </Row>
+
           <Row >
             {Object.keys(filters).map((key) => {
 
@@ -400,7 +460,7 @@ export default function BerthSearch() {
                           <Form.Group>
                             {varToScreen[key2]?.type !== "range" ? (
                               <DropdownWithCheckBoxes
-                                onOpen={(search,offSet) => fetchDropdownData(key, key2,search,offSet)}
+                                onOpen={(search, offSet) => fetchDropdownData(key, key2, search, offSet,allSelectedOptions)}
                                 heading={key2}
                                 title={varToScreen[key2]?.displayText}
                                 options={filters[key][key2] || []}

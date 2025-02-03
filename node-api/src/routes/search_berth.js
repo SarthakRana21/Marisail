@@ -8,6 +8,31 @@ import {
 
 const searchBerthRouter = Router();
 
+const withDatabaseConnection = async (callback) => {
+  let connection;
+  try {
+    connection = await dbConnection.getConnection();
+    return await callback(connection);
+  } catch (err) {
+    console.error("Database error:", err);
+    throw err;
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
+const validateMappings = (tableKey, columnKey) => {
+  const actualTable = varToTable[tableKey];
+  const actualColumn = varToColumn[columnKey];
+
+  if (!actualTable || !actualColumn) {
+    throw new Error("Invalid table or column mapping configuration");
+  }
+
+  return { actualTable, actualColumn };
+};
+
+
 searchBerthRouter.get("/berths", async (req, res) => {
   let connection;
   try {
@@ -75,68 +100,60 @@ searchBerthRouter.get("/berths", async (req, res) => {
 searchBerthRouter.put("/berths", async (req, res) => {
   let connection;
   try {
-    const { siteDetailsTable, siteDetailsColumn, searchString,offSet=0 } = req.body;
-    connection = await dbConnection.getConnection();
-    console.log("Database connection established.");
+    const { siteDetailsTable, siteDetailsColumn, searchString, offSet = 0, appliedFilters } = req.body;
 
-    // Get actual table/column names from config
-    const actualTable = varToTable[siteDetailsTable];
-    const actualColumn = varToColumn[siteDetailsColumn];
-    
-    // Validate config mappings
-    if (!actualTable || !actualColumn) {
-      return res.status(400).json({
-        ok: false,
-        message: "Invalid table or column mapping configuration"
-      });
-    }
+    const dataResults = await withDatabaseConnection(async (connection) => {
+      const actualTable = varToTable[siteDetailsTable];
+      const actualColumn = varToColumn[siteDetailsColumn];
 
-    // Parameterized column check query
-    const columnCheckQuery = `
-      SELECT column_name
-      FROM information_schema.columns
-      WHERE table_name = ?
-      AND table_schema = 'marisail'
-      AND column_name = ?;
-    `;
+      // Validate config mappings
+      if (!actualTable || !actualColumn) {
+        throw new Error("Invalid table or column mapping configuration");
+      }
 
-    const [columnCheck] = await connection.query(columnCheckQuery, [
-      actualTable,
-      actualColumn
-    ]);
+      // Parameterized column check query
+      const columnCheckQuery = `
+        SELECT column_name
+        FROM information_schema.columns
+        WHERE table_name = ?
+        AND table_schema = 'marisail'
+        AND column_name = ?;
+      `;
 
-    if (columnCheck.length === 0) {
-      return res.status(400).json({
-        ok: false,
-        message: `Column '${actualColumn}' does not exist in table '${actualTable}'.`
-      });
-    }
+      const [columnCheck] = await connection.query(columnCheckQuery, [
+        actualTable,
+        actualColumn
+      ]);
 
-    // Safe query using backticks for identifiers
-    let dataQuery = `
-      SELECT \`${actualColumn}\`, COUNT(*) AS occurrence_cnt
-      FROM \`${actualTable}\`
-    `;
+      if (columnCheck.length === 0) {
+        throw new Error(`Column '${actualColumn}' does not exist in table '${actualTable}'.`);
+      }
 
-    // Apply search filtering if searchString is provided
-    let queryParams = [];
-    if (searchString) {
-      dataQuery += ` WHERE \`${actualColumn}\` LIKE ? `;
-      queryParams.push(`%${searchString}%`);
-    }
+      // Safe query using backticks for identifiers
+      let dataQuery = `
+        SELECT \`${actualColumn}\`, COUNT(*) AS occurrence_cnt
+        FROM \`${actualTable}\`
+      `;
 
-    dataQuery += ` GROUP BY \`${actualColumn}\` LIMIT 20 OFFSET ${offSet};`;
+      // Apply search filtering if searchString is provided
+      let queryParams = [];
+      if (searchString) {
+        dataQuery += ` WHERE \`${actualColumn}\` LIKE ? `;
+        queryParams.push(`%${searchString}%`);
+      }
 
-    const [dataResults] = await connection.query(dataQuery, queryParams);
+      dataQuery += ` GROUP BY \`${actualColumn}\` LIMIT 20 OFFSET ${offSet};`;
+      const [result] = await connection.query(dataQuery, queryParams);
+      await countDropDown(connection, actualColumn, siteDetailsColumn, appliedFilters, result)
+      return result;
+    });
 
-    const siteDetailsData = dataResults.map(row => row[actualColumn]);
+
 
     res.status(200).json({
       ok: true,
       siteDetails: {
-        table: actualTable,
-        column: actualColumn,
-        data: siteDetailsData
+        data: dataResults
       }
     });
 
@@ -154,7 +171,6 @@ searchBerthRouter.put("/berths", async (req, res) => {
     }
   }
 });
-
 
 searchBerthRouter.put("/berths/mapping", async (req, res) => {
   let connection;
@@ -309,218 +325,107 @@ searchBerthRouter.get("/berth-detail/:id", async (req, res) => {
   }
 });
 
-searchBerthRouter.get("/allFilters", async (req, res) => {
-  let connection;
-  try {
-    connection = await dbConnection.getConnection();
+// // Endpoint to fetch dynamic counts for dropdowns
+// searchBerthRouter.post("/dropdown-counts", async (req, res) => {
+//   try {
+//     const { tableKey, columnKey, selectedFilters } = req.body;
 
-    const filtersConfig = {
-      // Site Details
-      siteDetails: { table: varToTable.siteDetails, column: varToColumn.siteDetails },
-      termsAndConditions: { table: varToTable.siteDetails, column: varToColumn.termsAndConditions },
-      type: { table: varToTable.siteDetails, column: varToColumn.type },
-      marinaName: { table: varToTable.siteDetails, column: varToColumn.marinaName },
-      location: { table: varToTable.siteDetails, column: varToColumn.location },
-      ownership: { table: varToTable.siteDetails, column: varToColumn.ownership },
-      yearEstablished: { table: varToTable.siteDetails, column: varToColumn.yearEstablished },
-      operatingHours: { table: varToTable.siteDetails, column: varToColumn.operatingHours },
-      contactDetails: { table: varToTable.siteDetails, column: varToColumn.contactDetails },
-      seasonalOperation: { table: varToTable.siteDetails, column: varToColumn.seasonalOperation },
-      languageServices: { table: varToTable.siteDetails, column: varToColumn.languageServices },
+//     // Validate table and column mappings
+//     const { actualTable, actualColumn } = validateMappings(tableKey, columnKey);
 
-      // General Information
-      dockTypes: { table: varToTable.generalInformation, column: varToColumn.dockTypes },
-      numberOfDocks: { table: varToTable.generalInformation, column: varToColumn.numberOfDocks },
-      boatSlipSizes: { table: varToTable.generalInformation, column: varToColumn.boatSlipSizes },
-      numberOfBerthsAvailable: { table: varToTable.generalInformation, column: varToColumn.numberOfBerthsAvailable },
-      length: { table: varToTable.generalInformation, column: varToColumn.length },
-      beam: { table: varToTable.generalInformation, column: varToColumn.beam },
-      draft: { table: varToTable.generalInformation, column: varToColumn.draft },
-      slipWidth: { table: varToTable.generalInformation, column: varToColumn.slipWidth },
-      slipLength: { table: varToTable.generalInformation, column: varToColumn.slipLength },
-      mooringType: { table: varToTable.generalInformation, column: varToColumn.mooringType },
-      tideRange: { table: varToTable.generalInformation, column: varToColumn.tideRange },
+//     const data = await withDatabaseConnection(async (connection) => {
+//       // Build the WHERE clause based on selected filters
+//       let whereClause = "";
+//       if (selectedFilters && Object.keys(selectedFilters).length > 0) {
+//         whereClause = "WHERE " + Object.entries(selectedFilters)
+//           .map(([filterColumn, filterValues]) => {
+//             const actualFilterColumn = varToColumn[filterColumn];
+//             return `\`${actualFilterColumn}\` IN (${filterValues.map(val => `'${val}'`).join(",")})`;
+//           })
+//           .join(" AND ");
+//       }
 
-      // Amenities & Services
-      storage: { table: varToTable.amenitiesAndServices, column: varToColumn.storage },
-      electricityAvailable: { table: varToTable.amenitiesAndServices, column: varToColumn.electricityAvailable },
-      waterSupply: { table: varToTable.amenitiesAndServices, column: varToColumn.waterSupply },
-      wifiAvailability: { table: varToTable.amenitiesAndServices, column: varToColumn.wifiAvailability },
-      carParking: { table: varToTable.amenitiesAndServices, column: varToColumn.carParking },
-      conciergeServices: { table: varToTable.amenitiesAndServices, column: varToColumn.conciergeServices },
-      businessServices: { table: varToTable.amenitiesAndServices, column: varToColumn.businessServices },
-      conferenceRooms: { table: varToTable.amenitiesAndServices, column: varToColumn.conferenceRooms },
+//       // Fetch data with counts, filtered by selected filters
+//       const query = `
+//         SELECT \`${actualColumn}\`, COUNT(*) AS count
+//         FROM \`${actualTable}\`
+//         ${whereClause}
+//         GROUP BY \`${actualColumn}\`;
+//       `;
+//       console.log(query);
+//       return {};
+//       // return executeQuery(connection, query);
+//     });
 
-      // Family Facilities
-      laundryFacilities: { table: varToTable.familyFacilities, column: varToColumn.laundryFacilities },
-      restaurant: { table: varToTable.familyFacilities, column: varToColumn.restaurant },
-      bar: { table: varToTable.familyFacilities, column: varToColumn.bar },
-      shoppingFacilities: { table: varToTable.familyFacilities, column: varToColumn.shoppingFacilities },
-      retailShops: { table: varToTable.familyFacilities, column: varToColumn.retailShops },
-      hospitalityServices: { table: varToTable.familyFacilities, column: varToColumn.hospitalityServices },
-      clubhouseAccess: { table: varToTable.familyFacilities, column: varToColumn.clubhouseAccess },
-      swimmingPool: { table: varToTable.familyFacilities, column: varToColumn.swimmingPool },
-      fitnessCenter: { table: varToTable.familyFacilities, column: varToColumn.fitnessCenter },
-      marinaStore: { table: varToTable.familyFacilities, column: varToColumn.marinaStore },
-      chandlery: { table: varToTable.familyFacilities, column: varToColumn.chandlery },
-      laundryServices: { table: varToTable.familyFacilities, column: varToColumn.laundryServices },
-      gymFacilities: { table: varToTable.familyFacilities, column: varToColumn.gymFacilities },
-      sanitationnFacilities: { table: varToTable.familyFacilities, column: varToColumn.sanitationnFacilities },
-      familyFriendlyAmenities: { table: varToTable.familyFacilities, column: varToColumn.familyFriendlyAmenities },
-      petFriendlyServices: { table: varToTable.familyFacilities, column: varToColumn.petFriendlyServices },
-      iceAvailability: { table: varToTable.familyFacilities, column: varToColumn.iceAvailability },
-      picnicAndBBQAreas: { table: varToTable.familyFacilities, column: varToColumn.picnicAndBBQAreas },
-      childrensPlayArea: { table: varToTable.familyFacilities, column: varToColumn.childrensPlayArea },
+//     // Return the data with counts
+//     res.status(200).json({ ok: true, data });
+//   } catch (err) {
+//     console.error("Error in /dropdown-counts POST:", err);
+//     res.status(500).json({ ok: false, message: err.message });
+//   }
+// });
 
-      // Financial Information
-      currency: { table: varToTable.financialInformation, column: varToColumn.currency },
-    };
 
-    const queries = [];
-    for (const filterKey in filtersConfig) {
-      const { table, column } = filtersConfig[filterKey];
-      if (!table || !column) {
-        console.warn(`Invalid table or column for filter: ${filterKey}`);
-        continue;
-      }
-      const query = `SELECT \`${column}\`, COUNT(*) AS occurrence_cnt FROM \`${table}\` GROUP BY \`${column}\`;`;
-      console.log(`Executing query for ${filterKey}: ${query}`);
-      queries.push(connection.query(query));
+const countDropDown = async (connection, actualColumn, currentcolumn, appliedFilters, result) => {
+  delete appliedFilters[currentcolumn];
+  if (!result || result.length === 0) return;
+
+  var wherePart = "";
+
+  for (const key of Object.keys(appliedFilters)) {
+    var columnKey = varToColumn[key];
+    if (appliedFilters[key].length === 0) continue;
+    wherePart += '(';
+    for (const value of appliedFilters[key]) {
+      if (columnKey === "Location") columnKey = "mp.Location";
+      wherePart += ` ${columnKey} = '${value}' OR`;
     }
-
-    const results = await Promise.all(queries);
-
-    const filterData = {};
-    Object.keys(filtersConfig).forEach((filterKey, index) => {
-      filterData[filterKey] = results[index][0];
-    });
-
-    return res.status(200).json({
-      ok: true,
-      filters: filterData
-    });
-  } catch (err) {
-    console.error("Error in /allFilters:", err);
-    return res.status(500).json({ ok: false, message: err.message });
-  } finally {
-    if (connection) connection.release();
+    wherePart = wherePart.slice(0, -3);
+    wherePart += ') AND ';
   }
-});
-
-searchBerthRouter.post("/filterByTable", async (req, res) => {
-  const { tableName, filterColumns, filterName } = req.body;
-
-  // Validate request payload
-  if (!tableName || !filterColumns || !filterName) {
-    return res.status(400).json({ ok: false, message: "All fields (tableName, filterColumns, filterName) are required." });
+  wherePart = wherePart.slice(0, -4);
+  if (wherePart !== "") wherePart = `WHERE ${wherePart}`;
+  var sumString = "";
+  const diffValueOfResult = result.map((obj) => obj[actualColumn]);
+  for (const obj of diffValueOfResult) {
+    sumString += `SUM(CASE WHEN ${actualColumn === "Location" ? "mp.Location" : actualColumn} = '${obj}' THEN 1 ELSE 0 END) AS \`${obj}\`,`;
   }
 
-  let connection;
-  try {
-    // Define filtersConfig
-    const filtersConfig = {
-      // Site Details
-      siteDetails: { table: varToTable.siteDetails, column: varToColumn.siteDetails },
-      termsAndConditions: { table: varToTable.siteDetails, column: varToColumn.termsAndConditions },
-      type: { table: varToTable.siteDetails, column: varToColumn.type },
-      marinaName: { table: varToTable.siteDetails, column: varToColumn.marinaName },
-      location: { table: varToTable.siteDetails, column: varToColumn.location },
-      ownership: { table: varToTable.siteDetails, column: varToColumn.ownership },
-      yearEstablished: { table: varToTable.siteDetails, column: varToColumn.yearEstablished },
-      operatingHours: { table: varToTable.siteDetails, column: varToColumn.operatingHours },
-      contactDetails: { table: varToTable.siteDetails, column: varToColumn.contactDetails },
-      seasonalOperation: { table: varToTable.siteDetails, column: varToColumn.seasonalOperation },
-      languageServices: { table: varToTable.siteDetails, column: varToColumn.languageServices },
 
-      // General Information
-      dockTypes: { table: varToTable.generalInformation, column: varToColumn.dockTypes },
-      numberOfDocks: { table: varToTable.generalInformation, column: varToColumn.numberOfDocks },
-      boatSlipSizes: { table: varToTable.generalInformation, column: varToColumn.boatSlipSizes },
-      numberOfBerthsAvailable: { table: varToTable.generalInformation, column: varToColumn.numberOfBerthsAvailable },
-      length: { table: varToTable.generalInformation, column: varToColumn.length },
-      beam: { table: varToTable.generalInformation, column: varToColumn.beam },
-      draft: { table: varToTable.generalInformation, column: varToColumn.draft },
-      slipWidth: { table: varToTable.generalInformation, column: varToColumn.slipWidth },
-      slipLength: { table: varToTable.generalInformation, column: varToColumn.slipLength },
-      mooringType: { table: varToTable.generalInformation, column: varToColumn.mooringType },
-      tideRange: { table: varToTable.generalInformation, column: varToColumn.tideRange },
 
-      // Amenities & Services
-      storage: { table: varToTable.amenitiesAndServices, column: varToColumn.storage },
-      electricityAvailable: { table: varToTable.amenitiesAndServices, column: varToColumn.electricityAvailable },
-      waterSupply: { table: varToTable.amenitiesAndServices, column: varToColumn.waterSupply },
-      wifiAvailability: { table: varToTable.amenitiesAndServices, column: varToColumn.wifiAvailability },
-      carParking: { table: varToTable.amenitiesAndServices, column: varToColumn.carParking },
-      conciergeServices: { table: varToTable.amenitiesAndServices, column: varToColumn.conciergeServices },
-      businessServices: { table: varToTable.amenitiesAndServices, column: varToColumn.businessServices },
-      conferenceRooms: { table: varToTable.amenitiesAndServices, column: varToColumn.conferenceRooms },
 
-      // Family Facilities
-      laundryFacilities: { table: varToTable.familyFacilities, column: varToColumn.laundryFacilities },
-      restaurant: { table: varToTable.familyFacilities, column: varToColumn.restaurant },
-      bar: { table: varToTable.familyFacilities, column: varToColumn.bar },
-      shoppingFacilities: { table: varToTable.familyFacilities, column: varToColumn.shoppingFacilities },
-      retailShops: { table: varToTable.familyFacilities, column: varToColumn.retailShops },
-      hospitalityServices: { table: varToTable.familyFacilities, column: varToColumn.hospitalityServices },
-      clubhouseAccess: { table: varToTable.familyFacilities, column: varToColumn.clubhouseAccess },
-      swimmingPool: { table: varToTable.familyFacilities, column: varToColumn.swimmingPool },
-      fitnessCenter: { table: varToTable.familyFacilities, column: varToColumn.fitnessCenter },
-      marinaStore: { table: varToTable.familyFacilities, column: varToColumn.marinaStore },
-      chandlery: { table: varToTable.familyFacilities, column: varToColumn.chandlery },
-      laundryServices: { table: varToTable.familyFacilities, column: varToColumn.laundryServices },
-      gymFacilities: { table: varToTable.familyFacilities, column: varToColumn.gymFacilities },
-      sanitationnFacilities: { table: varToTable.familyFacilities, column: varToColumn.sanitationnFacilities },
-      familyFriendlyAmenities: { table: varToTable.familyFacilities, column: varToColumn.familyFriendlyAmenities },
-      petFriendlyServices: { table: varToTable.familyFacilities, column: varToColumn.petFriendlyServices },
-      iceAvailability: { table: varToTable.familyFacilities, column: varToColumn.iceAvailability },
-      picnicAndBBQAreas: { table: varToTable.familyFacilities, column: varToColumn.picnicAndBBQAreas },
-      childrensPlayArea: { table: varToTable.familyFacilities, column: varToColumn.childrensPlayArea },
+  var query = `SELECT ${sumString.slice(0, -1)} FROM Marina_Port mp
+LEFT JOIN Berths b ON mp.Marisail_Berth_ID = b.Marisail_Berth_ID
+LEFT JOIN Amenities a ON mp.Marisail_Berth_ID = a.Marisail_Berth_ID
+LEFT JOIN Family f ON mp.Marisail_Berth_ID = f.Marisail_Berth_ID
+LEFT JOIN Local_Area la ON mp.Marisail_Berth_ID = la.Marisail_Berth_ID
+LEFT JOIN Berths_Features bf ON mp.Marisail_Berth_ID = bf.Marisail_Berth_ID
+LEFT JOIN Events e ON mp.Marisail_Berth_ID = e.Marisail_Berth_ID
+LEFT JOIN Operations o ON mp.Marisail_Berth_ID = o.Marisail_Berth_ID
+LEFT JOIN Repairs r ON mp.Marisail_Berth_ID = r.Marisail_Berth_ID
+LEFT JOIN Accessibility acc ON mp.Marisail_Berth_ID = acc.Marisail_Berth_ID
+LEFT JOIN Connectivity c ON mp.Marisail_Berth_ID = c.Marisail_Berth_ID
+LEFT JOIN Environment env ON mp.Marisail_Berth_ID = env.Marisail_Berth_ID
+LEFT JOIN Safety s ON mp.Marisail_Berth_ID = s.Marisail_Berth_ID
+LEFT JOIN Legal l ON mp.Marisail_Berth_ID = l.Marisail_Berth_ID
+LEFT JOIN Insurance ins ON mp.Marisail_Berth_ID = ins.Marisail_Berth_ID
+LEFT JOIN Financial fin ON mp.Marisail_Berth_ID = fin.Marisail_Berth_ID
+LEFT JOIN Pricing p ON mp.Marisail_Berth_ID = p.Marisail_Berth_ID
+LEFT JOIN Payment bp ON mp.Marisail_Berth_ID = bp.Marisail_Berth_ID 
+${wherePart}
+;`;
 
-      // Financial Information
-      currency: { table: varToTable.financialInformation, column: varToColumn.currency },
-    };
+  const [check] = await connection.query(query, []);
+  result.map(item => {
+    // Find the matching value from the check array
+    const itemCount = check[0][item[actualColumn]];
 
-    // Validate filterName against filtersConfig
-    if (!filtersConfig[filterName]) {
-      return res.status(400).json({ ok: false, message: "Invalid filter name." });
+    if (itemCount) {
+      // Add the check value to occurrence_cnt
+      item.occurrence_cnt = parseInt(itemCount);
     }
+    return item;
+  });
 
-    // Ensure the tableName matches the expected table in the filter config
-    const filterConfig = filtersConfig[filterName];
-    if (filterConfig.table !== tableName) {
-      return res.status(400).json({ ok: false, message: "Invalid table for the given filterName." });
-    }
-
-    connection = await dbConnection.getConnection();
-
-    // Prepare and execute query for the requested columns
-    const queries = filterColumns.map(col => {
-      if (col !== filterConfig.column) {
-        return null;
-      }
-      return `SELECT \`${col}\`, COUNT(*) AS occurrence_cnt FROM \`${tableName}\` GROUP BY \`${col}\`;`;
-    }).filter(query => query !== null);
-
-    const results = await Promise.all(queries.map(query => connection.query(query)));
-
-    // Prepare the response data
-    const responseData = {};
-    filterColumns.forEach((col, index) => {
-      responseData[col] = results[index];
-    });
-
-    return res.status(200).json({
-      ok: true,
-      data: responseData,
-    });
-
-  } catch (err) {
-    console.error("Error in /filterByTable:", err);
-    return res.status(500).json({ ok: false, message: err.message });
-  } finally {
-    if (connection) connection.release();
-  }
-});
-
-
+}
 export default searchBerthRouter;
