@@ -5,7 +5,7 @@ import RangeInput from "../RangeInput";
 import Loader from "../Loader";
 import BerthCard from "../BerthCard";
 import ResetBar from "../ResetBar";
-import { varToScreen } from "./BerthInfo";
+import { varToDb, varToScreen } from "./BerthInfo";
 import { varToTable, varToColumn } from "../../config/berthSearchConfig";
 import { v4 as uuidv4 } from "uuid";
 import { setAllFilters, getAllFilters } from "../../store/filtersSlice";
@@ -227,14 +227,8 @@ export default function BerthSearch() {
   const URL = apiUrl + "/search_berth/";
 
   const fetchDropdownData = async (tableKey, columnKey, search, offSet) => {
-    console.log("Fetching dropdown data for: if before", tableKey, columnKey, search);
-
-    if (varToScreen[columnKey]?.type === "range" || tableKey==='notDefined') return;
-
-    
-
-    console.log("Fetching dropdown data for:", tableKey, columnKey, search);
-
+    if (varToScreen[columnKey]?.type === "range" || tableKey === "notDefined")
+      return;
     try {
       if (!varToScreen[columnKey]) {
         console.error(`Missing varToScreen mapping for ${columnKey}`);
@@ -250,7 +244,7 @@ export default function BerthSearch() {
           siteDetailsColumn: columnKey,
           searchString: search,
           offSet: offSet,
-          appliedFilters: allSelectedOptions
+          appliedFilters: allSelectedOptions,
         }),
       });
       setFetching(false);
@@ -277,76 +271,80 @@ export default function BerthSearch() {
         // console.log("***********",cleanData,filters[tableKey][columnKey].length,offSet, offSet ==0)
         setStateFunction((prev) => ({
           ...prev,
-          [columnKey]: offSet !== 0 ? [...prev[columnKey], ...cleanData] : cleanData,
+          [columnKey]:
+            offSet !== 0 ? [...prev[columnKey], ...cleanData] : cleanData,
         }));
       }
-
     } catch (err) {
       console.error("Fetch error:", err);
     }
   };
 
+  // const fetchDropdownCounts = async () => {
+  //   const fetchDropdownData = async (tableKey, columnKey, search, offSet) => {
+  //     console.log(
+  //       "Fetching dropdown data for: if before",
+  //       tableKey,
+  //       columnKey,
+  //       search
+  //     );
 
-  const fetchDropdownCounts = async()=>{
-    const fetchDropdownData = async (tableKey, columnKey, search, offSet) => {
-      console.log("Fetching dropdown data for: if before", tableKey, columnKey, search);
-  
-      if (varToScreen[columnKey]?.type === "range") {return;}
-  
-      console.log("Fetching dropdown data for:", tableKey, columnKey, search);
-  
-      try {
-        if (!varToScreen[columnKey]) {
-          console.error(`Missing varToScreen mapping for ${columnKey}`);
-          return;
-        }
-        console.log("/berths Put");
-        setFetching(true);
-        const response = await fetch(`${URL}berths`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            siteDetailsTable: tableKey,
-            siteDetailsColumn: columnKey,
-            searchString: search,
-            offSet: offSet,
-            
-          }),
-        });
-        setFetching(false);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-  
-        const data = await response.json();
-  
-        if (!data?.ok || !data?.siteDetails?.data) {
-          console.error("Invalid response format:", data);
-          return;
-        }
-  
-        // Clean and validate the data
-        var cleanData = data.siteDetails.data
-          .filter(Boolean) // Remove null/undefined values
-          .map((value) => value); // Convert to string and trim whitespace
-  
-        // Update the state with the cleaned data
-        // console.log(data,"Clean********************************")
-        const setStateFunction = setStateFunctions[tableKey];
-        if (setStateFunction) {
-          // console.log("***********",cleanData,filters[tableKey][columnKey].length,offSet, offSet ==0)
-          setStateFunction((prev) => ({
-            ...prev,
-            [columnKey]: offSet !== 0 ? [...prev[columnKey], ...cleanData] : cleanData,
-          }));
-        }
-  
-      } catch (err) {
-        console.error("Fetch error:", err);
-      }
-    };
-  
-  }
+  //     if (varToScreen[columnKey]?.type === "range") {
+  //       return;
+  //     }
+
+  //     console.log("Fetching dropdown data for:", tableKey, columnKey, search);
+
+  //     try {
+  //       if (!varToScreen[columnKey]) {
+  //         console.error(`Missing varToScreen mapping for ${columnKey}`);
+  //         return;
+  //       }
+  //       console.log("/berths Put");
+  //       setFetching(true);
+  //       const response = await fetch(`${URL}berths`, {
+  //         method: "PUT",
+  //         headers: { "Content-Type": "application/json" },
+  //         body: JSON.stringify({
+  //           siteDetailsTable: tableKey,
+  //           siteDetailsColumn: columnKey,
+  //           searchString: search,
+  //           offSet: offSet,
+  //         }),
+  //       });
+  //       setFetching(false);
+  //       if (!response.ok) {
+  //         throw new Error(`HTTP error! status: ${response.status}`);
+  //       }
+
+  //       const data = await response.json();
+
+  //       if (!data?.ok || !data?.siteDetails?.data) {
+  //         console.error("Invalid response format:", data);
+  //         return;
+  //       }
+
+  //       // Clean and validate the data
+  //       var cleanData = data.siteDetails.data
+  //         .filter(Boolean) // Remove null/undefined values
+  //         .map((value) => value); // Convert to string and trim whitespace
+
+  //       // Update the state with the cleaned data
+  //       // console.log(data,"Clean********************************")
+  //       const setStateFunction = setStateFunctions[tableKey];
+  //       if (setStateFunction) {
+  //         // console.log("***********",cleanData,filters[tableKey][columnKey].length,offSet, offSet ==0)
+  //         setStateFunction((prev) => ({
+  //           ...prev,
+  //           [columnKey]:
+  //             offSet !== 0 ? [...prev[columnKey], ...cleanData] : cleanData,
+  //         }));
+  //       }
+  //     } catch (err) {
+  //       console.error("Fetch error:", err);
+  //     }
+  //   };
+  // };
 
   const [berths, setBerths] = useState([]);
 
@@ -375,7 +373,6 @@ export default function BerthSearch() {
             page: page,
           }),
         });
-        console.log("/berthsData post", allSelectedOptions);
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -400,8 +397,8 @@ export default function BerthSearch() {
   }, [allSelectedOptions, page, URL]);
 
   return (
-    <Container >
-      <Row >
+    <Container>
+      <Row>
         <ResetBar
           selectedTags={allSelectedOptions}
           removeTag={removeTag}
@@ -415,9 +412,8 @@ export default function BerthSearch() {
             <h4 className="py-3">Search For Berth</h4>
           </Row>
 
-          <Row >
+          <Row>
             {Object.keys(filters).map((key) => {
-
               return (
                 <fieldset key={key} className="mb-4">
                   <legend className="fieldset-legend">
@@ -430,7 +426,6 @@ export default function BerthSearch() {
                         flexDirection: "row", // Arrange elements in a row
                         justifyContent: "space-between", // Space elements evenly
                         alignItems: "center", // Align vertically
-
                       }}
                     >
                       <span>{varToScreen[key]?.displayText}</span>
@@ -448,19 +443,25 @@ export default function BerthSearch() {
                         {allSelectedOptions[key]}
                       </span> */}
                     </h6>
-
-
                   </legend>
                   {Object.keys(filters[key]).map((key2) => {
                     const uniqueKey = `${key}-${key2}`; // Unique key for each filter
                     return (
-
                       <Row key={uniqueKey} className="row-margin">
                         <Col md={12}>
                           <Form.Group>
                             {varToScreen[key2]?.type !== "range" ? (
                               <DropdownWithCheckBoxes
-                                onOpen={(search, offSet) => fetchDropdownData(key, key2, search, offSet,allSelectedOptions)}
+                                onOpen={(search, offSet) =>
+                                  fetchDropdownData(
+                                    key,
+                                    key2,
+                                    search,
+                                    offSet,
+                                    allSelectedOptions
+                                  )
+                                }
+                                varToDb={varToDb}
                                 heading={key2}
                                 title={varToScreen[key2]?.displayText}
                                 options={filters[key][key2] || []}
@@ -491,15 +492,11 @@ export default function BerthSearch() {
                           </Form.Group>
                         </Col>
                       </Row>
-
-
                     );
                   })}
                 </fieldset>
-              )
-            }
-
-            )}
+              );
+            })}
           </Row>
         </Col>
         <Col md={9}>
@@ -519,7 +516,7 @@ export default function BerthSearch() {
           {loading ? (
             <Loader />
           ) : (
-            <Row >
+            <Row>
               {berths.length === 0 ? (
                 <Col md={12}>
                   <p>No Results Found</p>

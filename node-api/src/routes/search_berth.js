@@ -8,7 +8,7 @@ import {
 
 const searchBerthRouter = Router();
 
-const withDatabaseConnection = async (callback) => {
+export const withDatabaseConnection = async (callback) => {
   let connection;
   try {
     connection = await dbConnection.getConnection();
@@ -31,7 +31,6 @@ const validateMappings = (tableKey, columnKey) => {
 
   return { actualTable, actualColumn };
 };
-
 
 searchBerthRouter.get("/berths", async (req, res) => {
   let connection;
@@ -56,7 +55,7 @@ searchBerthRouter.get("/berths", async (req, res) => {
     if (columnCheck[0].length === 0) {
       return res.status(400).json({
         ok: false,
-        message: `Column '${siteDetailsColumn}' does not exist in table '${siteDetailsTable}'.`
+        message: `Column '${siteDetailsColumn}' does not exist in table '${siteDetailsTable}'.`,
       });
     }
 
@@ -70,7 +69,7 @@ searchBerthRouter.get("/berths", async (req, res) => {
     const dataResults = await connection.query(dataQuery);
 
     // Extract the site details
-    const siteDetailsData = dataResults[0].map(row => row[siteDetailsColumn]);
+    const siteDetailsData = dataResults[0].map((row) => row[siteDetailsColumn]);
 
     // Prepare the response
     res.status(200).json({
@@ -78,16 +77,15 @@ searchBerthRouter.get("/berths", async (req, res) => {
       siteDetails: {
         table: siteDetailsTable,
         column: siteDetailsColumn,
-        data: siteDetailsData
-      }
+        data: siteDetailsData,
+      },
     });
-
   } catch (err) {
     console.error("Error in /berths GET:", err);
     res.status(500).json({
       ok: false,
       message: "An error occurred while fetching berth data.",
-      details: err.message
+      details: err.message,
     });
   } finally {
     if (connection) {
@@ -100,8 +98,13 @@ searchBerthRouter.get("/berths", async (req, res) => {
 searchBerthRouter.put("/berths", async (req, res) => {
   let connection;
   try {
-    const { siteDetailsTable, siteDetailsColumn, searchString, offSet = 0, appliedFilters } = req.body;
-
+    const {
+      siteDetailsTable,
+      siteDetailsColumn,
+      searchString,
+      offSet = 0,
+      appliedFilters,
+    } = req.body;
     const dataResults = await withDatabaseConnection(async (connection) => {
       const actualTable = varToTable[siteDetailsTable];
       const actualColumn = varToColumn[siteDetailsColumn];
@@ -122,11 +125,13 @@ searchBerthRouter.put("/berths", async (req, res) => {
 
       const [columnCheck] = await connection.query(columnCheckQuery, [
         actualTable,
-        actualColumn
+        actualColumn,
       ]);
 
       if (columnCheck.length === 0) {
-        throw new Error(`Column '${actualColumn}' does not exist in table '${actualTable}'.`);
+        throw new Error(
+          `Column '${actualColumn}' does not exist in table '${actualTable}'.`
+        );
       }
 
       // Safe query using backticks for identifiers
@@ -144,25 +149,28 @@ searchBerthRouter.put("/berths", async (req, res) => {
 
       dataQuery += ` GROUP BY \`${actualColumn}\` LIMIT 20 OFFSET ${offSet};`;
       const [result] = await connection.query(dataQuery, queryParams);
-      await countDropDown(connection, actualColumn, siteDetailsColumn, appliedFilters, result)
+      await countDropDown(
+        connection,
+        actualColumn,
+        siteDetailsColumn,
+        appliedFilters,
+        result
+      );
       return result;
     });
-
-
 
     res.status(200).json({
       ok: true,
       siteDetails: {
-        data: dataResults
-      }
+        data: dataResults,
+      },
     });
-
   } catch (err) {
     console.error("Error in /berths PUT:", err);
     res.status(500).json({
       ok: false,
       message: "An error occurred while fetching berth data.",
-      details: err.message
+      details: err.message,
     });
   } finally {
     if (connection) {
@@ -181,7 +189,7 @@ searchBerthRouter.put("/berths/mapping", async (req, res) => {
     if (!columnCategory || !tableCategory) {
       return res.status(400).json({
         ok: false,
-        message: "Both 'columnCategory' and 'tableCategory' are required."
+        message: "Both 'columnCategory' and 'tableCategory' are required.",
       });
     }
 
@@ -192,7 +200,9 @@ searchBerthRouter.put("/berths/mapping", async (req, res) => {
     if (!column || !table) {
       return res.status(404).json({
         ok: false,
-        message: `Mapping not found for ${!column ? "column" : "table"} category`
+        message: `Mapping not found for ${
+          !column ? "column" : "table"
+        } category`,
       });
     }
 
@@ -210,7 +220,7 @@ searchBerthRouter.put("/berths/mapping", async (req, res) => {
     if (columnCheck[0].length === 0) {
       return res.status(400).json({
         ok: false,
-        message: `Column '${column}' does not exist in table '${table}'`
+        message: `Column '${column}' does not exist in table '${table}'`,
       });
     }
 
@@ -237,15 +247,14 @@ searchBerthRouter.put("/berths/mapping", async (req, res) => {
 
     res.status(200).json({
       ok: true,
-      data: result[0].map(row => Object.values(row))
+      data: result[0].map((row) => Object.values(row)),
     });
-
   } catch (err) {
     console.error("Error in /berths/mapping PUT:", err);
     res.status(500).json({
       ok: false,
       message: "Internal server error",
-      details: err.message
+      details: err.message,
     });
   } finally {
     if (connection) connection.release();
@@ -257,7 +266,6 @@ searchBerthRouter.post("/berthsData", async (req, res) => {
   var page = req.body.page;
   var filter = req.body.selectedOptions;
 
-
   try {
     connection = await dbConnection.getConnection();
 
@@ -268,10 +276,9 @@ searchBerthRouter.post("/berthsData", async (req, res) => {
     if (Object.keys(filter).length > 0) {
       var temp = `WHERE `;
 
-
       for (const key of Object.keys(filter)) {
         if (filter[key].length > 0) {
-          const jointValues = filter[key].map(() => '?').join(', ');
+          const jointValues = filter[key].map(() => "?").join(", ");
           temp += `${varToColumn[key]} IN (${jointValues}) AND `;
           queryParams.push(...filter[key]);
         }
@@ -284,7 +291,6 @@ searchBerthRouter.post("/berthsData", async (req, res) => {
     }
 
     basic += ` LIMIT 60 OFFSET ${page * 30};`;
-
 
     const tables = await connection.query(basic, queryParams);
 
@@ -365,8 +371,13 @@ searchBerthRouter.get("/berth-detail/:id", async (req, res) => {
 //   }
 // });
 
-
-const countDropDown = async (connection, actualColumn, currentcolumn, appliedFilters, result) => {
+const countDropDown = async (
+  connection,
+  actualColumn,
+  currentcolumn,
+  appliedFilters,
+  result
+) => {
   delete appliedFilters[currentcolumn];
   if (!result || result.length === 0) return;
 
@@ -375,24 +386,23 @@ const countDropDown = async (connection, actualColumn, currentcolumn, appliedFil
   for (const key of Object.keys(appliedFilters)) {
     var columnKey = varToColumn[key];
     if (appliedFilters[key].length === 0) continue;
-    wherePart += '(';
+    wherePart += "(";
     for (const value of appliedFilters[key]) {
       if (columnKey === "Location") columnKey = "mp.Location";
       wherePart += ` ${columnKey} = '${value}' OR`;
     }
     wherePart = wherePart.slice(0, -3);
-    wherePart += ') AND ';
+    wherePart += ") AND ";
   }
   wherePart = wherePart.slice(0, -4);
   if (wherePart !== "") wherePart = `WHERE ${wherePart}`;
   var sumString = "";
   const diffValueOfResult = result.map((obj) => obj[actualColumn]);
   for (const obj of diffValueOfResult) {
-    sumString += `SUM(CASE WHEN ${actualColumn === "Location" ? "mp.Location" : actualColumn} = '${obj}' THEN 1 ELSE 0 END) AS \`${obj}\`,`;
+    sumString += `SUM(CASE WHEN ${
+      actualColumn === "Location" ? "mp.Location" : actualColumn
+    } = '${obj}' THEN 1 ELSE 0 END) AS \`${obj}\`,`;
   }
-
-
-
 
   var query = `SELECT ${sumString.slice(0, -1)} FROM Marina_Port mp
 LEFT JOIN Berths b ON mp.Marisail_Berth_ID = b.Marisail_Berth_ID
@@ -416,7 +426,7 @@ ${wherePart}
 ;`;
 
   const [check] = await connection.query(query, []);
-  result.map(item => {
+  result.map((item) => {
     // Find the matching value from the check array
     const itemCount = check[0][item[actualColumn]];
 
@@ -426,6 +436,5 @@ ${wherePart}
     }
     return item;
   });
-
-}
+};
 export default searchBerthRouter;

@@ -2,10 +2,10 @@ import { useState, useEffect, useRef } from "react";
 import { Form } from "react-bootstrap";
 import PropTypes from "prop-types";
 import { Loader } from "rsuite";
-import { varToDb } from "./Berth/BerthInfo";
 
 const DropdownWithCheckBoxes = ({
   defaultUnit,
+  varToDb,
   heading,
   title,
   options,
@@ -37,7 +37,7 @@ const DropdownWithCheckBoxes = ({
     // Detect if the user has scrolled to the bottom
     if (scrollTop + clientHeight >= scrollHeight) {
       if (offSet <= filteredOptions.length) {
-        setOffSet(prev => prev + 20)
+        setOffSet((prev) => prev + 20);
       }
       // console.log("Scrolled to the end");
     }
@@ -73,8 +73,7 @@ const DropdownWithCheckBoxes = ({
         console.log("call from ");
         onOpen(inputText, offSet);
       }
-      // console.log("here debouncing", inputText);
-    }, 500); // Debounce delay of 500ms
+    }, 500);
 
     return () => clearTimeout(debounceTimeout); // Cleanup on re-renders
   }, [inputText, offSet, selectedOptions]); // Depend on `inputText` and `onOpen`
@@ -83,7 +82,6 @@ const DropdownWithCheckBoxes = ({
   useEffect(() => {
     setFilteredOptions(options);
   }, [options]);
-  // console.log(options[0])
   return (
     <div className="custom-dropdown-container">
       {/* Dropdown Header */}
@@ -96,7 +94,6 @@ const DropdownWithCheckBoxes = ({
       >
         {title}
 
-
         <span
           className={`dropdown-icon ${isOpen ? "open" : ""}`}
           style={{
@@ -105,11 +102,20 @@ const DropdownWithCheckBoxes = ({
             transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
           }}
         >
-          <svg width="10" height="10" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
-            <path d="M1 3 L5 7 L9 3" fill="none" stroke="black" strokeWidth="1.5" />
+          <svg
+            width="10"
+            height="10"
+            viewBox="0 0 10 10"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M1 3 L5 7 L9 3"
+              fill="none"
+              stroke="black"
+              strokeWidth="1.5"
+            />
           </svg>
         </span>
-
       </div>
 
       {/* Dropdown Content */}
@@ -119,7 +125,9 @@ const DropdownWithCheckBoxes = ({
           {/* {options.length > 5 && ( */}
           <input
             type="text"
-            placeholder={defaultUnit ? `Search in ${defaultUnit}...` : "Search..."}
+            placeholder={
+              defaultUnit ? `Search in ${defaultUnit}...` : "Search..."
+            }
             value={inputText}
             onChange={handleInputChange}
             style={{
@@ -136,7 +144,11 @@ const DropdownWithCheckBoxes = ({
 
           {/* Options List */}
           <div id="dropdown-content" className="custom-dropdown-content">
-            <div className="custom-dropdown-options" ref={dropdownRef} onScroll={handleScroll}>
+            <div
+              className="custom-dropdown-options"
+              ref={dropdownRef}
+              onScroll={handleScroll}
+            >
               {filteredOptions.length > 0 ? (
                 filteredOptions.map((option) => (
                   <div
@@ -144,19 +156,25 @@ const DropdownWithCheckBoxes = ({
                     className="custom-dropdown-option"
                     onClick={(e) => e.stopPropagation()} // Prevent clicks on the option from closing the dropdown
                     style={{
-                      display: 'flex', // Use flexbox
-                      justifyContent: 'space-between', // Align content to be spaced out
-                      alignItems: 'center', // Vertically center the items
-                      padding: '8px 10px', // Add some padding around the option
-                      borderBottom: '1px solid #ccc', // Optional: to separate options with a thin line
+                      display: "flex", // Use flexbox
+                      justifyContent: "space-between", // Align content to be spaced out
+                      alignItems: "center", // Vertically center the items
+                      padding: "8px 10px", // Add some padding around the option
+                      borderBottom: "1px solid #ccc", // Optional: to separate options with a thin line
                     }}
                   >
                     <Form.Check
                       type="checkbox"
                       id={`checkbox-${option[varToDb[heading]]}`}
                       label={option[varToDb[heading]]}
-                      checked={selectedOptions[heading]?.includes(option[varToDb[heading]]) || false}
-                      onChange={(e) => handleOptionChange(option[varToDb[heading]], e)}
+                      checked={
+                        selectedOptions[heading]?.includes(
+                          option[varToDb[heading]]
+                        ) || false
+                      }
+                      onChange={(e) =>
+                        handleOptionChange(option[varToDb[heading]], e)
+                      }
                       style={{ flexGrow: 1 }} // Allow label to take available space
                     />
 
@@ -177,14 +195,13 @@ const DropdownWithCheckBoxes = ({
                       {option["occurrence_cnt"]}
                     </span>
                   </div>
-
                 ))
+              ) : fetching ? (
+                <Loader />
               ) : (
-                fetching ? (
-                  <Loader />
-                ) : (
-                  <div className="custom-dropdown-no-results">No options available</div>
-                )
+                <div className="custom-dropdown-no-results">
+                  No options available
+                </div>
               )}
             </div>
           </div>

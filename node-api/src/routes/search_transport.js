@@ -1,6 +1,11 @@
 import { Router } from "express";
 import dbConnection from "../config/dbConfig.js";
-import { varToColumn, varToTable, uniqueTable } from "../config/transportSearchConfig.js";
+import {
+  varToColumn,
+  varToTable,
+  uniqueTable,
+} from "../config/transportSearchConfig.js";
+import { withDatabaseConnection } from "./search_berth.js";
 
 const searchTransportRouter = Router();
 
@@ -86,6 +91,91 @@ searchTransportRouter.post("/transport", async (req, res) => {
   }
 });
 
+searchTransportRouter.put("/transport", async (req, res) => {
+  let connection;
+  try {
+    const {
+      siteDetailsTable,
+      siteDetailsColumn,
+      searchString,
+      offSet = 0,
+      appliedFilters,
+    } = req.body;
+    const dataResults = await withDatabaseConnection(async (connection) => {
+      const actualTable = varToTable[siteDetailsTable];
+      const actualColumn = varToColumn[siteDetailsColumn];
+
+      // Validate config mappings
+      if (!actualTable || !actualColumn) {
+        throw new Error("Invalid table or column mapping configuration");
+      }
+
+      // Parameterized column check query
+      const columnCheckQuery = `
+        SELECT column_name
+        FROM information_schema.columns
+        WHERE table_name = ?
+        AND table_schema = 'marisail'
+        AND column_name = ?;
+      `;
+
+      const [columnCheck] = await connection.query(columnCheckQuery, [
+        actualTable,
+        actualColumn,
+      ]);
+
+      if (columnCheck.length === 0) {
+        throw new Error(
+          `Column '${actualColumn}' does not exist in table '${actualTable}'.`
+        );
+      }
+
+      // Safe query using backticks for identifiers
+      let dataQuery = `
+        SELECT \`${actualColumn}\`, COUNT(*) AS occurrence_cnt
+        FROM \`${actualTable}\`
+      `;
+
+      // Apply search filtering if searchString is provided
+      let queryParams = [];
+      if (searchString) {
+        dataQuery += ` WHERE \`${actualColumn}\` LIKE ? `;
+        queryParams.push(`%${searchString}%`);
+      }
+
+      dataQuery += ` GROUP BY \`${actualColumn}\` LIMIT 20 OFFSET ${offSet};`;
+      const [result] = await connection.query(dataQuery, queryParams);
+      await countDropDown(
+        connection,
+        actualColumn,
+        siteDetailsColumn,
+        appliedFilters,
+        result
+      );
+      return result;
+    });
+
+    res.status(200).json({
+      ok: true,
+      siteDetails: {
+        data: dataResults,
+      },
+    });
+  } catch (err) {
+    console.error("Error in /berths PUT:", err);
+    res.status(500).json({
+      ok: false,
+      message: "An error occurred while fetching berth data.",
+      details: err.message,
+    });
+  } finally {
+    if (connection) {
+      connection.release();
+      console.log("Database connection released.");
+    }
+  }
+});
+
 searchTransportRouter.post("/transportData", async (req, res) => {
   let connection;
 
@@ -135,7 +225,7 @@ searchTransportRouter.post("/transportData", async (req, res) => {
 
       basic = basic.slice(0, -3);
     }
-      
+
     basic += `LIMIT 60 OFFSET ${page * 30};`;
     basic += `;`;
     console.log(basic);
@@ -151,7 +241,6 @@ searchTransportRouter.post("/transportData", async (req, res) => {
     if (connection) connection.release();
   }
 });
-
 
 searchTransportRouter.get("/transport-detail/:id", async (req, res) => {
   console.log("Marisail Charter ID:", req.params.id);
@@ -179,18 +268,60 @@ searchTransportRouter.get("/transport-detail/:id", async (req, res) => {
 
     console.log(query);
 
-    const tables = await connection.query(
-      query
-    );
+    const tables = await connection.query(query);
 
     console.log(tables);
 
-    return res.status(200).json({ ok: true, res: tables});
+    return res.status(200).json({ ok: true, res: tables });
   } catch (err) {
     return res.status(500).json({ ok: false, message: err.message });
   } finally {
     if (connection) connection.release();
   }
-})
+});
+
+const countDropDown = async (
+  connection,
+  actualColumn,
+  currentcolumn,
+  appliedFilters,
+  result
+) => {
+  delete appliedFilters[currentcolumn];
+  if (!result || result.length === 0) return;
+
+  var wherePart = "";
+
+  for (const key of Object.keys(appliedFilters)) {
+    var columnKey = varToColumn[key];
+    if (appliedFilters[key].length === 0) continue;
+    wherePart += "(";
+    for (const value of appliedFilters[key]) {
+      wherePart += ` ${columnKey} = '${value}' OR`;
+    }
+    wherePart = wherePart.slice(0, -3);
+    wherePart += ") AND ";
+  }
+  wherePart = wherePart.slice(0, -4);
+  if (wherePart !== "") wherePart = `WHERE ${wherePart}`;
+
+  var sumString = "";
+  const diffValueOfResult = result.map((obj) => obj[actualColumn]);
+  for (const obj of diffValueOfResult) {
+    sumString += `SUM(CASE WHEN ${actualColumn} = '${obj}' THEN 1 ELSE 0 END) AS \`${obj}\`,`;
+  }
+
+  var query = `SELECT ${sumString.slice(0, -1)} FROM Job j
+${wherePart};`;
+
+  const [check] = await connection.query(query, []);
+  result.map((item) => {
+    const itemCount = check[0][item[actualColumn]];
+    if (itemCount) {
+      item.occurrence_cnt = parseInt(itemCount);
+    }
+    return item;
+  });
+};
 
 export default searchTransportRouter;

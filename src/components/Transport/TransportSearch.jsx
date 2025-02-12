@@ -4,7 +4,7 @@ import DropdownWithCheckBoxes from "../DropdownWithCheckBoxes2";
 import Loader from "../Loader";
 import BerthCard from "../BerthCard";
 import ResetBar from "../ResetBar";
-import { varToScreen } from "./TransportInfo";
+import { varToDb, varToScreen } from "./TransportInfo";
 // import { number } from "prop-types";
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -12,6 +12,7 @@ export default function TransportSearch() {
   const [page, setPage] = useState(0);
   // const [lastpage, setLastPage] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [fetching, setFetching] = useState(true);
   const [allSelectedOptions, setAllSelectedOptions] = useState([]);
 
   const [jobDescription, setJobDescription] = useState({
@@ -66,14 +67,12 @@ export default function TransportSearch() {
     notDefined: setNotDefined,
   };
 
-  const lookUpTable = {};
-  Object.keys(filters).forEach((key) => {
-    Object.keys(filters[key]).forEach((key2) => {
-      lookUpTable[key2] = key;
-    });
-  });
-
-  // console.log(lookUpTable);
+  // const lookUpTable = {};
+  // Object.keys(filters).forEach((key) => {
+  //   Object.keys(filters[key]).forEach((key2) => {
+  //     lookUpTable[key2] = key;
+  //   });
+  // });
 
   function removeTag(tag) {
     setAllSelectedOptions((prev) => {
@@ -104,53 +103,118 @@ export default function TransportSearch() {
     setPage(newPage);
   };
 
-  const URL = apiUrl +"/search_transport/";
+  const URL = apiUrl + "/search_transport/";
 
   // fetch all the count of the available columns
   var data;
-  const fetchFilterData = async () => {
-    for (const key of Object.keys(filters)) {
-      console.log("filters", filters[key]);
-      try {
-        const response = await fetch(`${URL}transport`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            tableName: key,
-            filter: filters[key],
-          }),
-        });
+  // const fetchFilterData = async () => {
+  //   for (const key of Object.keys(filters)) {
+  //     console.log("filters", filters[key]);
+  //     try {
+  //       const response = await fetch(`${URL}transport`, {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify({
+  //           tableName: key,
+  //           filter: filters[key],
+  //         }),
+  //       });
 
-        data = await response.json();
-        // console.log(data.res);
-        setFilters(key, data.res);
-      } catch (err) {
-        console.log(err);
-      } finally {
-        // console.log("done");
+  //       data = await response.json();
+  //       // console.log(data.res);
+  //       setFilters(key, data.res);
+  //     } catch (err) {
+  //       console.log(err);
+  //     } finally {
+  //       // console.log("done");
+  //     }
+  //   }
+
+  //   // console.log("Data fetched from API", filters);
+  //   // localStorage.setItem(cacheKey, JSON.stringify(filters));
+  // };
+
+  // useEffect(() => {
+  //   const cachedData = localStorage.getItem(cacheKey);
+  //   if (cachedData) {
+  //     setFilters(JSON.parse(cachedData));
+  //     console.log("Data fetched from cache", JSON.parse(cachedData));
+  //   } else {
+  //     // Fetch data if not cached
+  //     fetchFilterData();
+  //   }
+
+  //   console.log(filters);
+  // }, []);
+
+  const fetchDropdownData = async (tableKey, columnKey, search, offSet) => {
+    if (varToScreen[columnKey]?.type === "range" || tableKey === "notDefined")
+      return;
+
+    console.log("Fetching dropdown data for:", tableKey, columnKey, search);
+
+    try {
+      if (!varToScreen[columnKey]) {
+        console.error(`Missing varToScreen mapping for ${columnKey}`);
+        return;
       }
-    }
+      console.log("/transport Put");
+      setFetching(true);
+      const response = await fetch(`${URL}transport`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          siteDetailsTable: tableKey,
+          siteDetailsColumn: columnKey,
+          searchString: search,
+          offSet: offSet,
+          appliedFilters: allSelectedOptions,
+        }),
+      });
+      setFetching(false);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
-    // console.log("Data fetched from API", filters);
-    // localStorage.setItem(cacheKey, JSON.stringify(filters));
+      const data = await response.json();
+      if (!data?.ok || !data?.siteDetails?.data) {
+        console.error("Invalid response format:", data);
+        return;
+      }
+
+      // Clean and validate the data
+      var cleanData = data.siteDetails.data
+        .filter(Boolean) // Remove null/undefined values
+        .map((value) => value); // Convert to string and trim whitespace
+
+      // Update the state with the cleaned data
+      // console.log(data,"Clean********************************")
+      const setStateFunction = setStateFunctions[tableKey];
+      if (setStateFunction) {
+        // console.log("***********",cleanData,filters[tableKey][columnKey].length,offSet, offSet ==0)
+        setStateFunction((prev) => ({
+          ...prev,
+          [columnKey]:
+            offSet !== 0 ? [...prev[columnKey], ...cleanData] : cleanData,
+        }));
+      }
+    } catch (err) {
+      console.error("Fetch error:", err);
+    }
   };
-
-  useEffect(() => {
-    const cachedData = localStorage.getItem(cacheKey);
-    if (cachedData) {
-      setFilters(JSON.parse(cachedData));
-      console.log("Data fetched from cache", JSON.parse(cachedData));
-    } else {
-      // Fetch data if not cached
-      fetchFilterData();
-    }
-
-    console.log(filters);
-  }, []);
-
   const [trailers, setTrailers] = useState([]);
+
+  const removeFilter = (key, filter) => {
+    const oldFilter = allSelectedOptions[key] || []; // Ensure it doesn't break if key is undefined
+    const newFilter = oldFilter.filter((currFilter) => currFilter !== filter);
+
+    setAllSelectedOptions((prev) => ({
+      ...prev,
+      [key]: newFilter, // Use newFilter instead of filter
+    }));
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -193,7 +257,7 @@ export default function TransportSearch() {
               className="py-3"
               // style={{ borderBottom: "2px solid #f5f5f5", width: "80%" }}
             >
-              Search For Transport 
+              Search For Transport
             </h4>
           </Row>
           <Row>
@@ -201,40 +265,94 @@ export default function TransportSearch() {
               selectedTags={allSelectedOptions}
               removeTag={removeTag}
               resetTags={resetTags}
+              removeFilter={removeFilter}
             />
           </Row>
           <Row>
-            {Object.keys(filters).map((key) => (
-              <fieldset
-                // style={{ borderBottom: "2px solid #f5f5f5", width: "80%" }}
-                key={key}
-              >
-                <legend className="fieldset-legend">
-                  <h6
-                    style={{
-                      padding: "15px 0px 0px 0px",
-                    }}
-                  >
-                    {varToScreen[key]}
-                  </h6>
-                </legend>
-                {Object.keys(filters[key]).map((key2) => (
-                  <Row key={key2} className="row-margin">
-                    <Col md={12}>
-                      <Form.Group>
-                        <DropdownWithCheckBoxes
-                          heading={key2}
-                          title={varToScreen[key2]}
-                          options={filters[key][key2]}
-                          selectedOptions={allSelectedOptions}
-                          setSelectedOptions={setAllSelectedOptions}
-                        />
-                      </Form.Group>
-                    </Col>
-                  </Row>
-                ))}
-              </fieldset>
-            ))}
+            {Object.keys(filters).map((key) => {
+              return (
+                <fieldset key={key} className="mb-4">
+                  <legend className="fieldset-legend">
+                    <h6
+                      style={{
+                        padding: "15px 0px",
+
+                        width: "100%",
+                        display: "flex", // Use flex display
+                        flexDirection: "row", // Arrange elements in a row
+                        justifyContent: "space-between", // Space elements evenly
+                        alignItems: "center", // Align vertically
+                      }}
+                    >
+                      <span>{varToScreen[key]?.displayText}</span>
+                      {/* <span
+                                   className="count-badge"
+                                   style={{
+                                     background: "#007BFF",
+                                     color: "#fff",
+                                     padding: "5px 12px",
+                                     borderRadius: "15px",
+                                     fontSize: "14px",
+                                     fontWeight: "600",
+                                   }}
+                                 >
+                                   {allSelectedOptions[key]}
+                                 </span> */}
+                    </h6>
+                  </legend>
+                  {Object.keys(filters[key]).map((key2) => {
+                    const uniqueKey = `${key}-${key2}`; // Unique key for each filter
+                    return (
+                      <Row key={uniqueKey} className="row-margin">
+                        <Col md={12}>
+                          <Form.Group>
+                            {varToScreen[key2]?.type !== "range" ? (
+                              <DropdownWithCheckBoxes
+                                onOpen={(search, offSet) =>
+                                  fetchDropdownData(
+                                    key,
+                                    key2,
+                                    search,
+                                    offSet,
+                                    allSelectedOptions
+                                  )
+                                }
+                                varToDb={varToDb}
+                                heading={key2}
+                                title={varToScreen[key2]?.displayText}
+                                options={filters[key][key2] || []}
+                                selectedOptions={allSelectedOptions}
+                                setSelectedOptions={setAllSelectedOptions}
+                                fetching={fetching}
+                              />
+                            ) : (
+                              <RangeInput
+                                key2={key2.replace(/\s+/g, " ").trim()}
+                                title={varToScreen[key2]?.displayText}
+                                fromValue={fromValue}
+                                toValue={toValue}
+                                setFromValue={setFromValue}
+                                radioOptions={varToScreen[key2]?.radioOptions}
+                                setToValue={setToValue}
+                                selectedRadio={
+                                  selectedRadios[key2] ||
+                                  varToScreen[key2]?.radioOptions[0]?.value
+                                }
+                                onRadioChange={(value) =>
+                                  handleRadioChange(key2, value)
+                                }
+                                isOpen={!!openStates[key2]}
+                                toggleAccordion={() => toggleAccordion(key2)}
+                              />
+                            )}
+                          </Form.Group>
+                        </Col>
+                      </Row>
+                    );
+                  })}
+                </fieldset>
+              );
+            })}
           </Row>
         </Col>
         <Col md={9}>
@@ -849,4 +967,3 @@ export default function TransportSearch() {
 // };
 
 // export default Transport;
-
