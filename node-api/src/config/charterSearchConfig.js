@@ -55,10 +55,10 @@ export const varToColumn = {
   insuranceCoverageDetails: "Insurance_Coverage",
 
   // Costs
-  summerRatePerNight: "Summer_Rate_PN",
-  winterRatePerWeek: "Winter_Rate_PW",
-  winterRatePerNight: "Winter_Rate_PN",
-  summerRatePerWeek: "Summer_Rate_PW",
+  summerRatePerNight: "Summerrate_Per_Night	",
+  winterRatePerWeek: "Winterrate_Per_week",
+  winterRatePerNight: "Winterrate_Per_Night",
+  summerRatePerWeek: "Summerrate_Per_Week",
   securityDepositAmount: "Deposit_Amount",
   totalPrice: "Total_Price",
   refundableDeposit: "Refundable_Deposit",
@@ -91,21 +91,21 @@ export const varToColumn = {
 };
 
 export const varToTable = {
-  identification: "Accommodation_Location",
-  guestAccommodation: "Accommodation_Location",
-  locationDetails: "Accommodation_Location",
+  identification: "Accomodation",
+  guestAccommodation: "Accomodation",
+  locationDetails: "Accomodation",
   guestRequirements: "Requirements",
   charterAgreementTerms: "Policy",
-  guestSafety: "Safety_Measures",
+  guestSafety: "Charter_Safety",
   costs: "Charter_Costs",
-  availableDates: "Dates",
-  dates: "Dates",
+  availableDates: "Date",
+  dates: "Date",
   paymentTerms: "Charter_Payment",
-  calculatePricePay: "Charter_Sales",
+  calculatePricePay: "Sales",
 };
 
 export const uniqueTable = [
-  "Accommodation_Location",
+  "Accomodation",
   "Requirements",
   "Policy",
   "Safety_Measures",

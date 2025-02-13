@@ -210,22 +210,22 @@ export const CHARTER_ADVERT = [
 
   {
     key: "summerRatePerNight",
-    columnName: "Summer_Rate_PN",
+    columnName: "Summerrate_Per_Night	",
     tableName: "Charter_Costs",
   },
   {
     key: "winterRatePerWeek",
-    columnName: "Winter_Rate_PW",
+    columnName: "Winterrate_Per_week",
     tableName: "Charter_Costs",
   },
   {
     key: "winterRatePerNight",
-    columnName: "Winter_Rate_PN",
+    columnName: "Winterrate_Per_Night",
     tableName: "Charter_Costs",
   },
   {
     key: "summerRatePerWeek",
-    columnName: "Summer_Rate_PW",
+    columnName: "Summerrate_Per_Week",
     tableName: "Charter_Costs",
   },
   {

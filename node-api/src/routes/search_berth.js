@@ -200,9 +200,8 @@ searchBerthRouter.put("/berths/mapping", async (req, res) => {
     if (!column || !table) {
       return res.status(404).json({
         ok: false,
-        message: `Mapping not found for ${
-          !column ? "column" : "table"
-        } category`,
+        message: `Mapping not found for ${!column ? "column" : "table"
+          } category`,
       });
     }
 
@@ -399,9 +398,8 @@ const countDropDown = async (
   var sumString = "";
   const diffValueOfResult = result.map((obj) => obj[actualColumn]);
   for (const obj of diffValueOfResult) {
-    sumString += `SUM(CASE WHEN ${
-      actualColumn === "Location" ? "mp.Location" : actualColumn
-    } = '${obj}' THEN 1 ELSE 0 END) AS \`${obj}\`,`;
+    sumString += `SUM(CASE WHEN ${actualColumn === "Location" ? "mp.Location" : actualColumn
+      } = '${obj}' THEN 1 ELSE 0 END) AS \`${obj}\`,`;
   }
 
   var query = `SELECT ${sumString.slice(0, -1)} FROM Marina_Port mp
