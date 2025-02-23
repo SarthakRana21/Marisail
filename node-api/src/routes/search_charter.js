@@ -1,6 +1,10 @@
 import { Router } from "express";
 import dbConnection from "../config/dbConfig.js";
-import { varToColumn, varToTable, uniqueTable } from "../config/charterSearchConfig.js";
+import {
+  varToColumn,
+  varToTable,
+  uniqueTable,
+} from "../config/charterSearchConfig.js";
 import { withDatabaseConnection } from "./search_berth.js";
 
 const searchCharterRouter = Router();
@@ -109,12 +113,15 @@ searchCharterRouter.post("/charterData", async (req, res) => {
     // console.log(key);
     // console.log(req.body[key]);
   }
-  console.log(filter);
+  console.log("filter :>", filter);
 
   try {
     connection = await dbConnection.getConnection();
 
-    var required1 = "Marisail_Charter_ID, Summer_Cruising_Areas, Boarding_Port FROM Accommodation_Location";
+    var required1 =
+      "Summer_Cruising_Area, Boardingport_Time, Charter_ID FROM Charter_Location";
+    // var required1 =
+    //   "Marisail_Charter_ID, Summer_Cruising_Areas, Boarding_Port FROM Charter_Location";
     // var required2 = "Price_PW FROM Pricing";
 
     var basic = `SELECT ${required1} `;
@@ -133,6 +140,7 @@ searchCharterRouter.post("/charterData", async (req, res) => {
         temp += `) OR `;
         basic += temp;
       }
+      console.log("basic  :>> ", basic);
 
       basic = basic.slice(0, -3);
     }
@@ -179,9 +187,7 @@ searchCharterRouter.get("/charter-detail/:id", async (req, res) => {
 
     console.log(query);
 
-    const tables = await connection.query(
-      query
-    );
+    const tables = await connection.query(query);
 
     console.log(tables);
 
@@ -191,7 +197,7 @@ searchCharterRouter.get("/charter-detail/:id", async (req, res) => {
   } finally {
     if (connection) connection.release();
   }
-})
+});
 
 searchCharterRouter.put("/charters", async (req, res) => {
   let connection;
@@ -204,10 +210,10 @@ searchCharterRouter.put("/charters", async (req, res) => {
       appliedFilters,
     } = req.body;
     const dataResults = await withDatabaseConnection(async (connection) => {
-      console.log('siteDetailsTable :>> ', siteDetailsTable);
+      console.log("siteDetailsTable :>> ", siteDetailsTable);
       const actualTable = varToTable[siteDetailsTable];
       const actualColumn = varToColumn[siteDetailsColumn];
-      console.log('actualTable :>> ', actualTable, actualColumn);
+      console.log("actualTable :>> ", actualTable, actualColumn);
       // Validate config mappings
       if (!actualTable || !actualColumn) {
         throw new Error("Invalid table or column mapping configuration");
@@ -296,7 +302,8 @@ const countDropDown = async (
     if (appliedFilters[key].length === 0) continue;
     wherePart += "(";
     for (const value of appliedFilters[key]) {
-      if (columnKey === "Accommodation_Location") columnKey = "al.Accommodation_Location";
+      if (columnKey === "Accommodation_Location")
+        columnKey = "al.Accommodation_Location";
       wherePart += ` ${columnKey} = '${value}' OR`;
     }
     wherePart = wherePart.slice(0, -3);
@@ -307,8 +314,11 @@ const countDropDown = async (
   var sumString = "";
   const diffValueOfResult = result.map((obj) => obj[actualColumn]);
   for (const obj of diffValueOfResult) {
-    sumString += `SUM(CASE WHEN ${actualColumn === "Accommodation_Location" ? "al.Accommodation_Location" : actualColumn
-      } = '${obj}' THEN 1 ELSE 0 END) AS \`${obj}\`,`;
+    sumString += `SUM(CASE WHEN ${
+      actualColumn === "Accommodation_Location"
+        ? "al.Accommodation_Location"
+        : actualColumn
+    } = '${obj}' THEN 1 ELSE 0 END) AS \`${obj}\`,`;
   }
 
   var query = `SELECT ${sumString.slice(0, -1)} FROM Accommodation_Location al

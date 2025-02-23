@@ -10,6 +10,7 @@ const apiUrl = import.meta.env.VITE_BACKEND_URL;
 // import DatePickerComponent from "../DatePickerComponent";
 import DatePickerComponent2 from "../DatePickerComponent2";
 import RangeInput from "../RangeInput";
+import CharterCard from "../CharterCard";
 
 export default function CharterSearch() {
   const [page, setPage] = useState(0);
@@ -94,10 +95,6 @@ export default function CharterSearch() {
   const [notDefined, setNotDefined] = useState({
     priceLabel: [],
     priceDrop: [],
-
-    // countryLying: [],
-    // addressDetails: [],
-    // distance: [],
   });
 
   const filters = {
@@ -139,18 +136,6 @@ export default function CharterSearch() {
 
   const resetTags = () => {
     setAllSelectedOptions({});
-  };
-
-  const setFilters = (key, data) => {
-    const setStateFunction = setStateFunctions[key];
-    if (setStateFunction) {
-      setStateFunction((prev) => ({
-        ...prev,
-        ...data,
-      }));
-    } else {
-      console.error(`No setState function found for key: ${key}`);
-    }
   };
 
   const handlePageChange = (newPage) => {
@@ -254,14 +239,8 @@ export default function CharterSearch() {
       <Row>
         <Col md={3}>
           <Row>
-            <h4
-              className="py-3"
-              // style={{ borderBottom: "2px solid #f5f5f5", width: "80%" }}
-            >
-              Search For Charter
-            </h4>
+            <h4 className="py-3">Search For Charter</h4>
           </Row>
-
           <Row>
             {Object.keys(filters).map((key) => {
               return (
@@ -279,19 +258,6 @@ export default function CharterSearch() {
                       }}
                     >
                       <span>{varToScreen[key]?.displayText}</span>
-                      {/* <span
-                        className="count-badge"
-                        style={{
-                          background: "#007BFF",
-                          color: "#fff",
-                          padding: "5px 12px",
-                          borderRadius: "15px",
-                          fontSize: "14px",
-                          fontWeight: "600",
-                        }}
-                      >
-                        {allSelectedOptions[key]}
-                      </span> */}
                     </h6>
                   </legend>
                   {Object.keys(filters[key]).map((key2) => {
@@ -377,7 +343,7 @@ export default function CharterSearch() {
                   return (
                     <Col key={trailer} md={4}>
                       {/* <h1>{trailer.m}</h1> */}
-                      <BerthCard {...trailer} />
+                      <CharterCard {...trailer} />
                     </Col>
                   );
                 })

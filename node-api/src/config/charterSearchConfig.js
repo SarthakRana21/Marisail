@@ -8,7 +8,7 @@ export const varToColumn = {
   guestCapacity: "Guest_Capacity",
   bedroomConfiguration: "Bedroom_Configuration",
   bathroomConfiguration: "Bathroom_Configuration",
-  crewAccommodations: "Crew_Accommodations",
+  crewAccommodations: "Crew_Accommodation",
   accessibilityInformation: "Accessibility_Information",
   cleaningAndMaintenanceProcedures: "Maintenance_Procedures",
   vesselDecorAndSetupRequests: "Vessel_Decor",
