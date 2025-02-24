@@ -5,6 +5,7 @@ import Loader from "../Loader";
 import BerthCard from "../BerthCard";
 import ResetBar from "../ResetBar";
 import { varToDb, varToScreen } from "./TransportInfo";
+import TransportCard from "../TransportCard";
 // import { number } from "prop-types";
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -383,7 +384,7 @@ export default function TransportSearch() {
                   return (
                     <Col key={trailer} md={4}>
                       {/* <h1>{trailer.m}</h1> */}
-                      <BerthCard {...trailer} />
+                      <TransportCard {...trailer} />
                     </Col>
                   );
                 })

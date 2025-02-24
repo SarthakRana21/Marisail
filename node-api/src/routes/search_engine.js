@@ -331,6 +331,67 @@ searchEngineRouter.put("/engines", async (req, res) => {
   }
 });
 
+searchEngineRouter.post("/enginesData", async (req, res) => {
+  let connection;
+
+  console.log(req.body);
+
+  var page = req.body.page;
+  var filter = {};
+  for (const key of Object.keys(req.body.selectedOptions)) {
+    let val = key,
+      key2 = req.body.selectedOptions[key];
+    console.log(key2);
+    console.log(val);
+
+    if (filter[key2] === undefined) {
+      filter[key2] = [val];
+    } else {
+      filter[key2].push(val);
+    }
+  }
+  console.log(filter);
+
+  try {
+    connection = await dbConnection.getConnection();
+
+    var required = "engine_id, Engine_Make, Engine_Model, Engine_Model_Year"
+
+    var basic = `SELECT ${required} FROM Engine_General`;
+
+    if (Object.keys(filter).length > 0) {
+      basic += `WHERE `;
+
+      for (const key of Object.keys(filter)) {
+        var temp = `${key} IN (`;
+        for (const val of filter[key]) {
+          temp += `'${val}',`;
+        }
+        temp = temp.slice(0, -1);
+        temp += `) OR `;
+        basic += temp;
+      }
+
+      basic = basic.slice(0, -3);
+    }
+    let offset = page * 30;
+    basic += `LIMIT ${offset}, 60;`;
+
+    console.log(basic);
+
+    const tables = await connection.query(basic);
+
+    console.log(tables);
+
+    return res.status(200).json({ ok: true, res: tables });
+  } catch (err) {
+    return res.status(500).json({ ok: false, message: err.message });
+  } finally {
+    if (connection) connection.release();
+  }
+});
+
+
 const countDropDown = async (
   connection,
   actualColumn,
@@ -360,11 +421,10 @@ const countDropDown = async (
   var sumString = "";
   const diffValueOfResult = result.map((obj) => obj[actualColumn]);
   for (const obj of diffValueOfResult) {
-    sumString += `SUM(CASE WHEN ${
-      actualColumn === "Accommodation_Location"
-        ? "al.Accommodation_Location"
-        : actualColumn
-    } = '${obj}' THEN 1 ELSE 0 END) AS \`${obj}\`,`;
+    sumString += `SUM(CASE WHEN ${actualColumn === "Accommodation_Location"
+      ? "al.Accommodation_Location"
+      : actualColumn
+      } = '${obj}' THEN 1 ELSE 0 END) AS \`${obj}\`,`;
   }
 
   var query = `SELECT ${sumString.slice(

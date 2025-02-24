@@ -10,7 +10,7 @@ const CharterCard = ({
   Boardingport_Time = "",
 }) => {
   return (
-    <Link to={`/berth/${Charter_ID}`} className="custom-card-link">
+    <Link to={`/charter/${Charter_ID}`} className="custom-card-link">
       <div className="custom-card" style={{ marginBottom: "30px" }}>
         <div className="card-content">
           <div className="card-header">

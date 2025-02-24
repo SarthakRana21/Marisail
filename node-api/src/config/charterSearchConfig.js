@@ -113,4 +113,5 @@ export const uniqueTable = [
   "Dates",
   "Charter_Payment",
   "Charter_Sales",
+  "Charter_Safety",
 ];

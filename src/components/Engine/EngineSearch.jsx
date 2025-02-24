@@ -402,6 +402,34 @@ const Engines = () => {
     loadColumns();
   }, []);
 
+  useEffect(() => {
+    setLoading(true);
+    let currInfo = {
+      selectedOptions: allSelectedOptions,
+      page: page,
+    };
+    const fetchEnginesData = async () => {
+      try {
+        const response = await fetch(`${URL}enginesData`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(currInfo),
+        });
+        const data = await response.json();
+        setEngines(data?.res[0]);
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setLoading(false);
+        console.log("done");
+      }
+    };
+
+    fetchEnginesData();
+  }, [allSelectedOptions, page, URL]);
+
   const removeTag = (tag) => {
     setAllSelectedOptions((prev) => {
       const newOptions = { ...prev };
@@ -413,6 +441,8 @@ const Engines = () => {
   const resetTags = () => {
     setAllSelectedOptions({});
   };
+
+  console.log("engines :>> ", engines);
 
   return (
     <Container>
@@ -450,51 +480,59 @@ const Engines = () => {
                   {Object.keys(filters[key]).map((key2) => {
                     const uniqueKey = `${key}-${key2}`; // Unique key for each filter
                     return (
-                      <Row key={uniqueKey} className="row-margin">
-                        <Col md={12}>
-                          <Form.Group>
-                            {varToScreen[key2]?.type !== "range" ? (
-                              <DropdownWithCheckBoxes
-                                onOpen={(search, offSet) =>
-                                  fetchDropdownData(
-                                    key,
-                                    key2,
-                                    search,
-                                    offSet,
-                                    allSelectedOptions
-                                  )
-                                }
-                                varToDb={varToDb}
-                                heading={key2}
-                                title={varToScreen[key2]?.displayText}
-                                options={filters[key][key2] || []}
-                                selectedOptions={allSelectedOptions}
-                                setSelectedOptions={setAllSelectedOptions}
-                                fetching={fetching}
-                              />
-                            ) : (
-                              <RangeInput
-                                key2={key2.replace(/\s+/g, " ").trim()}
-                                title={varToScreen[key2]?.displayText}
-                                fromValue={fromValue}
-                                toValue={toValue}
-                                setFromValue={setFromValue}
-                                radioOptions={varToScreen[key2]?.radioOptions}
-                                setToValue={setToValue}
-                                selectedRadio={
-                                  selectedRadios[key2] ||
-                                  varToScreen[key2]?.radioOptions[0]?.value
-                                }
-                                onRadioChange={(value) =>
-                                  handleRadioChange(key2, value)
-                                }
-                                isOpen={!!openStates[key2]}
-                                toggleAccordion={() => toggleAccordion(key2)}
-                              />
-                            )}
-                          </Form.Group>
-                        </Col>
-                      </Row>
+                      <>
+                        {varToScreen[key2]?.displayText && (
+                          <Row key={uniqueKey} className="row-margin">
+                            <Col md={12}>
+                              <Form.Group>
+                                {varToScreen[key2]?.type !== "range" ? (
+                                  <DropdownWithCheckBoxes
+                                    onOpen={(search, offSet) =>
+                                      fetchDropdownData(
+                                        key,
+                                        key2,
+                                        search,
+                                        offSet,
+                                        allSelectedOptions
+                                      )
+                                    }
+                                    varToDb={varToDb}
+                                    heading={key2}
+                                    title={varToScreen[key2]?.displayText}
+                                    options={filters[key][key2] || []}
+                                    selectedOptions={allSelectedOptions}
+                                    setSelectedOptions={setAllSelectedOptions}
+                                    fetching={fetching}
+                                  />
+                                ) : (
+                                  <RangeInput
+                                    key2={key2.replace(/\s+/g, " ").trim()}
+                                    title={varToScreen[key2]?.displayText}
+                                    fromValue={fromValue}
+                                    toValue={toValue}
+                                    setFromValue={setFromValue}
+                                    radioOptions={
+                                      varToScreen[key2]?.radioOptions
+                                    }
+                                    setToValue={setToValue}
+                                    selectedRadio={
+                                      selectedRadios[key2] ||
+                                      varToScreen[key2]?.radioOptions[0]?.value
+                                    }
+                                    onRadioChange={(value) =>
+                                      handleRadioChange(key2, value)
+                                    }
+                                    isOpen={!!openStates[key2]}
+                                    toggleAccordion={() =>
+                                      toggleAccordion(key2)
+                                    }
+                                  />
+                                )}
+                              </Form.Group>
+                            </Col>
+                          </Row>
+                        )}
+                      </>
                     );
                   })}
                 </fieldset>
