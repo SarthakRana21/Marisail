@@ -118,14 +118,13 @@ searchCharterRouter.post("/charterData", async (req, res) => {
   try {
     connection = await dbConnection.getConnection();
 
-    var required1 =
-      "Summer_Cruising_Area, Boardingport_Time, Charter_ID FROM Charter_Location";
     // var required1 =
-    //   "Marisail_Charter_ID, Summer_Cruising_Areas, Boarding_Port FROM Charter_Location";
+    //   "Summer_Cruising_Area, Boardingport_Time, Charter_ID FROM Charter_Location";
+    var required1 =
+      "Marisail_Charter_ID, Summer_Cruising_Areas, Boarding_Port FROM Location";
     // var required2 = "Price_PW FROM Pricing";
 
     var basic = `SELECT ${required1} `;
-
     if (Object.keys(filter).length > 0) {
       basic += `WHERE `;
 
@@ -147,7 +146,7 @@ searchCharterRouter.post("/charterData", async (req, res) => {
 
     basic += `LIMIT 60 OFFSET ${page * 30};`;
     basic += `;`;
-    console.log(basic);
+    console.log("basic", basic);
 
     const tables = await connection.query(basic);
 
@@ -180,10 +179,10 @@ searchCharterRouter.get("/charter-detail/:id", async (req, res) => {
     query += ` FROM ${uniqueTable[0]}`;
 
     for (let i = 1; i < uniqueTable.length; i++) {
-      query += ` JOIN ${uniqueTable[i]} ON ${uniqueTable[0]}.Marisail_Charter_ID = ${uniqueTable[i]}.Marisail_Charter_ID`;
+      query += ` JOIN ${uniqueTable[i]} ON ${uniqueTable[0]}.Charter_ID = ${uniqueTable[i]}.Charter_ID`;
     }
 
-    query += ` WHERE ${uniqueTable[0]}.Marisail_Charter_ID = ${id};`;
+    query += ` WHERE ${uniqueTable[0]}.Charter_ID = ${id};`;
 
     console.log(query);
 

@@ -37,7 +37,6 @@ searchEngineRouter.get("/engine-detail/:id", async (req, res) => {
     const query = `
       SELECT
         e.*,
-        ec.*,
         ecool.*,
         ed.*,
         ee.*,
@@ -51,21 +50,20 @@ searchEngineRouter.get("/engine-detail/:id", async (req, res) => {
         eps.*,
         es.*,
         et.*
-      FROM general e
-      LEFT JOIN engine_condition ec ON e.engine_id = ec.engine_id
-      LEFT JOIN engine_cooling ecool ON e.engine_id = ecool.engine_id
-      LEFT JOIN engine_dimensions ed ON e.engine_id = ed.engine_id
-      LEFT JOIN engine_electrical ee ON e.engine_id = ee.engine_id
-      LEFT JOIN engine_emissions eem ON e.engine_id = eem.engine_id
-      LEFT JOIN engine_fuel ef ON e.engine_id = ef.engine_id
-      LEFT JOIN engine_location el ON e.engine_id = el.engine_id
-      LEFT JOIN engine_maintenance em ON e.engine_id = em.engine_id
-      LEFT JOIN engine_mounting emount ON e.engine_id = emount.engine_id
-      LEFT JOIN engine_oil eo ON e.engine_id = eo.engine_id
-      LEFT JOIN engine_performance ep ON e.engine_id = ep.engine_id
-      LEFT JOIN engine_propulsion eps ON e.engine_id = eps.engine_id
-      LEFT JOIN engine_safety es ON e.engine_id = es.engine_id
-      LEFT JOIN engine_transmission et ON e.engine_id = et.engine_id
+      FROM Engine_General e
+      LEFT JOIN Engine_Cooling ecool ON e.engine_id = ecool.engine_id
+      LEFT JOIN Engine_Dimensions ed ON e.engine_id = ed.engine_id
+      LEFT JOIN Engine_Electrical ee ON e.engine_id = ee.engine_id
+      LEFT JOIN Engine_Emmissions eem ON e.engine_id = eem.engine_id
+      LEFT JOIN Engine_Fuel ef ON e.engine_id = ef.engine_id
+      LEFT JOIN Engine_Location el ON e.engine_id = el.engine_id
+      LEFT JOIN Engine_Maintenance em ON e.engine_id = em.engine_id
+      LEFT JOIN Engine_Mounting emount ON e.engine_id = emount.engine_id
+      LEFT JOIN Engine_Oil eo ON e.engine_id = eo.engine_id
+      LEFT JOIN Engine_Performance ep ON e.engine_id = ep.engine_id
+      LEFT JOIN Engine_Propulsion eps ON e.engine_id = eps.engine_id
+      LEFT JOIN Engine_Safety es ON e.engine_id = es.engine_id
+      LEFT JOIN Engine_Transmission et ON e.engine_id = et.engine_id
       WHERE e.engine_id = ?
     `;
 
@@ -355,7 +353,7 @@ searchEngineRouter.post("/enginesData", async (req, res) => {
   try {
     connection = await dbConnection.getConnection();
 
-    var required = "engine_id, Engine_Make, Engine_Model, Engine_Model_Year"
+    var required = "engine_id, Engine_Make, Engine_Model, Engine_Model_Year";
 
     var basic = `SELECT ${required} FROM Engine_General`;
 
@@ -375,7 +373,7 @@ searchEngineRouter.post("/enginesData", async (req, res) => {
       basic = basic.slice(0, -3);
     }
     let offset = page * 30;
-    basic += `LIMIT ${offset}, 60;`;
+    basic += ` LIMIT ${offset}, 60;`;
 
     console.log(basic);
 
@@ -390,7 +388,6 @@ searchEngineRouter.post("/enginesData", async (req, res) => {
     if (connection) connection.release();
   }
 });
-
 
 const countDropDown = async (
   connection,
@@ -421,10 +418,11 @@ const countDropDown = async (
   var sumString = "";
   const diffValueOfResult = result.map((obj) => obj[actualColumn]);
   for (const obj of diffValueOfResult) {
-    sumString += `SUM(CASE WHEN ${actualColumn === "Accommodation_Location"
-      ? "al.Accommodation_Location"
-      : actualColumn
-      } = '${obj}' THEN 1 ELSE 0 END) AS \`${obj}\`,`;
+    sumString += `SUM(CASE WHEN ${
+      actualColumn === "Accommodation_Location"
+        ? "al.Accommodation_Location"
+        : actualColumn
+    } = '${obj}' THEN 1 ELSE 0 END) AS \`${obj}\`,`;
   }
 
   var query = `SELECT ${sumString.slice(

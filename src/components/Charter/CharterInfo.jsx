@@ -466,3 +466,100 @@ export const varToDb = {
   priceLabel: "Price_Label",
   priceDrop: "Price_Drop",
 };
+
+export const detailStateType = {
+  guestAccommodation: {
+    guestCapacity: "",
+    bedroomConfiguration: "",
+    bathroomConfiguration: "",
+    crewAccommodations: "",
+    accessibilityInformation: "",
+    cleaningAndMaintenanceProcedures: "",
+    vesselDecorAndSetupRequests: "",
+  },
+
+  locationDetails: {
+    boardingPortArrivalTime: "",
+    boardingPortDepartureTime: "",
+    summerCruisingAreas: "",
+    boardingPort: "",
+    winterCruisingAreas: "",
+    disembarkationPort: "",
+    embarkationDisembarkationLogistics: "",
+    disembarkationPortArrivalTime: "",
+    dockingMooringInstructions: "",
+  },
+
+  guestRequirements: {
+    skipperIncluded: "",
+    crewIncluded: "",
+    crewUniformPreferences: "",
+    localCuisinePreferences: "",
+    cateringRequired: "",
+    carParkingAvailable: "",
+    specialRequirementsRequests: "",
+  },
+
+  charterAgreementTermsConditions: {
+    smokingPolicy: "",
+    petFriendlyPolicy: "",
+    localRegulationsRestrictions: "",
+    environmentalPolicies: "",
+    waterConservationMeasures: "",
+    wasteManagementProtocols: "",
+    alcoholPolicy: "",
+    photographyVideographyPolicies: "",
+  },
+
+  guestSafety: {
+    weatherContingencyPlans: "",
+    emergencyProcedures: "",
+    medicalFacilitiesOnboard: "",
+    emergencyContacts: "",
+    weatherForecastServices: "",
+    securityMeasures: "",
+    guestOrientationSafetyBriefing: "",
+    insuranceForGuestsPersonalBelongings: "",
+    insuranceCoverageDetails: "",
+  },
+
+  costs: {
+    summerRatePerNight: "",
+    winterRatePerWeek: "",
+    winterRatePerNight: "",
+    summerRatePerWeek: "",
+    securityDepositAmount: "",
+    totalPrice: "",
+    refundableDeposit: "",
+    additionalFuelCosts: "",
+    additionalFees: "",
+    fuelIncluded: "",
+    lateCheckInCheckOutFees: "",
+    vat: "",
+  },
+
+  availableDates: {
+    minimumNightsPolicy: "",
+    datesAvailable: "",
+    cancellationPolicy: "",
+  },
+
+  dates: {
+    startDate: "",
+    endDate: "",
+    numberNights: "",
+  },
+
+  paymentTerms: {
+    paymentTerms: "",
+    currency: "",
+    preferredPaymentMethods: "",
+    invoiceReceiptProcedures: "",
+  },
+
+  calculatePricePay: {
+    calculatePricePay: "",
+    priceLabel: "",
+    priceDrop: "",
+  },
+};

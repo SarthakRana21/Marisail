@@ -266,6 +266,7 @@ export default function BerthAdvert() {
     vat: "",
     totalPrice: "",
   });
+
   const sections = {
     siteDetails,
     communityAndSocial,
@@ -369,6 +370,7 @@ export default function BerthAdvert() {
   };
   const setPageData = useCallback(
     (key, newData) => {
+      console.log("key, newData :>> ", key, newData);
       const setStateFunction = setStateFunctions[key];
       if (setStateFunction) {
         setStateFunction((prevState) => ({
@@ -385,30 +387,39 @@ export default function BerthAdvert() {
   const cacheKey = "berthsFilterData";
   const URL = apiUrl + "/advert_berth/";
 
-  const fetchDistinctData = useCallback(async () => {
-    try {
-      setLoading(true);
-      const promises = Object.keys(sections).map(async (key) => {
+  const fetchDistinctData = useCallback(
+    async (sectionKey, fieldKey) => {
+      try {
+        setLoading(true);
+
+        // Prepare request payload based on the opened section & field
+        const requestBody = {
+          sectionKey: sectionKey, // The section (e.g., "amenitiesAndServices")
+          fieldKey: fieldKey, // The specific field/column (e.g., "wifiAvailability")
+        };
+
+        // Call API for only the relevant section & field
         const response = await fetch(`${URL}berths`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(sections[key]),
+          body: JSON.stringify(requestBody),
         });
+
         const data = await response.json();
-        return { key, data: data.res };
-      });
-      const results = await Promise.all(promises);
-      results.forEach(({ key, data }) => {
-        setPageData(key, data);
-      });
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  }, [URL, sections, setPageData]);
+
+        // Update state only for the specific field
+        setPageData(sectionKey, data.res);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [URL, sections, setPageData]
+  );
+
   const fetchRelevantOptions = async (
     marisailBerthId,
     siteDetails,
@@ -546,17 +557,17 @@ export default function BerthAdvert() {
     }));
   };
 
-  useEffect(() => {
-    const cachedData = localStorage.getItem(cacheKey);
-    if (cachedData) {
-      setPageData(JSON.parse(cachedData));
-    } else {
-      if (!hasFetched.current) {
-        fetchDistinctData();
-        hasFetched.current = true;
-      }
-    }
-  }, [setPageData, fetchDistinctData]);
+  // useEffect(() => {
+  //   const cachedData = localStorage.getItem(cacheKey);
+  //   if (cachedData) {
+  //     setPageData(JSON.parse(cachedData));
+  //   } else {
+  //     if (!hasFetched.current) {
+  //       fetchDistinctData();
+  //       hasFetched.current = true;
+  //     }
+  //   }
+  // }, [setPageData, fetchDistinctData]);
 
   const errorDisplay = (fieldName) => {
     return (
@@ -564,6 +575,18 @@ export default function BerthAdvert() {
         {fieldName} field is required
       </div>
     );
+  };
+
+  const handleDropdownOpen = (sectionKey, fieldKey) => {
+    setOpenKey(fieldKey);
+
+    // Fetch data only if not already loaded
+    if (
+      !sections[sectionKey][fieldKey] ||
+      sections[sectionKey][fieldKey].length === 0
+    ) {
+      fetchDistinctData(sectionKey, fieldKey);
+    }
   };
 
   return (
@@ -582,6 +605,7 @@ export default function BerthAdvert() {
                 </legend>
                 {Object.keys(sections[title]).map((fieldKey) => {
                   const field = typeDef[title][fieldKey];
+                  console.log("field :>> ", openKey);
                   if (field && field.type === "radio") {
                     return (
                       <Col
@@ -606,9 +630,12 @@ export default function BerthAdvert() {
                               )
                             }
                             isMandatory={field.mandatory}
-                            setOpenKey={setOpenKey}
-                            openKey={openKey || ""}
+                            setOpenKey={() =>
+                              handleDropdownOpen(title, fieldKey)
+                            }
+                            openKey={openKey}
                           />
+
                           {error[`${fieldKey}`] && (
                             <div>
                               {errorDisplay(
