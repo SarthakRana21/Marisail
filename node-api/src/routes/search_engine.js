@@ -418,11 +418,10 @@ const countDropDown = async (
   var sumString = "";
   const diffValueOfResult = result.map((obj) => obj[actualColumn]);
   for (const obj of diffValueOfResult) {
-    sumString += `SUM(CASE WHEN ${
-      actualColumn === "Accommodation_Location"
+    sumString += `SUM(CASE WHEN ${actualColumn === "Accommodation_Location"
         ? "al.Accommodation_Location"
         : actualColumn
-    } = '${obj}' THEN 1 ELSE 0 END) AS \`${obj}\`,`;
+      } = '${obj}' THEN 1 ELSE 0 END) AS \`${obj}\`,`;
   }
 
   var query = `SELECT ${sumString.slice(
