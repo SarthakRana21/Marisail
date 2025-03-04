@@ -45,6 +45,13 @@ export default function TrailersSearch() {
     model: [],
     year: [],
     askingPrice: [],
+    type: [],
+    gvwr: [],
+    loadCapacity: [],
+    length: [],
+    width: [],
+    totalHeight: [],
+    axleHeightFromGround: [],
   });
   const [basics, setBasics] = useState({
     type: [],
