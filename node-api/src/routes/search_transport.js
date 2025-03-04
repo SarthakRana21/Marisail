@@ -261,10 +261,10 @@ searchTransportRouter.get("/transport-detail/:id", async (req, res) => {
     query += ` FROM ${uniqueTable[0]}`;
 
     for (let i = 1; i < uniqueTable.length; i++) {
-      query += ` JOIN ${uniqueTable[i]} ON ${uniqueTable[0]}.Marisail_Charter_ID = ${uniqueTable[i]}.Marisail_Charter_ID`;
+      query += ` JOIN ${uniqueTable[i]} ON ${uniqueTable[0]}.Transport_Item_ID = ${uniqueTable[i]}.Transport_Item_ID`;
     }
 
-    query += ` WHERE ${uniqueTable[0]}.Marisail_Charter_ID = ${id};`;
+    query += ` WHERE ${uniqueTable[0]}.Transport_Item_ID = ${id};`;
 
     console.log(query);
 

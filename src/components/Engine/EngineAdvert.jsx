@@ -1,17 +1,17 @@
 import { Form, Container, Row, Col } from "react-bootstrap";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import DropdownWithRadio from "../DropdownWithRadio";
 import Loader from "../Loader";
 import InputComponentDynamic from "../InputComponentDynamic";
 import SubmitButton from "../SubmitButton";
 import { keyToExpectedValueMap, typeDef } from "./EngineAdvertInfo";
 import { makeString } from "../../services/common_functions";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 import FormFieldCard from "../../services/FormFieldCard";
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
 export default function EngineAdvert() {
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   const [error, setError] = useState({});
   const hasFetched = useRef(false);
   const [engines, setEngines] = useState("");
@@ -515,19 +515,19 @@ export default function EngineAdvert() {
     }
   };
   const handleSubmit = (e) => {
-      e.preventDefault();
-      try {
-          // if (checkRequired()) {
-              console.log("001 Form is valid, submitting...");
-              localStorage.setItem("EngineData", JSON.stringify(allSelectedOptions));
-              navigate("/view-engine");
-              // localStorage.setItem("advertise_engine", JSON.stringify(form));
-          // } else {
-          //     console.warn(error);
-          // }
-      } catch (error) {
-          console.error(error);
-      }
+    e.preventDefault();
+    try {
+      // if (checkRequired()) {
+      console.log("001 Form is valid, submitting...");
+      localStorage.setItem("EngineData", JSON.stringify(allSelectedOptions));
+      navigate("/view-engine");
+      // localStorage.setItem("advertise_engine", JSON.stringify(form));
+      // } else {
+      //     console.warn(error);
+      // }
+    } catch (error) {
+      console.error(error);
+    }
   };
   function setPageData(key, newData) {
     const setStateFunction = setStateFunctions[key];
@@ -542,33 +542,68 @@ export default function EngineAdvert() {
   }
 
   const cacheKey = "enginesFilterData";
-  const URL = apiUrl +"/advert_engine/";
+  const URL = apiUrl + "/advert_engine/";
 
-  const fetchDistinctData = async () => {
-    try {
-      setLoading(true);
-      const promises = Object.keys(sections).map(async (key) => {
+  // const fetchDistinctData = async () => {
+  //   try {
+  //     setLoading(true);
+  //     const promises = Object.keys(sections).map(async (key) => {
+  //       const response = await fetch(`${URL}engines`, {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify(sections[key]),
+  //       });
+  //       const data = await response.json();
+  //       return { key, data: data.res };
+  //     });
+  //     const results = await Promise.all(promises);
+  //     results.forEach(({ key, data }) => {
+  //       setPageData(key, data);
+  //     });
+  //   } catch (err) {
+  //     console.error(err);
+  //   } finally {
+  //     setLoading(false);
+  //     console.log("done");
+  //   }
+  // };
+
+  const fetchDistinctData = useCallback(
+    async (sectionKey, fieldKey) => {
+      try {
+        setLoading(true);
+
+        // Prepare request payload based on the opened section & field
+        const requestBody = {
+          sectionKey: sectionKey, // The section (e.g., "amenitiesAndServices")
+          fieldKey: fieldKey, // The specific field/column (e.g., "wifiAvailability")
+        };
+
+        // Call API for only the relevant section & field
         const response = await fetch(`${URL}engines`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(sections[key]),
+          body: JSON.stringify(requestBody),
         });
+
         const data = await response.json();
-        return { key, data: data.res };
-      });
-      const results = await Promise.all(promises);
-      results.forEach(({ key, data }) => {
-        setPageData(key, data);
-      });
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-      console.log("done");
-    }
-  };
+        console.log("data :>> ", data);
+
+        // Update state only for the specific field
+        setPageData(sectionKey, data.res);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [URL, sections, setPageData]
+  );
+
   const fetchRelevantOptions = async (
     engineMake,
     engineModel,
@@ -606,7 +641,7 @@ export default function EngineAdvert() {
                 if (sections[sectionKey][fieldKey] !== undefined) {
                   const fieldValue =
                     Array.isArray(result[fieldKey]) &&
-                      result[fieldKey].length > 0
+                    result[fieldKey].length > 0
                       ? result[fieldKey]?.[0]
                       : sections[sectionKey][fieldKey];
 
@@ -699,17 +734,17 @@ export default function EngineAdvert() {
     }
   };
 
-  useEffect(() => {
-    const cachedData = localStorage.getItem(cacheKey);
-    if (cachedData) {
-      setPageData(JSON.parse(cachedData));
-    } else {
-      if (!hasFetched.current) {
-        fetchDistinctData();
-        hasFetched.current = true;
-      }
-    }
-  }, [setPageData]);
+  // useEffect(() => {
+  //   const cachedData = localStorage.getItem(cacheKey);
+  //   if (cachedData) {
+  //     setPageData(JSON.parse(cachedData));
+  //   } else {
+  //     if (!hasFetched.current) {
+  //       fetchDistinctData();
+  //       hasFetched.current = true;
+  //     }
+  //   }
+  // }, [setPageData]);
 
   const handleInputChange = (title, fieldKey, newValue) => {
     setEngines((prevTrailers) => ({
@@ -727,6 +762,18 @@ export default function EngineAdvert() {
         {fieldName} field is required
       </div>
     );
+  };
+
+  const handleDropdownOpen = (sectionKey, fieldKey) => {
+    setOpenKey(fieldKey);
+
+    // Fetch data only if not already loaded
+    if (
+      !sections[sectionKey][fieldKey] ||
+      sections[sectionKey][fieldKey].length === 0
+    ) {
+      fetchDistinctData(sectionKey, fieldKey);
+    }
   };
 
   return (
@@ -757,7 +804,7 @@ export default function EngineAdvert() {
                           <DropdownWithRadio
                             heading={fieldKey}
                             title={makeString(fieldKey, keyToExpectedValueMap)}
-                            options={sections[title][fieldKey]  || []}
+                            options={sections[title][fieldKey] || []}
                             selectedOption={
                               allSelectedOptions[title]?.[fieldKey] || ""
                             }
@@ -769,8 +816,10 @@ export default function EngineAdvert() {
                               )
                             }
                             isMandatory={field.mandatory}
-                            setOpenKey={setOpenKey}
-                            openKey={openKey || ""}
+                            setOpenKey={() =>
+                              handleDropdownOpen(title, fieldKey)
+                            }
+                            openKey={openKey}
                           />
                           {error[`${fieldKey}`] && (
                             <div>

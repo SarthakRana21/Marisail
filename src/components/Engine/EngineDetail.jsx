@@ -15,12 +15,14 @@ const EngineDetail = () => {
     const fetchEngineDetails = async (id) => {
       try {
         const response = await fetch(
-          apiUrl +`/search_engine/engine-detail/${id}`
+          apiUrl + `/search_engine/engine-detail/${id}`
         );
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
         const data = await response.json();
+
+        console.log("data :>> ", data[0]);
         setEngine(data[0]);
         setLoading(false);
       } catch (error) {
@@ -41,14 +43,19 @@ const EngineDetail = () => {
       {
         title: "Engine Details",
         details: {
-          "Marisail Vessel ID": engine.marisail_vesselid,
-          "Engine Make": engine.engine_make,
-          "Engine Model": engine.engine_model,
-          "Engine Model Year": engine.engine_modelyear,
-          "Engine Type": engine.engine_type,
-          "Type Designation": engine.type_designation,
-          "Asking Price": engine.asking_price,
-          Condition: engine.condition_1,
+          "Marisail Vessel ID": engine.Marisail_Vessel_ID,
+          "Engine Make": engine.Engine_Make,
+          "Engine Model": engine.Engine_Model,
+          "Engine Model Year": engine.Engine_Model_Year,
+          "Engine Type": engine.Engine_Type,
+          "Type Designation": engine.Type_Designation,
+          "Asking Price": engine.Asking_Price,
+        },
+      },
+      {
+        title: "Condition",
+        details: {
+          Condition: engine.Condition_1,
           "Used Condition": engine.used_condition,
           Seller: engine.seller,
           "Offered By (Dealer)": engine.offered_by,

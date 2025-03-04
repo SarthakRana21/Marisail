@@ -91,27 +91,24 @@ export const varToColumn = {
 };
 
 export const varToTable = {
-  identification: "Accomodation",
-  guestAccommodation: "Accomodation",
-  locationDetails: "Accomodation",
-  guestRequirements: "Requirements",
-  charterAgreementTerms: "Policy",
+  identification: "Charter_Accomodation",
+  guestAccommodation: "Charter_Accomodation",
+  locationDetails: "Location",
+  guestRequirements: "Charter_Requirements",
+  charterAgreementTerms: "Charter_Policy",
   guestSafety: "Charter_Safety",
   costs: "Charter_Costs",
-  availableDates: "Date",
-  dates: "Date",
+  availableDates: "Charter_Date",
+  dates: "Charter_Date",
   paymentTerms: "Charter_Payment",
   calculatePricePay: "Sales",
 };
 
 export const uniqueTable = [
-  "Accomodation",
-  "Requirements",
-  "Policy",
-  "Safety_Measures",
-  "Charter_Costs",
-  "Dates",
-  "Charter_Payment",
-  "Charter_Sales",
+  "Charter_Accomodation",
+  "Charter_Requirements",
+  "Charter_Policy",
   "Charter_Safety",
+  "Charter_Costs",
+  "Charter_Date",
 ];

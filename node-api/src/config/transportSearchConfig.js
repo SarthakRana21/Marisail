@@ -162,12 +162,12 @@ export const varToTable = {
 export const uniqueTable = [
   "Job",
   "Vessel_Details",
-  "Contacts",
-  "Quotes",
+  "Transportation_Contacts",
+  "Transportation_Quotes",
   "Questions",
   "Reviews",
   "Haulier",
   "Compliance",
-  "Transport_Payment",
-  "Transportation_Sales",
+  "Transportation_Payment",
+  // "Transportation_Sales",
 ];

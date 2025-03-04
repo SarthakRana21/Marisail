@@ -372,30 +372,65 @@ export default function TrailersAdvert() {
   const cacheKey = "trailersFilterData";
   const URL = apiUrl + "/trailers/";
 
-  const fetchDistinctData = useCallback(async () => {
-    try {
-      setLoading(true);
-      const promises = Object.keys(sections).map(async (key) => {
+  // const fetchDistinctData = useCallback(async () => {
+  //   try {
+  //     setLoading(true);
+  //     const promises = Object.keys(sections).map(async (key) => {
+  //       const response = await fetch(`${URL}trailers`, {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify(sections[key]),
+  //       });
+  //       const data = await response.json();
+  //       return { key, data: data.res };
+  //     });
+  //     const results = await Promise.all(promises);
+  //     results.forEach(({ key, data }) => {
+  //       setPageData(key, data);
+  //     });
+  //   } catch (err) {
+  //     console.error(err);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }, [URL, sections, setPageData]);
+
+  const fetchDistinctData = useCallback(
+    async (sectionKey, fieldKey) => {
+      try {
+        setLoading(true);
+
+        // Prepare request payload based on the opened section & field
+        const requestBody = {
+          sectionKey: sectionKey, // The section (e.g., "amenitiesAndServices")
+          fieldKey: fieldKey, // The specific field/column (e.g., "wifiAvailability")
+        };
+
+        // Call API for only the relevant section & field
         const response = await fetch(`${URL}trailers`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(sections[key]),
+          body: JSON.stringify(requestBody),
         });
+
         const data = await response.json();
-        return { key, data: data.res };
-      });
-      const results = await Promise.all(promises);
-      results.forEach(({ key, data }) => {
-        setPageData(key, data);
-      });
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  }, [URL, sections, setPageData]);
+        console.log("data :>> ", data);
+
+        // Update state only for the specific field
+        setPageData(sectionKey, data.res);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [URL, sections, setPageData]
+  );
+
   const fetchRelevantOptions = async (trailerId, manufacturer, make, model) => {
     try {
       setLoading(true);
@@ -430,7 +465,7 @@ export default function TrailersAdvert() {
                 if (sections[sectionKey][fieldKey] !== undefined) {
                   const fieldValue =
                     Array.isArray(result[fieldKey]) &&
-                      result[fieldKey].length > 0
+                    result[fieldKey].length > 0
                       ? result[fieldKey]?.[0]
                       : sections[sectionKey][fieldKey];
 
@@ -505,17 +540,18 @@ export default function TrailersAdvert() {
       setLoading(false);
     }
   };
-  useEffect(() => {
-    const cachedData = localStorage.getItem(cacheKey);
-    if (cachedData) {
-      setPageData(JSON.parse(cachedData));
-    } else {
-      if (!hasFetched.current) {
-        fetchDistinctData();
-        hasFetched.current = true;
-      }
-    }
-  }, [setPageData, fetchDistinctData]);
+
+  // useEffect(() => {
+  //   const cachedData = localStorage.getItem(cacheKey);
+  //   if (cachedData) {
+  //     setPageData(JSON.parse(cachedData));
+  //   } else {
+  //     if (!hasFetched.current) {
+  //       fetchDistinctData();
+  //       hasFetched.current = true;
+  //     }
+  //   }
+  // }, [setPageData, fetchDistinctData]);
 
   const handleInputChange = (title, fieldKey, newValue) => {
     setTrailers((prevTrailers) => ({
@@ -533,6 +569,18 @@ export default function TrailersAdvert() {
         {fieldName} field is required
       </div>
     );
+  };
+
+  const handleDropdownOpen = (sectionKey, fieldKey) => {
+    setOpenKey(fieldKey);
+
+    // Fetch data only if not already loaded
+    if (
+      !sections[sectionKey][fieldKey] ||
+      sections[sectionKey][fieldKey].length === 0
+    ) {
+      fetchDistinctData(sectionKey, fieldKey);
+    }
   };
 
   return (
@@ -575,7 +623,9 @@ export default function TrailersAdvert() {
                               )
                             }
                             isMandatory={field.mandatory}
-                            setOpenKey={setOpenKey}
+                            setOpenKey={() =>
+                              handleDropdownOpen(title, fieldKey)
+                            }
                             openKey={openKey}
                           />
                           {error[`${fieldKey}`] && (
