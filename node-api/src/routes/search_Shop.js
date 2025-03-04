@@ -1,6 +1,10 @@
 import { Router } from "express";
 import dbConnection from "../config/dbConfig.js";
-import { varToColumn, varToTable, uniqueTable } from "../config/berthSearchConfig.js";
+import {
+  berthVarToColumn,
+  berthVarToTable,
+  berthUniqueTable,
+} from "../config/berthSearchConfig.js";
 
 const searchShopRouter = Router();
 
@@ -46,7 +50,7 @@ searchShopRouter.post("/chandlery", async (req, res) => {
 
   // console.log(req.body);
   const filter = req.body.filter;
-  const tableName = varToTable[req.body.tableName];
+  const tableName = berthVarToTable[req.body.tableName];
   // console.log("filter", filter);
   // console.log("req.body", req.body);
 
@@ -59,7 +63,7 @@ searchShopRouter.post("/chandlery", async (req, res) => {
              FROM information_schema.columns
              WHERE table_name = '${tableName}'
              AND table_schema = 'Marisail'
-             AND column_name = '${varToColumn[key]}'`
+             AND column_name = '${berthVarToColumn[key]}'`
       );
 
       // Check if the column exists
@@ -67,9 +71,9 @@ searchShopRouter.post("/chandlery", async (req, res) => {
         // console.log(columnCheck )
         // console.log("inside if");
         const tables = await connection.query(
-          `SELECT ${varToColumn[key]}, COUNT(*) AS occurrence_cnt 
+          `SELECT ${berthVarToColumn[key]}, COUNT(*) AS occurrence_cnt 
                  FROM ${tableName} 
-                 GROUP BY ${varToColumn[key]};`
+                 GROUP BY ${berthVarToColumn[key]};`
         );
 
         console.log(tables[0]);
@@ -135,7 +139,7 @@ searchShopRouter.post("/chandleryData", async (req, res) => {
 
       basic = basic.slice(0, -3);
     }
-      
+
     basic += `LIMIT 60 OFFSET ${page * 30};`;
     basic += `;`;
     console.log(basic);
@@ -152,7 +156,6 @@ searchShopRouter.post("/chandleryData", async (req, res) => {
   }
 });
 
-
 searchShopRouter.get("/chandlery-detail/:id", async (req, res) => {
   console.log("Trailer ID:", req.params.id);
   const { id } = req.params; // Get the engine ID from the URL parameter
@@ -164,33 +167,31 @@ searchShopRouter.get("/chandlery-detail/:id", async (req, res) => {
 
     var query = `SELECT`;
 
-    uniqueTable.forEach((table) => {
+    berthUniqueTable.forEach((table) => {
       query += ` ${table}.*,`;
     });
 
     query = query.slice(0, -1);
-    query += ` FROM ${uniqueTable[0]}`;
+    query += ` FROM ${berthUniqueTable[0]}`;
 
-    for (let i = 1; i < uniqueTable.length; i++) {
-      query += ` JOIN ${uniqueTable[i]} ON ${uniqueTable[0]}.Trailer_ID = ${uniqueTable[i]}.Trailer_ID`;
+    for (let i = 1; i < berthUniqueTable.length; i++) {
+      query += ` JOIN ${berthUniqueTable[i]} ON ${berthUniqueTable[0]}.Trailer_ID = ${berthUniqueTable[i]}.Trailer_ID`;
     }
 
-    query += ` WHERE ${uniqueTable[0]}.Trailer_ID = ${id};`;
+    query += ` WHERE ${berthUniqueTable[0]}.Trailer_ID = ${id};`;
 
     console.log(query);
 
-    const tables = await connection.query(
-      query
-    );
+    const tables = await connection.query(query);
 
     console.log(tables);
 
-    return res.status(200).json({ ok: true, res: tables});
+    return res.status(200).json({ ok: true, res: tables });
   } catch (err) {
     return res.status(500).json({ ok: false, message: err.message });
   } finally {
     if (connection) connection.release();
   }
-})
+});
 
 export default searchShopRouter;

@@ -1,4 +1,4 @@
-export const varToColumn = {
+export const transportVarToColumn = {
   // Job Description
   marisailTransportID: "Transport_Item_ID",
   dataSource: "Data_Source",
@@ -144,7 +144,7 @@ export const varToColumn = {
   vat: "VAT",
 };
 
-export const varToTable = {
+export const transportVarToTable = {
   jobDescription: "Job",
   vesselDetails: "Vessel_Details",
   customerContactDetails: "Transportation_Contacts",
@@ -159,7 +159,7 @@ export const varToTable = {
   calculatePricePay: "Transportation_Sales",
 };
 
-export const uniqueTable = [
+export const transportUniqueTable = [
   "Job",
   "Vessel_Details",
   "Transportation_Contacts",

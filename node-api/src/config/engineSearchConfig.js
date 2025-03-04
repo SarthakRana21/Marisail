@@ -1,4 +1,4 @@
-export const varToColumn = {
+export const engineVarToColumn = {
   // Engine Details
   marisailVesselID: "Marisail_Vessel_ID",
   dataSouce: "DATA_SOURCE",
@@ -355,7 +355,7 @@ export const varToColumn = {
   priceLabel: "Price_Label",
 };
 
-export const varToTable = {
+export const engineVarToTable = {
   engineDetails: "Engine_General",
   condition: "Engine_General",
   general: "Engine_General",
@@ -385,7 +385,7 @@ export const varToTable = {
   location: "Sales",
 };
 
-export const uniqueTable = [
+export const engineUniqueTable = [
   "Accomodation",
   "Requirements",
   "Policy",

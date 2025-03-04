@@ -1,9 +1,9 @@
 import { Router } from "express";
 import dbConnection from "../config/dbConfig.js";
 import {
-  varToColumn,
-  varToTable,
-  uniqueTable,
+  transportVarToColumn,
+  transportVarToTable,
+  transportUniqueTable,
 } from "../config/transportSearchConfig.js";
 import { withDatabaseConnection } from "./search_berth.js";
 
@@ -11,8 +11,6 @@ const searchTransportRouter = Router();
 
 searchTransportRouter.get("/transport", async (req, res) => {
   let connection;
-
-  // console.log(req.headers);
 
   try {
     var tableNames = [];
@@ -51,7 +49,7 @@ searchTransportRouter.post("/transport", async (req, res) => {
 
   // console.log(req.body);
   const filter = req.body.filter;
-  const tableName = varToTable[req.body.tableName];
+  const tableName = transportVarToTable[req.body.tableName];
   // console.log("filter", filter);
   // console.log("req.body", req.body);
 
@@ -64,7 +62,7 @@ searchTransportRouter.post("/transport", async (req, res) => {
              FROM information_schema.columns
              WHERE table_name = '${tableName}'
              AND table_schema = 'Marisail'
-             AND column_name = '${varToColumn[key]}'`
+             AND column_name = '${transportVarToColumn[key]}'`
       );
 
       // Check if the column exists
@@ -72,9 +70,9 @@ searchTransportRouter.post("/transport", async (req, res) => {
         // console.log(columnCheck )
         // console.log("inside if");
         const tables = await connection.query(
-          `SELECT ${varToColumn[key]}, COUNT(*) AS occurrence_cnt 
+          `SELECT ${transportVarToColumn[key]}, COUNT(*) AS occurrence_cnt 
                  FROM ${tableName} 
-                 GROUP BY ${varToColumn[key]};`
+                 GROUP BY ${transportVarToColumn[key]};`
         );
 
         console.log(tables[0]);
@@ -88,91 +86,6 @@ searchTransportRouter.post("/transport", async (req, res) => {
     return res.status(500).json({ ok: false, message: err.message });
   } finally {
     if (connection) connection.release();
-  }
-});
-
-searchTransportRouter.put("/transport", async (req, res) => {
-  let connection;
-  try {
-    const {
-      siteDetailsTable,
-      siteDetailsColumn,
-      searchString,
-      offSet = 0,
-      appliedFilters,
-    } = req.body;
-    const dataResults = await withDatabaseConnection(async (connection) => {
-      const actualTable = varToTable[siteDetailsTable];
-      const actualColumn = varToColumn[siteDetailsColumn];
-
-      // Validate config mappings
-      if (!actualTable || !actualColumn) {
-        throw new Error("Invalid table or column mapping configuration");
-      }
-
-      // Parameterized column check query
-      const columnCheckQuery = `
-        SELECT column_name
-        FROM information_schema.columns
-        WHERE table_name = ?
-        AND table_schema = 'marisail'
-        AND column_name = ?;
-      `;
-
-      const [columnCheck] = await connection.query(columnCheckQuery, [
-        actualTable,
-        actualColumn,
-      ]);
-
-      if (columnCheck.length === 0) {
-        throw new Error(
-          `Column '${actualColumn}' does not exist in table '${actualTable}'.`
-        );
-      }
-
-      // Safe query using backticks for identifiers
-      let dataQuery = `
-        SELECT \`${actualColumn}\`, COUNT(*) AS occurrence_cnt
-        FROM \`${actualTable}\`
-      `;
-
-      // Apply search filtering if searchString is provided
-      let queryParams = [];
-      if (searchString) {
-        dataQuery += ` WHERE \`${actualColumn}\` LIKE ? `;
-        queryParams.push(`%${searchString}%`);
-      }
-
-      dataQuery += ` GROUP BY \`${actualColumn}\` LIMIT 20 OFFSET ${offSet};`;
-      const [result] = await connection.query(dataQuery, queryParams);
-      await countDropDown(
-        connection,
-        actualColumn,
-        siteDetailsColumn,
-        appliedFilters,
-        result
-      );
-      return result;
-    });
-
-    res.status(200).json({
-      ok: true,
-      siteDetails: {
-        data: dataResults,
-      },
-    });
-  } catch (err) {
-    console.error("Error in /berths PUT:", err);
-    res.status(500).json({
-      ok: false,
-      message: "An error occurred while fetching berth data.",
-      details: err.message,
-    });
-  } finally {
-    if (connection) {
-      connection.release();
-      console.log("Database connection released.");
-    }
   }
 });
 
@@ -253,18 +166,18 @@ searchTransportRouter.get("/transport-detail/:id", async (req, res) => {
 
     var query = `SELECT`;
 
-    uniqueTable.forEach((table) => {
+    transportUniqueTable.forEach((table) => {
       query += ` ${table}.*,`;
     });
 
     query = query.slice(0, -1);
-    query += ` FROM ${uniqueTable[0]}`;
+    query += ` FROM ${transportUniqueTable[0]}`;
 
-    for (let i = 1; i < uniqueTable.length; i++) {
-      query += ` JOIN ${uniqueTable[i]} ON ${uniqueTable[0]}.Transport_Item_ID = ${uniqueTable[i]}.Transport_Item_ID`;
+    for (let i = 1; i < transportUniqueTable.length; i++) {
+      query += ` JOIN ${transportUniqueTable[i]} ON ${transportUniqueTable[0]}.Transport_Item_ID = ${transportUniqueTable[i]}.Transport_Item_ID`;
     }
 
-    query += ` WHERE ${uniqueTable[0]}.Transport_Item_ID = ${id};`;
+    query += ` WHERE ${transportUniqueTable[0]}.Transport_Item_ID = ${id};`;
 
     console.log(query);
 
@@ -280,7 +193,7 @@ searchTransportRouter.get("/transport-detail/:id", async (req, res) => {
   }
 });
 
-const countDropDown = async (
+export const countDropDownTransports = async (
   connection,
   actualColumn,
   currentcolumn,
@@ -293,7 +206,7 @@ const countDropDown = async (
   var wherePart = "";
 
   for (const key of Object.keys(appliedFilters)) {
-    var columnKey = varToColumn[key];
+    var columnKey = transportVarToColumn[key];
     if (appliedFilters[key].length === 0) continue;
     wherePart += "(";
     for (const value of appliedFilters[key]) {

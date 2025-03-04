@@ -7,11 +7,6 @@ import ResetBar from "../ResetBar";
 import { varToDb, varToScreen } from "./trailerInfo";
 import RangeInput from "../RangeInput";
 import { v4 as uuidv4 } from "uuid";
-
-// import TimePicker from "react-time-picker";
-// import 'react-time-picker/dist/TimePicker.css';
-// import 'react-clock/dist/Clock.css';
-// import DatePickerComponent from "../DatePickerComponent";
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
 export default function TrailersSearch() {
@@ -21,7 +16,6 @@ export default function TrailersSearch() {
   const [fromValue, setFromValue] = useState("");
   const [fetching, setFetching] = useState(true);
   const [toValue, setToValue] = useState("");
-  // const [lastpage, setLastPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [allSelectedOptions, setAllSelectedOptions] = useState({});
   const toggleReducer = (state, action) => {
@@ -75,16 +69,11 @@ export default function TrailersSearch() {
     bearingType: [],
   });
   const [userFeatures, setUserFeatures] = useState({
-    // storage: [],
     tieDownPoints: [],
-    // toolBox: [],
     bumperType: [],
   });
   const [specialFeatures, setSpecialFeatures] = useState({
-    // hydraulicTilt: [],
-    // extendableTongue: [],
     adjustableDeckHeight: [],
-    // detachableSidePanels: [],
   });
   const [additionalAccessories, setAdditionalAccessories] = useState({
     rampType: [],
@@ -95,10 +84,6 @@ export default function TrailersSearch() {
   });
   const [customizationOptions, setCustomizationOptions] = useState({
     color: [],
-    // decals: [],
-    // storageBox: [],
-    // lightingPackage: [],
-    // suspensionUpgrade: [],
   });
 
   const [axlesAndSuspension, setAxlesAndSuspension] = useState({
@@ -106,8 +91,6 @@ export default function TrailersSearch() {
     axleCapacity: [],
     axleSealType: [],
     axleHubSize: [],
-    // axlePosition: [],
-    // dropAxleOption: [],
     suspensionType: [],
     suspensionCapacity: [],
     suspensionAdjustment: [],
@@ -117,41 +100,23 @@ export default function TrailersSearch() {
     tyreLoadRange: [],
     tyreType: [],
     wheelType: [],
-    // wheelBoltPattern: [],
-    // hubLubricationSystem: [],
   });
   const [brakes, setBrakes] = useState({
     brakeType: [],
-    // brakeActuator: [],
-    // brakeLineMaterial: [],
-    // brakeDrumDiameter: [],
     brakeFluidType: [],
-    // brakes: [],
     couplerSize: [],
     couplerType: [],
     couplerLockType: [],
-    // hitchClass: [],
     hitchReceiverSize: [],
-    // safetyChains: [],
-    // breakawaySystem: [],
   });
   const [winchAndWrinchAccessories, setWinchAndWrinchAccessories] = useState({
     winchType: [],
     winchCapacity: [],
-    // winchRopeLength: [],
-    // winchDrumMaterial: [],
-    // winchGearRatio: [],
-    // winchRemoteControl: [],
     winchBrakeType: [],
     winchCableType: [],
-    // winchStrapLength: [],
-    // winchHandleLength: [],
-    // winchMounting: [],
   });
 
   const [lightingAndElectrical, setLightingAndElectrical] = useState({
-    // lighting: [],
-    // lightMountingPosition: [],
     lightType: [],
     electricalConnectorType: [],
     electricalWiringType: [],
@@ -160,9 +125,7 @@ export default function TrailersSearch() {
   });
 
   const [acessories, setAcessories] = useState({
-    // spareTyreCarrier: [],
     spareTyreSize: [],
-    // spareTyreMountingLocation: [],
     jackType: [],
     jackWheelType: [],
     jackCapacity: [],
@@ -172,20 +135,11 @@ export default function TrailersSearch() {
   const [loadingAndTransportFeatures, setLoadingAndTransportFeatures] =
     useState({
       loadingSystem: [],
-      // bunks: [],
-      // bunkMaterial: [],
-      // bunkWidth: [],
       bunkHeightAdjustment: [],
-      // bunkMountingBracketMaterial: [],
-      // rollers: [],
-      // rollerMaterial: [],
-      // rollerAxleDiameter: [],
     });
 
   const [securityFeatures, setSecurityFeatures] = useState({
-    // wheelLocks: [],
     lockType: [],
-    // alarmSystem: [],
     gpsTrackingDevice: [],
   });
 
@@ -194,22 +148,16 @@ export default function TrailersSearch() {
     setEnvironmentalAndCorrosionResistance,
   ] = useState({
     corrosionProtection: [],
-    // rustInhibitors: [],
   });
   const [performanceAndHandling, setPerformanceAndHandling] = useState({
-    // maximumSpeedRating: [],
     turningRadius: [],
   });
   const [tongue, setTongue] = useState({
-    // tongueMaterial: [],
-    // tongueShape: [],
     tongueJackWheelSize: [],
     tongueJackType: [],
     tongueWeight: [],
-    // tongueWeightRatio: [],
   });
 
-  // const [value, onChange] = useState("");
   const filters = {
     identification,
     basics,
@@ -270,18 +218,6 @@ export default function TrailersSearch() {
     setAllSelectedOptions({});
   };
 
-  const setFilters = (key, data) => {
-    const setStateFunction = setStateFunctions[key];
-    if (setStateFunction) {
-      setStateFunction((prev) => ({
-        ...prev,
-        ...data,
-      }));
-    } else {
-      console.error(`No setState function found for key: ${key}`);
-    }
-  };
-
   const handlePageChange = (newPage) => {
     setPage(newPage);
   };
@@ -298,7 +234,7 @@ export default function TrailersSearch() {
       }
       console.log("/berths Put");
       setFetching(true);
-      const response = await fetch(`${URL}trailers`, {
+      const response = await fetch(`${apiUrl + "/search_berth/"}trailers`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -547,19 +483,3 @@ export default function TrailersSearch() {
     </Container>
   );
 }
-
-{
-  /* <div> */
-}
-{
-  /* <TimePicker onChange={onChange} value={value} /> */
-}
-// <DatePickerComponent
-//   label="Date of Birth"
-//   value={value}
-//   setValue={onChange}
-//   setOpenKey={setOpenKey}
-//   openKey={openKey}
-//   isMandatory={true}
-// />
-// </div>;

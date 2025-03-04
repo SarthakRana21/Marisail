@@ -1,4 +1,4 @@
-export const varToColumn = {
+export const charterVarToColumn = {
   // identification
   marisailVesselID: "Marisail_Vessel_ID",
   marisailCharterID: "Marisail_Charter_ID",
@@ -90,7 +90,7 @@ export const varToColumn = {
   priceDrop: "Price_Drop",
 };
 
-export const varToTable = {
+export const charterVarToTable = {
   identification: "Charter_Accomodation",
   guestAccommodation: "Charter_Accomodation",
   locationDetails: "Location",
@@ -104,7 +104,7 @@ export const varToTable = {
   calculatePricePay: "Sales",
 };
 
-export const uniqueTable = [
+export const charterUniqueTable = [
   "Charter_Accomodation",
   "Charter_Requirements",
   "Charter_Policy",

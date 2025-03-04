@@ -2,13 +2,9 @@ import { Form, Container, Row, Col } from "react-bootstrap";
 import { useEffect, useState } from "react";
 import DropdownWithCheckBoxes from "../DropdownWithCheckBoxes2";
 import Loader from "../Loader";
-import BerthCard from "../BerthCard";
 import ResetBar from "../ResetBar";
 import { varToDb, varToScreen } from "./CharterInfo";
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
-
-// import DatePickerComponent from "../DatePickerComponent";
-import DatePickerComponent2 from "../DatePickerComponent2";
 import RangeInput from "../RangeInput";
 import CharterCard from "../CharterCard";
 
@@ -154,7 +150,7 @@ export default function CharterSearch() {
       }
       console.log("/berths Put");
       setFetching(true);
-      const response = await fetch(`${URL}charters`, {
+      const response = await fetch(`${apiUrl + "/search_berth/"}charters`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

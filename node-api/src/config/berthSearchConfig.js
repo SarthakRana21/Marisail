@@ -1,4 +1,4 @@
-export const varToColumn = {
+export const berthVarToColumn = {
   // Site Details
   marisailBerthId: "Marisail_Berth_ID",
   dataSource: "Data Source",
@@ -260,7 +260,7 @@ export const varToColumn = {
   // uploadVideos: "Upload Videos",
 };
 
-export const varToTable = {
+export const berthVarToTable = {
   siteDetails: "Marina_Port",
   generalInformation: "Berths",
   amenitiesAndServices: "Amenities",
@@ -282,7 +282,7 @@ export const varToTable = {
   calculatePriceAndPay: "Berth_Sales",
 };
 
-export const uniqueTable = [
+export const berthUniqueTable = [
   "Marina_Port",
   "Berths",
   "Amenities",

@@ -1,6 +1,10 @@
 import { Router } from "express";
 import dbConnection from "../config/dbConfig.js";
-import { varToColumn, varToTable, uniqueTable } from "../config/trailerSearchConfig.js";
+import {
+  trailerVarToColumn,
+  trailerVarToTable,
+  trailerUniqueTable,
+} from "../config/trailerSearchConfig.js";
 import { withDatabaseConnection } from "./search_berth.js";
 
 const searchTrailerRouter = Router();
@@ -47,7 +51,7 @@ searchTrailerRouter.post("/trailers", async (req, res) => {
 
   // console.log(req.body);
   const filter = req.body.filter;
-  const tableName = varToTable[req.body.tableName];
+  const tableName = trailerVarToTable[req.body.tableName];
   // console.log("filter", filter);
   // console.log("req.body", req.body);
 
@@ -60,7 +64,7 @@ searchTrailerRouter.post("/trailers", async (req, res) => {
              FROM information_schema.columns
              WHERE table_name = '${tableName}'
              AND table_schema = 'Marisail'
-             AND column_name = '${varToColumn[key]}'`
+             AND column_name = '${trailerVarToColumn[key]}'`
       );
 
       // Check if the column exists
@@ -68,9 +72,9 @@ searchTrailerRouter.post("/trailers", async (req, res) => {
         // console.log(columnCheck )
         // console.log("inside if");
         const tables = await connection.query(
-          `SELECT ${varToColumn[key]}, COUNT(*) AS occurrence_cnt 
+          `SELECT ${trailerVarToColumn[key]}, COUNT(*) AS occurrence_cnt 
                  FROM ${tableName} 
-                 GROUP BY ${varToColumn[key]};`
+                 GROUP BY ${trailerVarToColumn[key]};`
         );
 
         console.log(tables[0]);
@@ -152,7 +156,6 @@ searchTrailerRouter.post("/trailersData", async (req, res) => {
   }
 });
 
-
 searchTrailerRouter.get("/trailer-detail/:id", async (req, res) => {
   console.log("Trailer ID:", req.params.id);
   const { id } = req.params; // Get the engine ID from the URL parameter
@@ -164,24 +167,22 @@ searchTrailerRouter.get("/trailer-detail/:id", async (req, res) => {
 
     var query = `SELECT`;
 
-    uniqueTable.forEach((table) => {
+    trailerUniqueTable.forEach((table) => {
       query += ` ${table}.*,`;
     });
 
     query = query.slice(0, -1);
-    query += ` FROM ${uniqueTable[0]}`;
+    query += ` FROM ${trailerUniqueTable[0]}`;
 
-    for (let i = 1; i < uniqueTable.length; i++) {
-      query += ` JOIN ${uniqueTable[i]} ON ${uniqueTable[0]}.Trailer_ID = ${uniqueTable[i]}.Trailer_ID`;
+    for (let i = 1; i < trailerUniqueTable.length; i++) {
+      query += ` JOIN ${trailerUniqueTable[i]} ON ${trailerUniqueTable[0]}.Trailer_ID = ${trailerUniqueTable[i]}.Trailer_ID`;
     }
 
-    query += ` WHERE ${uniqueTable[0]}.Trailer_ID = ${id};`;
+    query += ` WHERE ${trailerUniqueTable[0]}.Trailer_ID = ${id};`;
 
     console.log(query);
 
-    const tables = await connection.query(
-      query
-    );
+    const tables = await connection.query(query);
 
     console.log(tables);
 
@@ -191,94 +192,9 @@ searchTrailerRouter.get("/trailer-detail/:id", async (req, res) => {
   } finally {
     if (connection) connection.release();
   }
-})
-
-searchTrailerRouter.put("/trailers", async (req, res) => {
-  let connection;
-  try {
-    const {
-      siteDetailsTable,
-      siteDetailsColumn,
-      searchString,
-      offSet = 0,
-      appliedFilters,
-    } = req.body;
-    const dataResults = await withDatabaseConnection(async (connection) => {
-      const actualTable = varToTable[siteDetailsTable];
-      const actualColumn = varToColumn[siteDetailsColumn];
-      console.log('actualTable :>> ', actualTable);
-      // Validate config mappings
-      if (!actualTable || !actualColumn) {
-        throw new Error("Invalid table or column mapping configuration");
-      }
-
-      // Parameterized column check query
-      const columnCheckQuery = `
-        SELECT column_name
-        FROM information_schema.columns
-        WHERE table_name = ?
-        AND table_schema = 'marisail'
-        AND column_name = ?;
-      `;
-
-      const [columnCheck] = await connection.query(columnCheckQuery, [
-        actualTable,
-        actualColumn,
-      ]);
-
-      if (columnCheck.length === 0) {
-        throw new Error(
-          `Column '${actualColumn}' does not exist in table '${actualTable}'.`
-        );
-      }
-
-      // Safe query using backticks for identifiers
-      let dataQuery = `
-        SELECT \`${actualColumn}\`, COUNT(*) AS occurrence_cnt
-        FROM \`${actualTable}\`
-      `;
-
-      // Apply search filtering if searchString is provided
-      let queryParams = [];
-      if (searchString) {
-        dataQuery += ` WHERE \`${actualColumn}\` LIKE ? `;
-        queryParams.push(`%${searchString}%`);
-      }
-
-      dataQuery += ` GROUP BY \`${actualColumn}\` LIMIT 20 OFFSET ${offSet};`;
-      const [result] = await connection.query(dataQuery, queryParams);
-      await countDropDown(
-        connection,
-        actualColumn,
-        siteDetailsColumn,
-        appliedFilters,
-        result
-      );
-      return result;
-    });
-
-    res.status(200).json({
-      ok: true,
-      siteDetails: {
-        data: dataResults,
-      },
-    });
-  } catch (err) {
-    console.error("Error in /berths PUT:", err);
-    res.status(500).json({
-      ok: false,
-      message: "An error occurred while fetching berth data.",
-      details: err.message,
-    });
-  } finally {
-    if (connection) {
-      connection.release();
-      console.log("Database connection released.");
-    }
-  }
 });
 
-const countDropDown = async (
+export const countDropDownTrailers = async (
   connection,
   actualColumn,
   currentcolumn,
@@ -291,7 +207,7 @@ const countDropDown = async (
   var wherePart = "";
 
   for (const key of Object.keys(appliedFilters)) {
-    var columnKey = varToColumn[key];
+    var columnKey = trailerVarToColumn[key];
     if (appliedFilters[key].length === 0) continue;
     wherePart += "(";
     for (const value of appliedFilters[key]) {
@@ -306,11 +222,15 @@ const countDropDown = async (
   var sumString = "";
   const diffValueOfResult = result.map((obj) => obj[actualColumn]);
   for (const obj of diffValueOfResult) {
-    sumString += `SUM(CASE WHEN ${actualColumn === "Trailers_ID" ? "t.Trailers_ID" : actualColumn
-      } = '${obj}' THEN 1 ELSE 0 END) AS \`${obj}\`,`;
+    sumString += `SUM(CASE WHEN ${
+      actualColumn === "Trailers_ID" ? "t.Trailers_ID" : actualColumn
+    } = '${obj}' THEN 1 ELSE 0 END) AS \`${obj}\`,`;
   }
 
-  var query = `SELECT ${sumString.slice(0, -1)} FROM Trailers_ID t ${wherePart};`;
+  var query = `SELECT ${sumString.slice(
+    0,
+    -1
+  )} FROM Trailers_ID t ${wherePart};`;
 
   const [check] = await connection.query(query, []);
   result.map((item) => {
@@ -324,6 +244,5 @@ const countDropDown = async (
     return item;
   });
 };
-
 
 export default searchTrailerRouter;

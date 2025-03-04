@@ -2,10 +2,8 @@ import { useState, useEffect } from "react";
 import { Form, Container, Row, Col } from "react-bootstrap";
 import DropdownWithCheckBoxes from "../DropdownWithCheckBoxes2";
 import EngineCard from "../EngineCard";
-import SearchBar from "../SearchBar";
 import Pagination from "../CustomPagination";
 import { fetchColumns } from "../../api/searchEngineApi";
-import DropdownWithRadioButtons from "../DropdownWithRadioButtons";
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
 import "./engineSearch.scss";
@@ -352,7 +350,7 @@ const Engines = () => {
       }
       console.log("/berths Put");
       setFetching(true);
-      const response = await fetch(`${URL}engines`, {
+      const response = await fetch(`${apiUrl + "/search_berth/"}engines`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
