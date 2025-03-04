@@ -25,8 +25,6 @@ export default function EngineAdvert() {
     engineType: "",
     typeDesignation: "",
     askingPrice: "",
-  });
-  const [condition, setCondition] = useState({
     condition: "",
     usedCondition: "",
     seller: "",
@@ -34,22 +32,30 @@ export default function EngineAdvert() {
     lastSurveyDate: new Date(),
     brokerValuation: "",
   });
-  const [general, setGeneral] = useState({
-    engineClassification: "",
-    certification: "",
-    manufacturerWarranty: "",
-    engineSerialNumber: "",
-    ce_DesignCategory: "",
-    numberDrives: "",
-    numberEngines: "",
-    rangeMiles: "",
-    cruisingSpeed: "",
-    driveType: "",
-    engineHours: "",
-    ignitionSystem: "",
-    noiseLevel: "",
-    engineSoundproofingKits: "",
-  });
+  // const [condition, setCondition] = useState({
+  //   condition: "",
+  //   usedCondition: "",
+  //   seller: "",
+  //   offeredBy: "",
+  //   lastSurveyDate: new Date(),
+  //   brokerValuation: "",
+  // });
+  // const [general, setGeneral] = useState({
+  //   engineClassification: "",
+  //   certification: "",
+  //   manufacturerWarranty: "",
+  //   engineSerialNumber: "",
+  //   ce_DesignCategory: "",
+  //   numberDrives: "",
+  //   numberEngines: "",
+  //   rangeMiles: "",
+  //   cruisingSpeed: "",
+  //   driveType: "",
+  //   engineHours: "",
+  //   ignitionSystem: "",
+  //   noiseLevel: "",
+  //   engineSoundproofingKits: "",
+  // });
   const [transmission, setTransmission] = useState({
     transmissionType: "",
     gearShift: "",
@@ -130,6 +136,20 @@ export default function EngineAdvert() {
     engineSpeedRange: "",
     maximumContinuousRating: "",
     continuousPower: "",
+    engineClassification: "",
+    certification: "",
+    manufacturerWarranty: "",
+    engineSerialNumber: "",
+    ce_DesignCategory: "",
+    numberDrives: "",
+    numberEngines: "",
+    rangeMiles: "",
+    cruisingSpeed: "",
+    driveType: "",
+    engineHours: "",
+    ignitionSystem: "",
+    noiseLevel: "",
+    engineSoundproofingKits: "",
   });
   const [cylinders, setCylinders] = useState({
     cylinderConfiguration: "",
@@ -141,15 +161,29 @@ export default function EngineAdvert() {
     bore: "",
     stroke: "",
   });
-  const [rpm, setRpm] = useState({
-    idleRPM: "",
-    ratedSpeedRPM: "",
-    rpmAtMaxPower: "",
-  });
+  // const [rpm, setRpm] = useState({
+  //   idleRPM: "",
+  //   ratedSpeedRPM: "",
+  //   rpmAtMaxPower: "",
+  // });
   const [torque, setTorque] = useState({
     maximumTorque: "",
     maximumTorqueAtSpeed: "",
     torqueAtRatedSpeed: "",
+    ecuEngineControlUnit: "",
+    engineFuelType: "",
+    engineStroke: "",
+    engineTier: "",
+    inboardOutboard: "",
+    mainOrAuxiliary: "",
+    podEngine: "",
+    saildriveEngine: "",
+    steeringAndEngineControls: "",
+    sternDriveEngine: "",
+    engineType: "",
+    idleRPM: "",
+    ratedSpeedRPM: "",
+    rpmAtMaxPower: "",
   });
   const [coolingSystem, setCoolingSystem] = useState({
     afterCooled: "",
@@ -199,10 +233,9 @@ export default function EngineAdvert() {
     fuelSystem: "",
     fuelTankCapacity: "",
     fuelType: "",
-    lowestSpecificFuelConsumption: "",
+  
     recommendedFuel: "",
-    fuelConsumptionAtCruisingSpeed: "",
-    fuelConsumptionRate: "",
+  
     fuelConsumtpionAtFullLoad: "",
     fuelInjectionSystemType: "",
     fuelDeliveryPressure: "",
@@ -214,6 +247,9 @@ export default function EngineAdvert() {
     fuelConsumptionHalfLoad: "",
     fuelConsumptionPropellerCurve: "",
     heatRejectionToCoolant: "",
+    fuelConsumptionAtCruisingSpeed: "",
+    fuelConsumptionRate: "",
+    lowestSpecificFuelConsumption: "",
   });
   const [oil, setOil] = useState({
     oilFilter: "",
@@ -329,19 +365,19 @@ export default function EngineAdvert() {
     engineShaftTube: "",
     engineShaftWasher: "",
   });
-  const [engineType, setEngineType] = useState({
-    ecuEngineControlUnit: "",
-    engineFuelType: "",
-    engineStroke: "",
-    engineTier: "",
-    inboardOutboard: "",
-    mainOrAuxiliary: "",
-    podEngine: "",
-    saildriveEngine: "",
-    steeringAndEngineControls: "",
-    sternDriveEngine: "",
-    engineType: "",
-  });
+  // const [engineType, setEngineType] = useState({
+  //   ecuEngineControlUnit: "",
+  //   engineFuelType: "",
+  //   engineStroke: "",
+  //   engineTier: "",
+  //   inboardOutboard: "",
+  //   mainOrAuxiliary: "",
+  //   podEngine: "",
+  //   saildriveEngine: "",
+  //   steeringAndEngineControls: "",
+  //   sternDriveEngine: "",
+  //   engineType: "",
+  // });
 
   /*const checkRequired = () => {
     const errors = {};
@@ -375,36 +411,44 @@ export default function EngineAdvert() {
 
   const sections = {
     engineDetails,
-    condition,
+    dimensions,
+    // condition,
     performance,
-    general,
+    engineParts,
+    // general,
     transmission,
     cylinders,
+    torque,
+    
     propulsion,
     fuelSystem,
+    oil,
+    
+    equipment,
+    coolingSystem,
+    fuelConsumption,
     serviceAndMaintenance,
     installationAndMounting,
     safetyAndMonitoring,
-    fuelConsumption,
-    torque,
-    rpm,
-    oil,
+
+    
+    // rpm,
+    
     emissionsAndEnvironment,
-    dimensions,
+    
     electricalSystem,
-    engineShaft,
-    engineType,
+    
+    // engineType,
     engineRoom,
     engineMeasurements,
-    engineParts,
-    equipment,
-    coolingSystem,
+   
+   
   };
 
   const setStateFunctions = {
     engineDetails: setEngineDetails,
-    condition: setCondition,
-    general: setGeneral,
+    // condition: setCondition,
+    // general: setGeneral,
     transmission: setTransmission,
     installationAndMounting: setInstallationAndMounting,
     serviceAndMaintenance: setServiceAndMaintenance,
@@ -412,7 +456,7 @@ export default function EngineAdvert() {
     dimensions: setDimensions,
     performance: setPerformance,
     cylinders: setCylinders,
-    rpm: setRpm,
+    // rpm: setRpm,
     torque: setTorque,
     coolingSystem: setCoolingSystem,
     propulsion: setPropulsion,
@@ -426,7 +470,7 @@ export default function EngineAdvert() {
     engineMeasurements: setEngineMeasurements,
     engineRoom: setEngineRoom,
     engineShaft: setEngineShaft,
-    engineType: setEngineType,
+    // engineType: setEngineType,
   };
 
   const handleOptionSelect = (category, field, selectedOption) => {

@@ -37,6 +37,12 @@ const Engines = () => {
     engineType: "",
     typeDesignation: "",
     askingPrice: "",
+    condition: "",
+    usedCondition: "",
+    seller: "",
+    offeredBy: "",
+    lastSurveyDate: "",
+    brokerValuation: "",
   });
 
   const [condition, setCondition] = useState({
@@ -292,7 +298,7 @@ const Engines = () => {
   const filters = {
     // identification,
     engineDetails,
-    condition,
+    // condition,
     general,
     guestRequirements,
     transmission,
@@ -313,7 +319,7 @@ const Engines = () => {
   };
   const setStateFunctions = {
     engineDetails: setEngineDetails,
-    condition: setCondition,
+    // condition: setCondition,
     general: setGeneral,
     guestRequirements: setGuestRequirements,
     transmission: setTransmission,

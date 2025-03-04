@@ -30,8 +30,6 @@ export default function TrailersAdvert() {
     model: "",
     year: "",
     askingPrice: "",
-  });
-  const [basics, setBasics] = useState({
     type: "",
     grossVehicleWeightRating: "",
     loadCapacity: "",
@@ -40,6 +38,9 @@ export default function TrailersAdvert() {
     totalHeight: "",
     axleHeightFromGround: "",
   });
+  // const [basics, setBasics] = useState({
+  
+  // });
   const [constructionMaterials, setConstructionMaterials] = useState({
     frameMaterial: "",
     frameCoating: "",
@@ -51,17 +52,15 @@ export default function TrailersAdvert() {
     roofMaterial: "",
   });
   const [maintenanceFeatures, setMaintenanceFeatures] = useState({
-    greasePoints: "", //
+    greasePoints: "", 
     bearingType: "",
-    maintenanceSchedule: "", //
+    maintenanceSchedule: "",
+    corrosionProtection: "",
+    rustInhibitors: "", 
   });
-  const [userFeatures, setUserFeatures] = useState({
-    storage: "",
-    tieDownPoints: "",
-    toolBox: "",
-    bumperType: "",
-    userFeatures: "",
-  });
+  // const [userFeatures, setUserFeatures] = useState({
+   
+  // });
   const [specialFeatures, setSpecialFeatures] = useState({
     hydraulicTilt: "", //
     extendableTongue: "", //
@@ -159,23 +158,18 @@ export default function TrailersAdvert() {
       rollerMaterial: "",
       rollerAxleDiameter: "",
     });
-  const [securityFeatures, setSecurityFeatures] = useState({
-    wheelLocks: "",
-    lockType: "",
-    alarmSystem: "",
-    gps_TrackingDevice: "",
-  });
-  const [
-    environmentalAndCorrosionResistance,
-    setEnvironmentalAndCorrosionResistance,
-  ] = useState({
-    corrosionProtection: "",
-    rustInhibitors: "",
-  });
-  const [performanceAndHandling, setPerformanceAndHandling] = useState({
-    maximumSpeedRating: "",
-    turningRadius: "",
-  });
+  // const [securityFeatures, setSecurityFeatures] = useState({
+   
+  // });
+  // const [
+  //   environmentalAndCorrosionResistance,
+  //   setEnvironmentalAndCorrosionResistance,
+  // ] = useState({
+    
+  // });
+  // const [performanceAndHandling, setPerformanceAndHandling] = useState({
+   
+  // });
   const [tongue, setTongue] = useState({
     tongueMaterial: "",
     tongueShape: "",
@@ -187,6 +181,17 @@ export default function TrailersAdvert() {
   const [documentation, setDocumentation] = useState({
     ownerManual: "",
     warranty: "",
+    storage: "",
+    tieDownPoints: "",
+    toolBox: "",
+    bumperType: "",
+    userFeatures: "",
+    wheelLocks: "",
+    lockType: "",
+    alarmSystem: "",
+    gps_TrackingDevice: "",
+    maximumSpeedRating: "",
+    turningRadius: "",
   });
   const [regulatoryCompliance, setRegulatoryCompliance] = useState({
     dot_Compliance: "",
@@ -256,35 +261,38 @@ export default function TrailersAdvert() {
 
   const sections = {
     identification,
+    winchAndWrinchAccessories,
     specialFeatures,
-    constructionMaterials,
-    basics,
-    userFeatures,
-    securityFeatures,
+    maintenanceFeatures,
+   
+    // basics,
+    // userFeatures,
+    // securityFeatures,
     additionalAccessories,
     customizationOptions,
     axlesAndSuspension,
     loadingAndTransportFeatures,
-    brakes,
-    winchAndWrinchAccessories,
-    lightingAndElectrical,
+   
     acessories,
-    performanceAndHandling,
+    lightingAndElectrical,
+    brakes,
+    // performanceAndHandling,
     documentation,
     tyresAndWheels,
     tongue,
-    regulatoryCompliance,
-    maintenanceFeatures,
+   
+    constructionMaterials,
     paymentTerms,
-    environmentalAndCorrosionResistance,
+    regulatoryCompliance,
+    // environmentalAndCorrosionResistance,
   };
 
   const setStateFunctions = {
     identification: setIdentification,
-    basics: setBasics,
+    // basics: setBasics,
     constructionMaterials: setConstructionMaterials,
     maintenanceFeatures: setMaintenanceFeatures,
-    userFeatures: setUserFeatures,
+    // userFeatures: setUserFeatures,
     specialFeatures: setSpecialFeatures,
     additionalAccessories: setAdditionalAccessories,
     customizationOptions: setCustomizationOptions,
@@ -295,9 +303,9 @@ export default function TrailersAdvert() {
     lightingAndElectrical: setLightingAndElectrical,
     acessories: setAcessories,
     loadingAndTransportFeatures: setLoadingAndTransportFeatures,
-    securityFeatures: setSecurityFeatures,
-    environmentalAndCorrosionResistance: setEnvironmentalAndCorrosionResistance,
-    performanceAndHandling: setPerformanceAndHandling,
+    // securityFeatures: setSecurityFeatures,
+    // environmentalAndCorrosionResistance: setEnvironmentalAndCorrosionResistance,
+    // performanceAndHandling: setPerformanceAndHandling,
     tongue: setTongue,
     documentation: setDocumentation,
     regulatoryCompliance: setRegulatoryCompliance,

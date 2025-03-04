@@ -48,11 +48,6 @@ const EngineDetail = () => {
           "Engine Type": engine.engine_type,
           "Type Designation": engine.type_designation,
           "Asking Price": engine.asking_price,
-        },
-      },
-      {
-        title: "Condition",
-        details: {
           Condition: engine.condition_1,
           "Used Condition": engine.used_condition,
           Seller: engine.seller,
@@ -61,6 +56,17 @@ const EngineDetail = () => {
           "Broker Valuation": engine.broker_valuation,
         },
       },
+      // {
+      //   title: "Condition",
+      //   details: {
+      //     Condition: engine.condition_1,
+      //     "Used Condition": engine.used_condition,
+      //     Seller: engine.seller,
+      //     "Offered By (Dealer)": engine.offered_by,
+      //     "Last Survey Date": engine.lastsurvey_date,
+      //     "Broker Valuation": engine.broker_valuation,
+      //   },
+      // },
       {
         title: "Transmission",
         details: {
@@ -113,20 +119,25 @@ const EngineDetail = () => {
           "Last Service Date": engine.last_servicedate,
         },
       },
-      {
-        title: "RPM",
-        details: {
-          "Idle RPM": engine.idle_rpm,
-          "Rated Speed (RPM)": engine.rated_speed,
-          "RPM at Max Power": engine.rpm_maxpower,
-        },
-      },
+      // {
+      //   title: "RPM",
+      //   details: {
+      //     "Idle RPM": engine.idle_rpm,
+      //     "Rated Speed (RPM)": engine.rated_speed,
+      //     "RPM at Max Power": engine.rpm_maxpower,
+      //   },
+      // },
       {
         title: "Torque",
         details: {
           "Maximum Torque (Nm)": engine.max_torque,
           "Maximum Torque At Speed (RPM)": engine.max_torquerpm,
           "Torque At Rated Speed (Nm)": engine.torque_ratedspeed,
+
+
+          "Idle RPM": engine.idle_rpm,
+          "Rated Speed (RPM)": engine.rated_speed,
+          "RPM at Max Power": engine.rpm_maxpower,
         },
       },
       {
@@ -150,24 +161,24 @@ const EngineDetail = () => {
           "Raw Water Pump Type": engine.rawwater_pumptype,
         },
       },
-      {
-        title: "General",
-        details: {
-          "Engine Classification": engine.engine_classifiable,
-          Certification: engine.engine_certification,
-          "Manufacturer Warranty": engine.manufacture_warranty,
-          "Engine Serial Number": engine.engine_serial,
-          "CE Design Category": engine.ce_category,
-          "Number Drives": engine.number_drives,
-          "Number Engines": engine.number_engines,
-          "Range (Miles)": engine.engine_range,
-          "Cruising Speed (Knots)": engine.cruise_speed,
-          "Drive Type": engine.drive_type,
-          "Ignition System (Starting)": engine.ignition_system,
-          "Noise Level (dB)": engine.noiselevel_db,
-          "Engine Soundproofing Kits": engine.enginesound_proofingkits,
-        },
-      },
+      // {
+      //   title: "General",
+      //   details: {
+      //     "Engine Classification": engine.engine_classifiable,
+      //     Certification: engine.engine_certification,
+      //     "Manufacturer Warranty": engine.manufacture_warranty,
+      //     "Engine Serial Number": engine.engine_serial,
+      //     "CE Design Category": engine.ce_category,
+      //     "Number Drives": engine.number_drives,
+      //     "Number Engines": engine.number_engines,
+      //     "Range (Miles)": engine.engine_range,
+      //     "Cruising Speed (Knots)": engine.cruise_speed,
+      //     "Drive Type": engine.drive_type,
+      //     "Ignition System (Starting)": engine.ignition_system,
+      //     "Noise Level (dB)": engine.noiselevel_db,
+      //     "Engine Soundproofing Kits": engine.enginesound_proofingkits,
+      //   },
+      // },
 
       {
         title: "Equipment",
@@ -217,6 +228,19 @@ const EngineDetail = () => {
           "Engine Speed Range (RPM)": engine.Engine_speedrange,
           "Engine Efficiency": engine.engine_efficiency,
           "Power-to-Weight Ratio": engine.powertoweight_ratio,
+          "Engine Classification": engine.engine_classifiable,
+          "Certification": engine.engine_certification,
+          "Manufacturer Warranty": engine.manufacture_warranty,
+          "Engine Serial Number": engine.engine_serial,
+          "CE Design Category": engine.ce_category,
+          "Number Drives": engine.number_drives,
+          "Number Engines": engine.number_engines,
+          "Range (Miles)": engine.engine_range,
+          "Cruising Speed (Knots)": engine.cruise_speed,
+          "Drive Type": engine.drive_type,
+          "Ignition System (Starting)": engine.ignition_system,
+          "Noise Level (dB)": engine.noiselevel_db,
+          "Engine Soundproofing Kits": engine.enginesound_proofingkits,
         },
       },
       {
@@ -231,14 +255,9 @@ const EngineDetail = () => {
           "Fuel System": engine.fuel_system,
           "Fuel Tank Capacity (Litres)": engine.fuel_tank_capacity,
           "Fuel Type": engine.fuel_type,
-          "Lowest Specific Fuel Consumption (G/Kwh)":
-            engine.lowest_specific_fuel_consumption,
+         
           "Recommended Fuel": engine.recommended_fuel,
-          "Fuel Consumption At Cruising Speed (Litres)":
-            engine.fuel_consumption_cruising_speed,
-          "Fuel Consumption Rate": engine.fuel_consumption_rate,
-          "Fuel Consumption At Full Load (G/Kwh)":
-            engine.fuel_consumption_full_load,
+         
           "Fuel Injection System Type": engine.fuel_injection_system_type,
           "Fuel Delivery Pressure": engine.fuel_delivery_pressure,
           "Fuel Tank Material": engine.fuel_tank_material,
@@ -276,6 +295,13 @@ const EngineDetail = () => {
           "Fuel Consumption, Propeller Curve (L/H)":
             engine.fuel_consumption_propeller_curve,
           "Heat Rejection To Coolant (Kw)": engine.heat_rejection_to_coolant,
+          "Fuel Consumption At Cruising Speed (Litres)":
+          engine.fuel_consumption_cruising_speed,
+        "Fuel Consumption Rate": engine.fuel_consumption_rate,
+        "Fuel Consumption At Full Load (G/Kwh)":
+          engine.fuel_consumption_full_load,
+          "Lowest Specific Fuel Consumption (G/Kwh)":
+          engine.lowest_specific_fuel_consumption,
         },
       },
       {
