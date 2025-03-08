@@ -1,12 +1,14 @@
-import nextConnect from 'next-connect';
+import { Router } from 'express';
 import multer from 'multer';
-import { createConnection } from 'mysql2/promise';
+import { createConnection } from 'mysql2';
 import { v4 as uuidv4 } from 'uuid'; // For generating random keys
+import connection from '../config/dbConfig';
 
+const router = Router();
 
 const upload = multer({
   storage: multer.diskStorage({
-    destination: '../../../public/uploads', // Save files to the public/uploads folder
+    destination: 'public/uploads', // Adjusted path
     filename: (req, file, cb) => {
       const randomKey = uuidv4(); // Generate a random key
       const fileName = `${randomKey}-${file.originalname}`; // Create a unique file name
@@ -15,49 +17,45 @@ const upload = multer({
   }),
 });
 
-// Create a Next.js API route handler
-const handler = nextConnect();
-
-handler.use(upload.array('payloads')) // Use upload.array to handle multiple files
-  .post(async (req, res) => {
+// Handle file uploads
+router.post('/upload-media', upload.array('payloads'), async (req, res) => {
+  try {
     const { previews } = req.body; // Get the array of previews from the request body
     const files = req.files; // Get the uploaded files
 
     // Parse the previews from JSON string
     const previewUrls = Array.isArray(previews) ? previews : JSON.parse(previews);
 
-    if (!previewUrls || previewUrls.length !== files.length) {
+    if (!previewUrls || files.length === 0) {
       return res.status(400).json({ message: 'Invalid input' });
     }
+    // Create a connection to the MariaDB database
+    // const connection = await createConnection({
+    //   host: 'localhost',
+    //   user: 'saildb',
+    //   password: '',
+    //   database: 'marisail',
+    // });
 
-    try {
-      // Create a connection to the MariaDB database
-      const connection = await createConnection({
-        host: 'localhost',
-        user: 'saildb',
-        password: process.env?.SAILDB_PASSWORD ?? "",
-        database: 'marisail',
-      });
+    // Prepare the SQL statement
+    const sql = 'INSERT INTO media_uploads (url, file_location) VALUES (?, ?)';
+    const promises = files.map((file, index) => {
+      const fileLocation = `/uploads/${file.filename}`; // File location
+      const url = previewUrls[index]; // Corresponding preview URL
+      return connection.execute(sql, [url, fileLocation]);
+    });
 
-      // Prepare the SQL statement
-      const sql = 'INSERT INTO media_uploads (url, file_location) VALUES (?, ?)';
-      const promises = files.map((file, index) => {
-        const fileLocation = `/public/upload/${file.filename}`; // File location
-        const url = previewUrls[index]; // Corresponding preview URL
-        return connection.execute(sql, [url, fileLocation]);
-      });
+    // Execute all insert operations
+    await Promise.all(promises);
 
-      // Execute all insert operations
-      await Promise.all(promises);
+    // Close the database connection
+    // await connection.end();
 
-      // Close the database connection
-      await connection.end();
+    res.status(200).json({ message: 'Files uploaded and data saved successfully' });
+  } catch (error) {
+    console.error('Database error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
 
-      res.status(200).json({ message: 'Files uploaded and data saved successfully' });
-    } catch (error) {
-      console.error('Database error:', error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  });
-
-export default handler;
+export default router;
