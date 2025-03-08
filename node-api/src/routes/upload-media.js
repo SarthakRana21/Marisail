@@ -2,7 +2,7 @@ import { Router } from 'express';
 import multer from 'multer';
 import { createConnection } from 'mysql2';
 import { v4 as uuidv4 } from 'uuid'; // For generating random keys
-import connection from '../config/dbConfig';
+import connection from '../config/dbConfig.js';
 
 const router = Router();
 
@@ -45,13 +45,13 @@ router.post('/upload-media', upload.array('payloads'), async (req, res) => {
       return connection.execute(sql, [url, fileLocation]);
     });
 
-    // Execute all insert operations
-    await Promise.all(promises);
+    // // Execute all insert operations
+    // await Promise.all(promises);
 
     // Close the database connection
     // await connection.end();
 
-    res.status(200).json({ message: 'Files uploaded and data saved successfully' });
+    res.status(200).json({ message: 'Files uploaded and data saved successfully', data: previewUrls });
   } catch (error) {
     console.error('Database error:', error);
     res.status(500).json({ message: 'Internal server error' });
