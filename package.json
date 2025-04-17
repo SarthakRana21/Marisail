@@ -30,7 +30,7 @@
     "react-select-country-list": "^2.2.3",
     "react-time-picker": "^7.0.0",
     "rsuite": "^5.75.0",
-    "uuid": "^11.0.3"
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",

@@ -4,6 +4,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import logger from "morgan";
 import authRoutes from "./index.js";
+import uploadRouter from "./routes/upload-media.js"; // Import your upload route
 var server = express();
 const allowOrigins = ['https://test.marisail.com', 'http://localhost:5173']
 const corsOptions = {
@@ -11,7 +12,7 @@ const corsOptions = {
   origin: allowOrigins,
   methods: ['GET', 'POST', 'PUT'], // Allow the necessary methods
   allowedHeaders: ['Content-Type', 'Authorization'], // allowed content types
-  
+
 };
 server.use(cors(corsOptions));
 server.use(logger("dev"));
@@ -19,6 +20,7 @@ server.use(json());
 server.use(urlencoded({ extended: false }));
 server.use(cookieParser());
 server.use("/api", authRoutes);
+server.use("/api", uploadRouter)
 
 
 // catch 404 and forward to error handler
@@ -35,11 +37,11 @@ server.use((req, res, next) => {
   res.status(404).json({ message: 'Not Found' });
 });
 server.use((req, res, next) => {
-  console.log(`Incoming request: ${req.method} ${req.url}`);
+  // console.log(`Incoming request: ${req.method} ${req.url}`);
   next();
 });
 // usin .env PORT value or the pm2 its ok
-var port = (process.env.PORT || '3000'); 
+var port = (process.env.PORT || '3000');
 
 server.listen(port, () => {
   console.log(`Running on port ` + port);

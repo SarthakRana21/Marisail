@@ -7,10 +7,10 @@ const BerthCard = ({
   Marisail_Berth_ID,
   Location,
   Type,
-  year="",
+  year = "",
 }) => {
   return (
-    <Link to={`/berth-detail/${Marisail_Berth_ID}`} className="custom-card-link">
+    <Link to={`/berth/${Marisail_Berth_ID}`} className="custom-card-link">
       <div className="custom-card" style={{ marginBottom: "30px" }}>
         <div className="card-content">
           <div className="card-header">

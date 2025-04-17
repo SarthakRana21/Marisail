@@ -30,8 +30,6 @@ export default function TrailersAdvert() {
     model: "",
     year: "",
     askingPrice: "",
-  });
-  const [basics, setBasics] = useState({
     type: "",
     grossVehicleWeightRating: "",
     loadCapacity: "",
@@ -40,6 +38,9 @@ export default function TrailersAdvert() {
     totalHeight: "",
     axleHeightFromGround: "",
   });
+  // const [basics, setBasics] = useState({
+  
+  // });
   const [constructionMaterials, setConstructionMaterials] = useState({
     frameMaterial: "",
     frameCoating: "",
@@ -51,17 +52,15 @@ export default function TrailersAdvert() {
     roofMaterial: "",
   });
   const [maintenanceFeatures, setMaintenanceFeatures] = useState({
-    greasePoints: "", //
+    greasePoints: "", 
     bearingType: "",
-    maintenanceSchedule: "", //
+    maintenanceSchedule: "",
+    corrosionProtection: "",
+    rustInhibitors: "", 
   });
-  const [userFeatures, setUserFeatures] = useState({
-    storage: "",
-    tieDownPoints: "",
-    toolBox: "",
-    bumperType: "",
-    userFeatures: "",
-  });
+  // const [userFeatures, setUserFeatures] = useState({
+   
+  // });
   const [specialFeatures, setSpecialFeatures] = useState({
     hydraulicTilt: "", //
     extendableTongue: "", //
@@ -159,23 +158,18 @@ export default function TrailersAdvert() {
       rollerMaterial: "",
       rollerAxleDiameter: "",
     });
-  const [securityFeatures, setSecurityFeatures] = useState({
-    wheelLocks: "",
-    lockType: "",
-    alarmSystem: "",
-    gps_TrackingDevice: "",
-  });
-  const [
-    environmentalAndCorrosionResistance,
-    setEnvironmentalAndCorrosionResistance,
-  ] = useState({
-    corrosionProtection: "",
-    rustInhibitors: "",
-  });
-  const [performanceAndHandling, setPerformanceAndHandling] = useState({
-    maximumSpeedRating: "",
-    turningRadius: "",
-  });
+  // const [securityFeatures, setSecurityFeatures] = useState({
+   
+  // });
+  // const [
+  //   environmentalAndCorrosionResistance,
+  //   setEnvironmentalAndCorrosionResistance,
+  // ] = useState({
+    
+  // });
+  // const [performanceAndHandling, setPerformanceAndHandling] = useState({
+   
+  // });
   const [tongue, setTongue] = useState({
     tongueMaterial: "",
     tongueShape: "",
@@ -187,6 +181,17 @@ export default function TrailersAdvert() {
   const [documentation, setDocumentation] = useState({
     ownerManual: "",
     warranty: "",
+    storage: "",
+    tieDownPoints: "",
+    toolBox: "",
+    bumperType: "",
+    userFeatures: "",
+    wheelLocks: "",
+    lockType: "",
+    alarmSystem: "",
+    gps_TrackingDevice: "",
+    maximumSpeedRating: "",
+    turningRadius: "",
   });
   const [regulatoryCompliance, setRegulatoryCompliance] = useState({
     dot_Compliance: "",
@@ -256,35 +261,38 @@ export default function TrailersAdvert() {
 
   const sections = {
     identification,
+    winchAndWrinchAccessories,
     specialFeatures,
-    constructionMaterials,
-    basics,
-    userFeatures,
-    securityFeatures,
+    maintenanceFeatures,
+   
+    // basics,
+    // userFeatures,
+    // securityFeatures,
     additionalAccessories,
     customizationOptions,
     axlesAndSuspension,
     loadingAndTransportFeatures,
-    brakes,
-    winchAndWrinchAccessories,
-    lightingAndElectrical,
+   
     acessories,
-    performanceAndHandling,
+    lightingAndElectrical,
+    brakes,
+    // performanceAndHandling,
     documentation,
     tyresAndWheels,
     tongue,
-    regulatoryCompliance,
-    maintenanceFeatures,
+   
+    constructionMaterials,
     paymentTerms,
-    environmentalAndCorrosionResistance,
+    regulatoryCompliance,
+    // environmentalAndCorrosionResistance,
   };
 
   const setStateFunctions = {
     identification: setIdentification,
-    basics: setBasics,
+    // basics: setBasics,
     constructionMaterials: setConstructionMaterials,
     maintenanceFeatures: setMaintenanceFeatures,
-    userFeatures: setUserFeatures,
+    // userFeatures: setUserFeatures,
     specialFeatures: setSpecialFeatures,
     additionalAccessories: setAdditionalAccessories,
     customizationOptions: setCustomizationOptions,
@@ -295,9 +303,9 @@ export default function TrailersAdvert() {
     lightingAndElectrical: setLightingAndElectrical,
     acessories: setAcessories,
     loadingAndTransportFeatures: setLoadingAndTransportFeatures,
-    securityFeatures: setSecurityFeatures,
-    environmentalAndCorrosionResistance: setEnvironmentalAndCorrosionResistance,
-    performanceAndHandling: setPerformanceAndHandling,
+    // securityFeatures: setSecurityFeatures,
+    // environmentalAndCorrosionResistance: setEnvironmentalAndCorrosionResistance,
+    // performanceAndHandling: setPerformanceAndHandling,
     tongue: setTongue,
     documentation: setDocumentation,
     regulatoryCompliance: setRegulatoryCompliance,
@@ -364,30 +372,65 @@ export default function TrailersAdvert() {
   const cacheKey = "trailersFilterData";
   const URL = apiUrl + "/trailers/";
 
-  const fetchDistinctData = useCallback(async () => {
-    try {
-      setLoading(true);
-      const promises = Object.keys(sections).map(async (key) => {
+  // const fetchDistinctData = useCallback(async () => {
+  //   try {
+  //     setLoading(true);
+  //     const promises = Object.keys(sections).map(async (key) => {
+  //       const response = await fetch(`${URL}trailers`, {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify(sections[key]),
+  //       });
+  //       const data = await response.json();
+  //       return { key, data: data.res };
+  //     });
+  //     const results = await Promise.all(promises);
+  //     results.forEach(({ key, data }) => {
+  //       setPageData(key, data);
+  //     });
+  //   } catch (err) {
+  //     console.error(err);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }, [URL, sections, setPageData]);
+
+  const fetchDistinctData = useCallback(
+    async (sectionKey, fieldKey) => {
+      try {
+        setLoading(true);
+
+        // Prepare request payload based on the opened section & field
+        const requestBody = {
+          sectionKey: sectionKey, // The section (e.g., "amenitiesAndServices")
+          fieldKey: fieldKey, // The specific field/column (e.g., "wifiAvailability")
+        };
+
+        // Call API for only the relevant section & field
         const response = await fetch(`${URL}trailers`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(sections[key]),
+          body: JSON.stringify(requestBody),
         });
+
         const data = await response.json();
-        return { key, data: data.res };
-      });
-      const results = await Promise.all(promises);
-      results.forEach(({ key, data }) => {
-        setPageData(key, data);
-      });
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  }, [URL, sections, setPageData]);
+        console.log("data :>> ", data);
+
+        // Update state only for the specific field
+        setPageData(sectionKey, data.res);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [URL, sections, setPageData]
+  );
+
   const fetchRelevantOptions = async (trailerId, manufacturer, make, model) => {
     try {
       setLoading(true);
@@ -422,7 +465,7 @@ export default function TrailersAdvert() {
                 if (sections[sectionKey][fieldKey] !== undefined) {
                   const fieldValue =
                     Array.isArray(result[fieldKey]) &&
-                      result[fieldKey].length > 0
+                    result[fieldKey].length > 0
                       ? result[fieldKey]?.[0]
                       : sections[sectionKey][fieldKey];
 
@@ -497,17 +540,18 @@ export default function TrailersAdvert() {
       setLoading(false);
     }
   };
-  useEffect(() => {
-    const cachedData = localStorage.getItem(cacheKey);
-    if (cachedData) {
-      setPageData(JSON.parse(cachedData));
-    } else {
-      if (!hasFetched.current) {
-        fetchDistinctData();
-        hasFetched.current = true;
-      }
-    }
-  }, [setPageData, fetchDistinctData]);
+
+  // useEffect(() => {
+  //   const cachedData = localStorage.getItem(cacheKey);
+  //   if (cachedData) {
+  //     setPageData(JSON.parse(cachedData));
+  //   } else {
+  //     if (!hasFetched.current) {
+  //       fetchDistinctData();
+  //       hasFetched.current = true;
+  //     }
+  //   }
+  // }, [setPageData, fetchDistinctData]);
 
   const handleInputChange = (title, fieldKey, newValue) => {
     setTrailers((prevTrailers) => ({
@@ -525,6 +569,18 @@ export default function TrailersAdvert() {
         {fieldName} field is required
       </div>
     );
+  };
+
+  const handleDropdownOpen = (sectionKey, fieldKey) => {
+    setOpenKey(fieldKey);
+
+    // Fetch data only if not already loaded
+    if (
+      !sections[sectionKey][fieldKey] ||
+      sections[sectionKey][fieldKey].length === 0
+    ) {
+      fetchDistinctData(sectionKey, fieldKey);
+    }
   };
 
   return (
@@ -567,7 +623,9 @@ export default function TrailersAdvert() {
                               )
                             }
                             isMandatory={field.mandatory}
-                            setOpenKey={setOpenKey}
+                            setOpenKey={() =>
+                              handleDropdownOpen(title, fieldKey)
+                            }
                             openKey={openKey}
                           />
                           {error[`${fieldKey}`] && (

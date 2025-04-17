@@ -6,25 +6,25 @@ const PhotoUploader = () => {
   const [files, setFiles] = useState([]);
 
   const onDrop = (acceptedFiles) => {
-
-    const allImages = acceptedFiles.every((file) => file.type.startsWith('image/'));
+    const allImages = acceptedFiles.every((file) =>
+      file.type.startsWith("image/")
+    );
 
     if (!allImages) {
-        alert('Please drop only image files.');
-        return;
+      alert("Please drop only image files.");
+      return;
     }
 
-    const newFiles = acceptedFiles.filter((newFile) => 
-        !files.some(file => file.path === newFile.path)
+    const newFiles = acceptedFiles.filter(
+      (newFile) => !files.some((file) => file.name === newFile.name)
     );
 
     const filesWithPreview = newFiles.map((newFile) => ({
-    ...newFile,
-    preview: URL.createObjectURL(newFile),
+      newFile, // ✅ Attach actual File object
+      preview: URL.createObjectURL(newFile), // ✅ Generate preview
     }));
 
     setFiles((prevFiles) => [...prevFiles, ...filesWithPreview]);
-
   };
 
   // onclick file upload
@@ -36,21 +36,25 @@ const PhotoUploader = () => {
     const formData = new FormData();
     formData.append("operation", "upload");
 
-    files.map((fileAndPreviewUrl) => {
-          formData.append("previews", JSON.stringify(fileAndPreviewUrl.preview))
-          formData.append("payloads", fileAndPreviewUrl.newFile)
-    })
-
-    const res = await fetch('/api/upload-media', {
-            method: 'POST',
-            body: formData,
+    files.forEach((fileAndPreviewUrl) => {
+      formData.append("previews", JSON.stringify(fileAndPreviewUrl.preview));
+      formData.append("payloads", fileAndPreviewUrl.newFile);
     });
 
+    const res = await fetch("http://localhost:3007/api/upload-media", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.message || "Upload failed");
+    }
     // if server action instead of api handler (not recommended for huge files)
     //uploadServerAction(formData);
 
     alert("Files uploaded successfully!");
-    setFiles([])
+    setFiles([]);
   };
 
   const removeFile = (filePath) => {
@@ -60,7 +64,7 @@ const PhotoUploader = () => {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: ["image/*"],
-    multiple: true
+    multiple: true,
   });
 
   return (
@@ -104,10 +108,7 @@ const PhotoUploader = () => {
       </div>
 
       {files.length > 0 && (
-        <button
-          onClick={handleUpload}
-          className="upload-button"
-        >
+        <button onClick={handleUpload} className="upload-button">
           Upload Photo
         </button>
       )}

@@ -6,7 +6,7 @@ import { Row, Col } from "react-bootstrap";
 import { varToDb, detailStateType } from "./trailerInfo";
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
-const URL = apiUrl +"/search_trailer/";
+const URL = apiUrl + "/search_trailer/";
 
 const TrailerDetail = () => {
   // console.log("detailStateType", detailStateType);
@@ -20,9 +20,6 @@ const TrailerDetail = () => {
   // console.log("trailer", trailer);
 
   useEffect(() => {
-    // fetch trailer details
-    console.log("fetching trailer details", id);
-
     const fetchEngineDetails = async (id) => {
       try {
         const response = await fetch(`${URL}trailer-detail/${id}`);
@@ -30,7 +27,6 @@ const TrailerDetail = () => {
           throw new Error("Network response was not ok");
         }
         const data = await response.json();
-        console.log("data", data.res[0][0]);
 
         Object.keys(trailer).map((key) => {
           Object.keys(trailer[key]).map((key2) => {
@@ -74,6 +70,8 @@ const TrailerDetail = () => {
   if (loading) return <Loader />;
   if (error) return <p>Error: {error}</p>;
   if (!trailer) return <p>No trailer details available.</p>;
+
+  console.log("trailer :>> ", trailer);
 
   return (
     <div className="engine-detail-page">
