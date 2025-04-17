@@ -1,34 +1,19 @@
-# ---------- FRONTEND BUILD ----------
-FROM node:20-alpine as frontend
+FROM node:20-alpine
 
 WORKDIR /app
 
 COPY package.json ./
-COPY package-lock.json ./
 
-RUN npm ci
+COPY . .
 
-COPY src ./src
-COPY vite.config.js ./
+RUN npm install
+RUN cd node-api && npm install && npm run start
 
-# building frontend with vite make sure vite.config.js is present in the iamge at /app/vite.config.js
-RUN npm run build 
-
-
-# ---------- BACKEND BUILD ----------
-FROM node:20-alpine as backend
-
-WORKDIR /app
-
-COPY node-api/package.json ./node-api/
-COPY node-api/package-lock.json ./node-api/
-
-RUN npm ci
-
-
-# ---------- Final Integration ----------
-COPY --from=frontend /app/dist /app/node-api/public
-
+# frontend port
+EXPOSE 5173 
+# backend port
+EXPOSE 3007
+# test backend port
 EXPOSE 3000
 
-CMD ["node", "node-api/index.js"]
+CMD ["npm", "run", "dev"]
