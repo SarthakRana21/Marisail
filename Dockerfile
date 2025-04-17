@@ -3,7 +3,8 @@ FROM node:20-alpine as frontend
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY package.json ./
+COPY package-lock.json ./
 
 RUN npm ci
 
@@ -19,7 +20,8 @@ FROM node:20-alpine as backend
 
 WORKDIR /app
 
-COPY node-api/package*.json ./node-api/
+COPY node-api/package.json ./node-api/
+COPY node-api/package-lock.json ./node-api/
 
 RUN npm ci
 
