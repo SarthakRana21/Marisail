@@ -4,10 +4,12 @@ WORKDIR /app
 
 COPY package.json ./
 
+RUN npm install
+
+COPY bin/ ./bin
+
 COPY . .  
 
-RUN npm install 
-
-EXPOSE ${PORT}
+EXPOSE 3007
 
 CMD ["npm", "run", "start"]
