@@ -65,21 +65,9 @@ pipeline {
             steps {
                 script {
                     if (currentBuild.result == 'FAILURE') {
-                        // Sad cat for failure
                         echo '🚨 Deployment Failed 🚨'
-                        echo """
-                        /\_/\  
-                       ( T.T ) 
-                        > ^ <
-                        """
                     } else {
-                        // Happy cat for success
                         echo '🎉 Deployment Successful! 🎉'
-                        echo """
-                        /\_/\  
-                       ( ^.^ ) 
-                        > ▼ <  
-                        """
                     }
                 }
             }
