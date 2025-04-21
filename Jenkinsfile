@@ -41,7 +41,7 @@ pipeline {
                     def backendDeployStatus = sh(script: """
                         set -a
                         . /var/lib/jenkins/workspace/${NAME}/node-api/.env
-                        docker run -dit -p 3007:3007 --name ${NAME}_backend_${env.BUILD_NUMBER} ${NAME}_backend_${env.BUILD_NUMBER}
+                        docker run -dit -p 3006:3006 --name ${NAME}_backend_${env.BUILD_NUMBER} ${NAME}_backend_${env.BUILD_NUMBER}
                         set +a
                     """, returnStatus: true)
 
