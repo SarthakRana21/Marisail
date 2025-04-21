@@ -39,10 +39,10 @@ pipeline {
 
                     echo '--------- Running Backend Container ---------'
                     def backendDeployStatus = sh(script: """
-                        set -o allexport
+                        set -a
                         . /var/lib/jenkins/workspace/${NAME}/node-api/.env
                         docker run -dit -p 3007:3007 --name ${NAME}_backend_${env.BUILD_NUMBER} ${NAME}_backend_${env.BUILD_NUMBER}
-                        set +o allexport
+                        set +a
                     """, returnStatus: true)
 
                     if (frontendDeployStatus != 0 || backendDeployStatus != 0) {
