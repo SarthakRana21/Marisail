@@ -18,7 +18,7 @@ pipeline {
                 sh "docker build -t ${NAME}_frontend_${env.BUILD_NUMBER} -f Dockerfile.frontend ."
 
                 echo "------------ Building Backend Image ------------"
-                sh "docker build -t ${NAME}_backend_${env.BUILD_NUMBER} -f Dockerfile.backend ./node-api"
+                sh "docker build -t ${NAME}_backend_${env.BUILD_NUMBER} -f node-api/Dockerfile.backend ./node-api"
             }
         }
 
