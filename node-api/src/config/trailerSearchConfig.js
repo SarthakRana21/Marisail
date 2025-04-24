@@ -1,4 +1,4 @@
-export const varToColumn = {
+export const trailerVarToColumn = {
   // identification
   trailerID: "Trailer_ID",
   manufacturer: "Manufacturer",
@@ -189,7 +189,7 @@ export const varToColumn = {
 };
 
 // name of the table in escelsheet is not matching with DBA
-export const varToTable = {
+export const trailerVarToTable = {
   // identification: "Identification",
   identification: "Trailers_ID",
   // basics: "identification",
@@ -217,7 +217,7 @@ export const varToTable = {
   sales: "Trailers_Sales", // not for trailers
 };
 
-export const uniqueTable = [
+export const trailerUniqueTable = [
   "Trailers_ID",
   "Construction",
   "Trailer_Features",
@@ -230,7 +230,7 @@ export const uniqueTable = [
   "Corrosion_Resistance",
   "Performance_Handling",
   "Tongue",
-  "Documentation", // issues in it still and field below it 
+  "Documentation", // issues in it still and field below it
   "Regulatory",
   // "Trailers_Payment",
   // "Trailers_Sales",

@@ -1,5 +1,10 @@
 import { Router } from "express";
 import dbConnection from "../config/dbConfig.js";
+import {
+  engineVarToColumn,
+  engineVarToTable,
+} from "../config/engineSearchConfig.js";
+import { withDatabaseConnection } from "./search_berth.js";
 
 const searchEngineRouter = Router();
 
@@ -35,7 +40,6 @@ searchEngineRouter.get("/engine-detail/:id", async (req, res) => {
     const query = `
       SELECT
         e.*,
-        ec.*,
         ecool.*,
         ed.*,
         ee.*,
@@ -49,21 +53,20 @@ searchEngineRouter.get("/engine-detail/:id", async (req, res) => {
         eps.*,
         es.*,
         et.*
-      FROM Engine_general e
-      LEFT JOIN engine_condition ec ON e.engine_id = ec.engine_id
-      LEFT JOIN engine_cooling ecool ON e.engine_id = ecool.engine_id
-      LEFT JOIN engine_dimensions ed ON e.engine_id = ed.engine_id
-      LEFT JOIN engine_electrical ee ON e.engine_id = ee.engine_id
-      LEFT JOIN engine_emissions eem ON e.engine_id = eem.engine_id
-      LEFT JOIN engine_fuel ef ON e.engine_id = ef.engine_id
-      LEFT JOIN engine_location el ON e.engine_id = el.engine_id
-      LEFT JOIN engine_maintenance em ON e.engine_id = em.engine_id
-      LEFT JOIN engine_mounting emount ON e.engine_id = emount.engine_id
-      LEFT JOIN engine_oil eo ON e.engine_id = eo.engine_id
-      LEFT JOIN engine_performance ep ON e.engine_id = ep.engine_id
-      LEFT JOIN engine_propulsion eps ON e.engine_id = eps.engine_id
-      LEFT JOIN engine_safety es ON e.engine_id = es.engine_id
-      LEFT JOIN engine_transmission et ON e.engine_id = et.engine_id
+      FROM Engine_General e
+      LEFT JOIN Engine_Cooling ecool ON e.engine_id = ecool.engine_id
+      LEFT JOIN Engine_Dimensions ed ON e.engine_id = ed.engine_id
+      LEFT JOIN Engine_Electrical ee ON e.engine_id = ee.engine_id
+      LEFT JOIN Engine_Emmissions eem ON e.engine_id = eem.engine_id
+      LEFT JOIN Engine_Fuel ef ON e.engine_id = ef.engine_id
+      LEFT JOIN Engine_Location el ON e.engine_id = el.engine_id
+      LEFT JOIN Engine_Maintenance em ON e.engine_id = em.engine_id
+      LEFT JOIN Engine_Mounting emount ON e.engine_id = emount.engine_id
+      LEFT JOIN Engine_Oil eo ON e.engine_id = eo.engine_id
+      LEFT JOIN Engine_Performance ep ON e.engine_id = ep.engine_id
+      LEFT JOIN Engine_Propulsion eps ON e.engine_id = eps.engine_id
+      LEFT JOIN Engine_Safety es ON e.engine_id = es.engine_id
+      LEFT JOIN Engine_Transmission et ON e.engine_id = et.engine_id
       WHERE e.engine_id = ?
     `;
 
@@ -244,78 +247,118 @@ searchEngineRouter.get("/engines", async (req, res) => {
   }
 });
 
-const validateJSON = (jsonString) => {
-  try {
-    const parsed = JSON.parse(jsonString);
-    if (Array.isArray(parsed)) {
-      return parsed;
+searchEngineRouter.post("/enginesData", async (req, res) => {
+  let connection;
+
+  console.log(req.body);
+
+  var page = req.body.page;
+  var filter = {};
+  for (const key of Object.keys(req.body.selectedOptions)) {
+    let val = key,
+      key2 = req.body.selectedOptions[key];
+    console.log(key2);
+    console.log(val);
+
+    if (filter[key2] === undefined) {
+      filter[key2] = [val];
     } else {
-      throw new Error("Parsed JSON is not an array");
+      filter[key2].push(val);
     }
-  } catch (e) {
-    console.error("Invalid JSON:", e);
-    return [];
   }
-};
-const buildQuery = (tables, columns, values, page, limit) => {
-  // Construct the WHERE clause based on the columns and values
-  let whereClauses = columns.map((column, index) => {
-    return `${column} LIKE ?`;
+  console.log(filter);
+
+  try {
+    connection = await dbConnection.getConnection();
+
+    var required = "engine_id, Engine_Make, Engine_Model, Engine_Model_Year";
+
+    var basic = `SELECT ${required} FROM Engine_General`;
+
+    if (Object.keys(filter).length > 0) {
+      basic += `WHERE `;
+
+      for (const key of Object.keys(filter)) {
+        var temp = `${key} IN (`;
+        for (const val of filter[key]) {
+          temp += `'${val}',`;
+        }
+        temp = temp.slice(0, -1);
+        temp += `) OR `;
+        basic += temp;
+      }
+
+      basic = basic.slice(0, -3);
+    }
+    let offset = page * 30;
+    basic += ` LIMIT ${offset}, 60;`;
+
+    console.log(basic);
+
+    const tables = await connection.query(basic);
+
+    console.log(tables);
+
+    return res.status(200).json({ ok: true, res: tables });
+  } catch (err) {
+    return res.status(500).json({ ok: false, message: err.message });
+  } finally {
+    if (connection) connection.release();
+  }
+});
+
+export const countDropDownEngines = async (
+  connection,
+  actualColumn,
+  currentcolumn,
+  appliedFilters,
+  result
+) => {
+  delete appliedFilters[currentcolumn];
+  if (!result || result.length === 0) return;
+
+  var wherePart = "";
+
+  for (const key of Object.keys(appliedFilters)) {
+    var columnKey = engineVarToColumn[key];
+    if (appliedFilters[key].length === 0) continue;
+    wherePart += "(";
+    for (const value of appliedFilters[key]) {
+      if (columnKey === "Accommodation_Location")
+        columnKey = "al.Accommodation_Location";
+      wherePart += ` ${columnKey} = '${value}' OR`;
+    }
+    wherePart = wherePart.slice(0, -3);
+    wherePart += ") AND ";
+  }
+  wherePart = wherePart.slice(0, -4);
+  if (wherePart !== "") wherePart = `WHERE ${wherePart}`;
+  var sumString = "";
+  const diffValueOfResult = result.map((obj) => obj[actualColumn]);
+  for (const obj of diffValueOfResult) {
+    sumString += `SUM(CASE WHEN ${
+      actualColumn === "Accommodation_Location"
+        ? "al.Accommodation_Location"
+        : actualColumn
+    } = '${obj}' THEN 1 ELSE 0 END) AS \`${obj}\`,`;
+  }
+
+  var query = `SELECT ${sumString.slice(
+    0,
+    -1
+  )} FROM Engine_General ${wherePart};`;
+
+  const [check] = await connection.query(query, []);
+  result.map((item) => {
+    // Find the matching value from the check array
+    const itemCount = check[0][item[actualColumn]];
+
+    if (itemCount) {
+      // Add the check value to occurrence_cnt
+      item.occurrence_cnt = parseInt(itemCount);
+    }
+    return item;
   });
-
-  let whereSql = whereClauses.join(" AND ");
-
-  // Construct the SQL query
-  let query = `
-    SELECT e.*, t1.*, t2.*, t3.*, t4.*, t5.*, t6.*, t7.*, t8.*, t9.*, t10.*, t11.*, t12.*, t13.*, t14.*, t15.*
-    FROM ${tables.join(", ")}
-    WHERE ${whereSql}
-    LIMIT ? OFFSET ?
-  `;
-
-  // Calculate the offset
-  const offset = (page - 1) * limit;
-
-  return {
-    query,
-    params: [...values, limit, offset],
-  };
-};
-
-// Example usage in the route handler
-
-const getAllTables = async () => {
-  let connection;
-  connection = await dbConnection.getConnection();
-  try {
-    const [rows] = await connection.query(`
-      SELECT table_name
-      FROM information_schema.tables
-      WHERE table_schema = DATABASE();
-    `);
-    return rows.map((row) => row.table_name);
-  } catch (error) {
-    throw new Error(`Error fetching tables: ${error.message}`);
-  }
-};
-
-const getAllColumns = async (tableName) => {
-  let connection;
-  connection = await dbConnection.getConnection();
-  try {
-    const [rows] = await connection.query(
-      `
-      SELECT column_name
-      FROM information_schema.columns
-      WHERE table_schema = DATABASE()
-      AND table_name = ?;
-    `,
-      [tableName]
-    );
-    return rows.map((row) => row.column_name);
-  } catch (error) {
-    throw new Error(`Error fetching columns: ${error.message}`);
-  }
 };
 
 export default searchEngineRouter;

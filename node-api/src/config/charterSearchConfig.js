@@ -1,4 +1,4 @@
-export const varToColumn = {
+export const charterVarToColumn = {
   // identification
   marisailVesselID: "Marisail_Vessel_ID",
   marisailCharterID: "Marisail_Charter_ID",
@@ -8,7 +8,7 @@ export const varToColumn = {
   guestCapacity: "Guest_Capacity",
   bedroomConfiguration: "Bedroom_Configuration",
   bathroomConfiguration: "Bathroom_Configuration",
-  crewAccommodations: "Crew_Accommodations",
+  crewAccommodations: "Crew_Accommodation",
   accessibilityInformation: "Accessibility_Information",
   cleaningAndMaintenanceProcedures: "Maintenance_Procedures",
   vesselDecorAndSetupRequests: "Vessel_Decor",
@@ -55,10 +55,10 @@ export const varToColumn = {
   insuranceCoverageDetails: "Insurance_Coverage",
 
   // Costs
-  summerRatePerNight: "Summer_Rate_PN",
-  winterRatePerWeek: "Winter_Rate_PW",
-  winterRatePerNight: "Winter_Rate_PN",
-  summerRatePerWeek: "Summer_Rate_PW",
+  summerRatePerNight: "Summerrate_Per_Night	",
+  winterRatePerWeek: "Winterrate_Per_week",
+  winterRatePerNight: "Winterrate_Per_Night",
+  summerRatePerWeek: "Summerrate_Per_Week",
   securityDepositAmount: "Deposit_Amount",
   totalPrice: "Total_Price",
   refundableDeposit: "Refundable_Deposit",
@@ -90,27 +90,25 @@ export const varToColumn = {
   priceDrop: "Price_Drop",
 };
 
-export const varToTable = {
-  identification: "Accommodation_Location",
-  guestAccommodation: "Accommodation_Location",
-  locationDetails: "Accommodation_Location",
-  guestRequirements: "Requirements",
-  charterAgreementTerms: "Policy",
-  guestSafety: "Safety_Measures",
+export const charterVarToTable = {
+  identification: "Charter_Accomodation",
+  guestAccommodation: "Charter_Accomodation",
+  locationDetails: "Location",
+  guestRequirements: "Charter_Requirements",
+  charterAgreementTerms: "Charter_Policy",
+  guestSafety: "Charter_Safety",
   costs: "Charter_Costs",
-  availableDates: "Dates",
-  dates: "Dates",
+  availableDates: "Charter_Date",
+  dates: "Charter_Date",
   paymentTerms: "Charter_Payment",
-  calculatePricePay: "Charter_Sales",
+  calculatePricePay: "Sales",
 };
 
-export const uniqueTable = [
-  "Accommodation_Location",
-  "Requirements",
-  "Policy",
-  "Safety_Measures",
+export const charterUniqueTable = [
+  "Charter_Accomodation",
+  "Charter_Requirements",
+  "Charter_Policy",
+  "Charter_Safety",
   "Charter_Costs",
-  "Dates",
-  "Charter_Payment",
-  "Charter_Sales",
+  "Charter_Date",
 ];

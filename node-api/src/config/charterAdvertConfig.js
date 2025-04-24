@@ -2,94 +2,94 @@ export const CHARTER_ADVERT = [
   {
     key: "marisailVesselId",
     columnName: "Marisail_Vessel_ID",
-    tableName: "Accommodation_Location",
+    tableName: "Accomodation",
   },
   {
     key: "marisailCharterId",
     columnName: "Marisail_Charter_ID",
-    tableName: "Accommodation_Location",
+    tableName: "Accomodation",
   },
 
   {
     key: "guestCapacity",
     columnName: "Guest_Capacity",
-    tableName: "Accommodation_Location",
+    tableName: "Accomodation",
   },
   {
     key: "bedroomConfiguration",
     columnName: "Bedroom_Configuration",
-    tableName: "Accommodation_Location",
+    tableName: "Accomodation",
   },
   {
     key: "bathroomConfiguration",
     columnName: "Bathroom_Configuration",
-    tableName: "Accommodation_Location",
+    tableName: "Accomodation",
   },
   {
     key: "crewAccommodations",
     columnName: "Crew_Accommodation",
-    tableName: "Accommodation_Location",
+    tableName: "Accomodation",
   },
   {
     key: "accessibilityInformation",
     columnName: "Accessibility_Information",
-    tableName: "Accommodation_Location",
+    tableName: "Accomodation",
   },
   {
     key: "cleaningAndMaintenanceProcedures",
     columnName: "Maintenance_Procedures",
-    tableName: "Accommodation_Location",
+    tableName: "Accomodation",
   },
   {
     key: "vesselDecorAndSetupRequests",
     columnName: "Yacht_Decor",
-    tableName: "Accommodation_Location",
+    tableName: "Accomodation",
   },
 
   {
     key: "boardingPortArrivalTime",
     columnName: "Boarding_Arrival_Time",
-    tableName: "Accommodation_Location",
+    tableName: "Accomodation",
   },
   {
     key: "boardingPortDepartureTime",
     columnName: "Boarding_Departure_Time",
-    tableName: "Accommodation_Location",
+    tableName: "Accomodation",
   },
   {
     key: "summerCruisingAreas",
     columnName: "Summer_Cruising_Areas",
-    tableName: "Accommodation_Location",
+    tableName: "Accomodation",
   },
   {
     key: "boardingPort",
     columnName: "Boarding_Port",
-    tableName: "Accommodation_Location",
+    tableName: "Accomodation",
   },
   {
     key: "winterCruisingAreas",
     columnName: "Winter_Cruising_Areas",
-    tableName: "Accommodation_Location",
+    tableName: "Accomodation",
   },
   {
     key: "disembarkationPort",
     columnName: "Disembarkation_Port",
-    tableName: "Accommodation_Location",
+    tableName: "Accomodation",
   },
   {
     key: "embarkationAndDisembarkationLogistics",
     columnName: "Logistics",
-    tableName: "Accommodation_Location",
+    tableName: "Accomodation",
   },
   {
     key: "disembarkationPortArrivalTime",
     columnName: "Disembarkation_Arrival_Time",
-    tableName: "Accommodation_Location",
+    tableName: "Accomodation",
   },
   {
     key: "dockingAndMooringInstructions",
     columnName: "Mooring_Instructions",
-    tableName: "Accommodation_Location",
+    tableName: "Accomodation",
   },
 
   {
@@ -210,22 +210,22 @@ export const CHARTER_ADVERT = [
 
   {
     key: "summerRatePerNight",
-    columnName: "Summer_Rate_PN",
+    columnName: "Summerrate_Per_Night	",
     tableName: "Charter_Costs",
   },
   {
     key: "winterRatePerWeek",
-    columnName: "Winter_Rate_PW",
+    columnName: "Winterrate_Per_week",
     tableName: "Charter_Costs",
   },
   {
     key: "winterRatePerNight",
-    columnName: "Winter_Rate_PN",
+    columnName: "Winterrate_Per_Night",
     tableName: "Charter_Costs",
   },
   {
     key: "summerRatePerWeek",
-    columnName: "Summer_Rate_PW",
+    columnName: "Summerrate_Per_Week",
     tableName: "Charter_Costs",
   },
   {
@@ -304,7 +304,7 @@ export const CHARTER_ADVERT = [
 ];
 
 export const UNIQUE_TABLE = [
-  "Accommodation_Location",
+  "Accomodation",
   "Requirements",
   "Policy",
   "Safety_Measures",

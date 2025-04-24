@@ -61,8 +61,8 @@ export const varToScreen = {
     picnicAndBBQAreas: { type: "select", displayText: "Picnic & BBQ Areas", radioOptions: null },
     childrensPlayArea: { type: "select", displayText: "Children's Play Area", radioOptions: null },
 
-    sanitationnFacilities: { type: "select", displayText: "Sanitation Facilities"},
-    guestAccomodationOptions: { type: "select", displayText: "Guest Accomodation Options"},
+    sanitationnFacilities: { type: "select", displayText: "Sanitation Facilities", radioOptions: null},
+    guestAccomodationOptions: { type: "select", displayText: "Guest Accomodation Options", radioOptions: null},
 
     surroundingArea: { type: "select", displayText: "Surrounding Area", radioOptions: null },
     localAttractions: { type: "select", displayText: "Local Attractions", radioOptions: null },
@@ -154,13 +154,13 @@ export const varToScreen = {
     pollutionControlMeasures: { type: "select", displayText: "Pollution Control Measures", radioOptions: null },
     energyEfficiencyMeasures: { type: "select", displayText: "Energy Efficiency Measures", radioOptions: null },
 
-    wildlifeConservationEfforts: { type: "select", displayText:"Wildlife Conservation Efforts"},
-    greenBuildingCertifications: { type: "select", displayText:"Green Building Certifications"},
-    energySources: { type: "select", displayText:"Energy Sources"},
-    marineLifeProtectionMeasures: { type: "select", displayText:"Marine Life Protection Measures"},
-    greenCertifications: { type: "select", displayText:"Green Certifications"},
-    ecoFriendlyProductsAvailability: { type: "select", displayText:"Eco-Friendly Products Availability"},
-    sewageTreatmentPlants: { type: "select", displayText:"Sewage Treatment Plants"},
+    wildlifeConservationEfforts: { type: "select", displayText:"Wildlife Conservation Efforts", radioOptions: null},
+    greenBuildingCertifications: { type: "select", displayText:"Green Building Certifications", radioOptions: null},
+    energySources: { type: "select", displayText:"Energy Sources", radioOptions: null},
+    marineLifeProtectionMeasures: { type: "select", displayText:"Marine Life Protection Measures", radioOptions: null},
+    greenCertifications: { type: "select", displayText:"Green Certifications", radioOptions: null},
+    ecoFriendlyProductsAvailability: { type: "select", displayText:"Eco-Friendly Products Availability", radioOptions: null},
+    sewageTreatmentPlants: { type: "select", displayText:"Sewage Treatment Plants", radioOptions: null},
 
     securityAndSafety: { type: "select", displayText: "Security & Safety", radioOptions: null },
     fireSafetySystems: { type: "select", displayText: "Fire Safety Systems", radioOptions: null },
@@ -202,7 +202,7 @@ export const varToScreen = {
     environmentalRegulationsCompliance: { type: "select", displayText: "Environmental Regulations Compliance", radioOptions: null },
     portStateControlInspections: { type: "select", displayText: "Port State Control Inspections", radioOptions: null },
     quarantineServices: { type: "select", displayText: "Quarantine Services", radioOptions: null },
-    emergencyEvacuationPlans: { type: "select", displayText:"Emergency Evacuation Plans"},
+    emergencyEvacuationPlans: { type: "select", displayText:"Emergency Evacuation Plans", radioOptions: null},
 
     insuranceAndRegulations: { type: "select", displayText: "Insurance & Regulations", radioOptions: null },
     insuranceRequirements: { type: "select", displayText: "Insurance Requirements", radioOptions: null },

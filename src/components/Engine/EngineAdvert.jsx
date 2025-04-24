@@ -1,16 +1,17 @@
 import { Form, Container, Row, Col } from "react-bootstrap";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import DropdownWithRadio from "../DropdownWithRadio";
 import Loader from "../Loader";
 import InputComponentDynamic from "../InputComponentDynamic";
 import SubmitButton from "../SubmitButton";
 import { keyToExpectedValueMap, typeDef } from "./EngineAdvertInfo";
 import { makeString } from "../../services/common_functions";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
+import FormFieldCard from "../../services/FormFieldCard";
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
 export default function EngineAdvert() {
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   const [error, setError] = useState({});
   const hasFetched = useRef(false);
   const [engines, setEngines] = useState("");
@@ -24,8 +25,6 @@ export default function EngineAdvert() {
     engineType: "",
     typeDesignation: "",
     askingPrice: "",
-  });
-  const [condition, setCondition] = useState({
     condition: "",
     usedCondition: "",
     seller: "",
@@ -33,22 +32,30 @@ export default function EngineAdvert() {
     lastSurveyDate: new Date(),
     brokerValuation: "",
   });
-  const [general, setGeneral] = useState({
-    engineClassification: "",
-    certification: "",
-    manufacturerWarranty: "",
-    engineSerialNumber: "",
-    ce_DesignCategory: "",
-    numberDrives: "",
-    numberEngines: "",
-    rangeMiles: "",
-    cruisingSpeed: "",
-    driveType: "",
-    engineHours: "",
-    ignitionSystem: "",
-    noiseLevel: "",
-    engineSoundproofingKits: "",
-  });
+  // const [condition, setCondition] = useState({
+  //   condition: "",
+  //   usedCondition: "",
+  //   seller: "",
+  //   offeredBy: "",
+  //   lastSurveyDate: new Date(),
+  //   brokerValuation: "",
+  // });
+  // const [general, setGeneral] = useState({
+  //   engineClassification: "",
+  //   certification: "",
+  //   manufacturerWarranty: "",
+  //   engineSerialNumber: "",
+  //   ce_DesignCategory: "",
+  //   numberDrives: "",
+  //   numberEngines: "",
+  //   rangeMiles: "",
+  //   cruisingSpeed: "",
+  //   driveType: "",
+  //   engineHours: "",
+  //   ignitionSystem: "",
+  //   noiseLevel: "",
+  //   engineSoundproofingKits: "",
+  // });
   const [transmission, setTransmission] = useState({
     transmissionType: "",
     gearShift: "",
@@ -129,6 +136,20 @@ export default function EngineAdvert() {
     engineSpeedRange: "",
     maximumContinuousRating: "",
     continuousPower: "",
+    engineClassification: "",
+    certification: "",
+    manufacturerWarranty: "",
+    engineSerialNumber: "",
+    ce_DesignCategory: "",
+    numberDrives: "",
+    numberEngines: "",
+    rangeMiles: "",
+    cruisingSpeed: "",
+    driveType: "",
+    engineHours: "",
+    ignitionSystem: "",
+    noiseLevel: "",
+    engineSoundproofingKits: "",
   });
   const [cylinders, setCylinders] = useState({
     cylinderConfiguration: "",
@@ -140,15 +161,29 @@ export default function EngineAdvert() {
     bore: "",
     stroke: "",
   });
-  const [rpm, setRpm] = useState({
-    idleRPM: "",
-    ratedSpeedRPM: "",
-    rpmAtMaxPower: "",
-  });
+  // const [rpm, setRpm] = useState({
+  //   idleRPM: "",
+  //   ratedSpeedRPM: "",
+  //   rpmAtMaxPower: "",
+  // });
   const [torque, setTorque] = useState({
     maximumTorque: "",
     maximumTorqueAtSpeed: "",
     torqueAtRatedSpeed: "",
+    ecuEngineControlUnit: "",
+    engineFuelType: "",
+    engineStroke: "",
+    engineTier: "",
+    inboardOutboard: "",
+    mainOrAuxiliary: "",
+    podEngine: "",
+    saildriveEngine: "",
+    steeringAndEngineControls: "",
+    sternDriveEngine: "",
+    engineType: "",
+    idleRPM: "",
+    ratedSpeedRPM: "",
+    rpmAtMaxPower: "",
   });
   const [coolingSystem, setCoolingSystem] = useState({
     afterCooled: "",
@@ -198,10 +233,9 @@ export default function EngineAdvert() {
     fuelSystem: "",
     fuelTankCapacity: "",
     fuelType: "",
-    lowestSpecificFuelConsumption: "",
+  
     recommendedFuel: "",
-    fuelConsumptionAtCruisingSpeed: "",
-    fuelConsumptionRate: "",
+  
     fuelConsumtpionAtFullLoad: "",
     fuelInjectionSystemType: "",
     fuelDeliveryPressure: "",
@@ -213,6 +247,9 @@ export default function EngineAdvert() {
     fuelConsumptionHalfLoad: "",
     fuelConsumptionPropellerCurve: "",
     heatRejectionToCoolant: "",
+    fuelConsumptionAtCruisingSpeed: "",
+    fuelConsumptionRate: "",
+    lowestSpecificFuelConsumption: "",
   });
   const [oil, setOil] = useState({
     oilFilter: "",
@@ -328,19 +365,19 @@ export default function EngineAdvert() {
     engineShaftTube: "",
     engineShaftWasher: "",
   });
-  const [engineType, setEngineType] = useState({
-    ecuEngineControlUnit: "",
-    engineFuelType: "",
-    engineStroke: "",
-    engineTier: "",
-    inboardOutboard: "",
-    mainOrAuxiliary: "",
-    podEngine: "",
-    saildriveEngine: "",
-    steeringAndEngineControls: "",
-    sternDriveEngine: "",
-    engineType: "",
-  });
+  // const [engineType, setEngineType] = useState({
+  //   ecuEngineControlUnit: "",
+  //   engineFuelType: "",
+  //   engineStroke: "",
+  //   engineTier: "",
+  //   inboardOutboard: "",
+  //   mainOrAuxiliary: "",
+  //   podEngine: "",
+  //   saildriveEngine: "",
+  //   steeringAndEngineControls: "",
+  //   sternDriveEngine: "",
+  //   engineType: "",
+  // });
 
   /*const checkRequired = () => {
     const errors = {};
@@ -374,36 +411,44 @@ export default function EngineAdvert() {
 
   const sections = {
     engineDetails,
-    condition,
+    dimensions,
+    // condition,
     performance,
-    general,
+    engineParts,
+    // general,
     transmission,
     cylinders,
+    torque,
+    
     propulsion,
     fuelSystem,
+    oil,
+    
+    equipment,
+    coolingSystem,
+    fuelConsumption,
     serviceAndMaintenance,
     installationAndMounting,
     safetyAndMonitoring,
-    fuelConsumption,
-    torque,
-    rpm,
-    oil,
+
+    
+    // rpm,
+    
     emissionsAndEnvironment,
-    dimensions,
+    
     electricalSystem,
-    engineShaft,
-    engineType,
+    
+    // engineType,
     engineRoom,
     engineMeasurements,
-    engineParts,
-    equipment,
-    coolingSystem,
+   
+   
   };
 
   const setStateFunctions = {
     engineDetails: setEngineDetails,
-    condition: setCondition,
-    general: setGeneral,
+    // condition: setCondition,
+    // general: setGeneral,
     transmission: setTransmission,
     installationAndMounting: setInstallationAndMounting,
     serviceAndMaintenance: setServiceAndMaintenance,
@@ -411,7 +456,7 @@ export default function EngineAdvert() {
     dimensions: setDimensions,
     performance: setPerformance,
     cylinders: setCylinders,
-    rpm: setRpm,
+    // rpm: setRpm,
     torque: setTorque,
     coolingSystem: setCoolingSystem,
     propulsion: setPropulsion,
@@ -425,7 +470,7 @@ export default function EngineAdvert() {
     engineMeasurements: setEngineMeasurements,
     engineRoom: setEngineRoom,
     engineShaft: setEngineShaft,
-    engineType: setEngineType,
+    // engineType: setEngineType,
   };
 
   const handleOptionSelect = (category, field, selectedOption) => {
@@ -470,19 +515,19 @@ export default function EngineAdvert() {
     }
   };
   const handleSubmit = (e) => {
-      e.preventDefault();
-      try {
-          // if (checkRequired()) {
-              console.log("001 Form is valid, submitting...");
-              localStorage.setItem("EngineData", JSON.stringify(allSelectedOptions));
-              navigate("/view-engine");
-              // localStorage.setItem("advertise_engine", JSON.stringify(form));
-          // } else {
-          //     console.warn(error);
-          // }
-      } catch (error) {
-          console.error(error);
-      }
+    e.preventDefault();
+    try {
+      // if (checkRequired()) {
+      console.log("001 Form is valid, submitting...");
+      localStorage.setItem("EngineData", JSON.stringify(allSelectedOptions));
+      navigate("/view-engine");
+      // localStorage.setItem("advertise_engine", JSON.stringify(form));
+      // } else {
+      //     console.warn(error);
+      // }
+    } catch (error) {
+      console.error(error);
+    }
   };
   function setPageData(key, newData) {
     const setStateFunction = setStateFunctions[key];
@@ -497,33 +542,68 @@ export default function EngineAdvert() {
   }
 
   const cacheKey = "enginesFilterData";
-  const URL = apiUrl +"/advert_engine/";
+  const URL = apiUrl + "/advert_engine/";
 
-  const fetchDistinctData = async () => {
-    try {
-      setLoading(true);
-      const promises = Object.keys(sections).map(async (key) => {
+  // const fetchDistinctData = async () => {
+  //   try {
+  //     setLoading(true);
+  //     const promises = Object.keys(sections).map(async (key) => {
+  //       const response = await fetch(`${URL}engines`, {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify(sections[key]),
+  //       });
+  //       const data = await response.json();
+  //       return { key, data: data.res };
+  //     });
+  //     const results = await Promise.all(promises);
+  //     results.forEach(({ key, data }) => {
+  //       setPageData(key, data);
+  //     });
+  //   } catch (err) {
+  //     console.error(err);
+  //   } finally {
+  //     setLoading(false);
+  //     console.log("done");
+  //   }
+  // };
+
+  const fetchDistinctData = useCallback(
+    async (sectionKey, fieldKey) => {
+      try {
+        setLoading(true);
+
+        // Prepare request payload based on the opened section & field
+        const requestBody = {
+          sectionKey: sectionKey, // The section (e.g., "amenitiesAndServices")
+          fieldKey: fieldKey, // The specific field/column (e.g., "wifiAvailability")
+        };
+
+        // Call API for only the relevant section & field
         const response = await fetch(`${URL}engines`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(sections[key]),
+          body: JSON.stringify(requestBody),
         });
+
         const data = await response.json();
-        return { key, data: data.res };
-      });
-      const results = await Promise.all(promises);
-      results.forEach(({ key, data }) => {
-        setPageData(key, data);
-      });
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-      console.log("done");
-    }
-  };
+        console.log("data :>> ", data);
+
+        // Update state only for the specific field
+        setPageData(sectionKey, data.res);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [URL, sections, setPageData]
+  );
+
   const fetchRelevantOptions = async (
     engineMake,
     engineModel,
@@ -561,7 +641,7 @@ export default function EngineAdvert() {
                 if (sections[sectionKey][fieldKey] !== undefined) {
                   const fieldValue =
                     Array.isArray(result[fieldKey]) &&
-                      result[fieldKey].length > 0
+                    result[fieldKey].length > 0
                       ? result[fieldKey]?.[0]
                       : sections[sectionKey][fieldKey];
 
@@ -654,17 +734,17 @@ export default function EngineAdvert() {
     }
   };
 
-  useEffect(() => {
-    const cachedData = localStorage.getItem(cacheKey);
-    if (cachedData) {
-      setPageData(JSON.parse(cachedData));
-    } else {
-      if (!hasFetched.current) {
-        fetchDistinctData();
-        hasFetched.current = true;
-      }
-    }
-  }, [setPageData]);
+  // useEffect(() => {
+  //   const cachedData = localStorage.getItem(cacheKey);
+  //   if (cachedData) {
+  //     setPageData(JSON.parse(cachedData));
+  //   } else {
+  //     if (!hasFetched.current) {
+  //       fetchDistinctData();
+  //       hasFetched.current = true;
+  //     }
+  //   }
+  // }, [setPageData]);
 
   const handleInputChange = (title, fieldKey, newValue) => {
     setEngines((prevTrailers) => ({
@@ -682,6 +762,18 @@ export default function EngineAdvert() {
         {fieldName} field is required
       </div>
     );
+  };
+
+  const handleDropdownOpen = (sectionKey, fieldKey) => {
+    setOpenKey(fieldKey);
+
+    // Fetch data only if not already loaded
+    if (
+      !sections[sectionKey][fieldKey] ||
+      sections[sectionKey][fieldKey].length === 0
+    ) {
+      fetchDistinctData(sectionKey, fieldKey);
+    }
   };
 
   return (
@@ -712,7 +804,7 @@ export default function EngineAdvert() {
                           <DropdownWithRadio
                             heading={fieldKey}
                             title={makeString(fieldKey, keyToExpectedValueMap)}
-                            options={sections[title][fieldKey]  || []}
+                            options={sections[title][fieldKey] || []}
                             selectedOption={
                               allSelectedOptions[title]?.[fieldKey] || ""
                             }
@@ -724,8 +816,10 @@ export default function EngineAdvert() {
                               )
                             }
                             isMandatory={field.mandatory}
-                            setOpenKey={setOpenKey}
-                            openKey={openKey || ""}
+                            setOpenKey={() =>
+                              handleDropdownOpen(title, fieldKey)
+                            }
+                            openKey={openKey}
                           />
                           {error[`${fieldKey}`] && (
                             <div>
@@ -770,6 +864,7 @@ export default function EngineAdvert() {
                 })}
               </Col>
             ))}
+            <FormFieldCard countryVisible={true} />
           </Row>
           <SubmitButton
             text="Submit"

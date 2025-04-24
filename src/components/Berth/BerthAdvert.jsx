@@ -11,6 +11,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import InputComponentDynamic from "../InputComponentDynamic";
 import InputComponentDual from "../InputComponentDual";
+import FormFieldCard from "../../services/FormFieldCard";
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
 export default function BerthAdvert() {
@@ -35,20 +36,20 @@ export default function BerthAdvert() {
         seasonalOperation: "",
         languageServices: "",
     });
-    const [generalInformation, setGeneralInformation] = useState({
-        dockTypes: "",
-        numberOfDocks: "",
-        boatSlipSizes: "",
-        numberBerthsAvailable: "",
-        length: "",
-        beam: "",
-        draft: "",
-        slipWidth: "",
-        slipDepth: "",
-        slipLength: "",
-        mooringType: "",
-        tideRange: "",
-    });
+    // const [generalInformation, setGeneralInformation] = useState({
+    //     // dockTypes: "",
+    //     // numberOfDocks: "",
+    //     // boatSlipSizes: "",
+    //     // numberBerthsAvailable: "",
+    //     // length: "",
+    //     // beam: "",
+    //     // draft: "",
+    //     // slipWidth: "",
+    //     // slipDepth: "",
+    //     // slipLength: "",
+    //     // mooringType: "",
+    //     // tideRange: "",
+    // });
     const [amenitiesAndServices, setAmenitiesAndServices] = useState({
         storage: "",
         electricityAvailable: "",
@@ -116,6 +117,18 @@ export default function BerthAdvert() {
         communityBulletinBoard: "",
         networkingEvents: "",
         memberDiscounts: "",
+        dockTypes: "",
+        numberOfDocks: "",
+        boatSlipSizes: "",
+        numberBerthsAvailable: "",
+        length: "",
+        beam: "",
+        draft: "",
+        slipWidth: "",
+        slipDepth: "",
+        slipLength: "",
+        mooringType: "",
+        tideRange: "",
     });
     const [services, setServices] = useState({
         pumpOutStation: "",
@@ -160,6 +173,15 @@ export default function BerthAdvert() {
             proximityToNearbyAttractions: "",
             carRentalServices: "",
             airportTransferServices: "",
+            currency: "",
+        mooringFees: "",
+        serviceCharges: "",
+        membershipPrograms: "",
+        paymentMethods: "",
+        pricingStructure: "",
+        depositRequirements: "",
+        cancellationPolicies: "",
+        discountsAvailable: "",
         });
     const [environmentalConsiderations, setEnvironmentalConsiderations] =
         useState({
@@ -296,29 +318,37 @@ export default function BerthAdvert() {
       };*/
 
     const sections = {
-        siteDetails,
-        communityAndSocial,
+       
+        connectivityAndTransportation,
+        
+        
         environmentalConsiderations,
-        generalInformation,
+        securityAndSafety,
+      
+        familyFacilities,
+        // generalInformation,
         amenitiesAndServices,
         surroundingArea,
-        securityAndSafety,
-        familyFacilities,
+        
         services,
-        financialInformation,
-        additionalFeatures,
+        // financialInformation,
+        paymentTerms,
+       
         repairAndMaintenance,
         accessibility,
-        legalAndCompliance,
-        connectivityAndTransportation,
-        insuranceAndRegulations,
+       
         pricingAndLeaseTerms,
-        paymentTerms,
+        insuranceAndRegulations,
+        legalAndCompliance,
+        additionalFeatures,
+        siteDetails,
+       
+        communityAndSocial,
     };
 
     const setStateFunctions = {
         siteDetails: setSiteDetails,
-        generalInformation: setGeneralInformation,
+        // generalInformation: setGeneralInformation,
         amenitiesAndServices: setAmenitiesAndServices,
         communityAndSocial: setCommunityAndSocial,
         familyFacilities: setFamilyFacilities,
@@ -332,7 +362,7 @@ export default function BerthAdvert() {
         securityAndSafety: setSecurityAndSafety,
         legalAndCompliance: setLegalAndCompliance,
         insuranceAndRegulations: setInsuranceAndRegulations,
-        financialInformation: setFinancialInformation,
+        // financialInformation: setFinancialInformation,
         pricingAndLeaseTerms: setPricingAndLeaseTerms,
         paymentTerms: setPaymentTerms,
     };
@@ -599,6 +629,10 @@ export default function BerthAdvert() {
         );
     };
 
+    if(false){
+        return <div>Test</div>
+    }
+
     return (
         <Container className="mb-5">
             {loading ? (
@@ -725,6 +759,7 @@ export default function BerthAdvert() {
                                 })}
                             </Col>
                         ))}
+                        <FormFieldCard countryVisible={true} />
                     </Row>
                     <SubmitButton
                         text="Submit"
