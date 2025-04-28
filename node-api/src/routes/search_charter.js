@@ -1,6 +1,11 @@
 import { Router } from "express";
 import dbConnection from "../config/dbConfig.js";
-import { varToColumn, varToTable, uniqueTable } from "../config/charterSearchConfig.js";
+import {
+  charterVarToColumn,
+  charterVarToTable,
+  charterUniqueTable,
+} from "../config/charterSearchConfig.js";
+import { withDatabaseConnection } from "./search_berth.js";
 
 const searchCharterRouter = Router();
 
@@ -46,7 +51,7 @@ searchCharterRouter.post("/charter", async (req, res) => {
 
   // console.log(req.body);
   const filter = req.body.filter;
-  const tableName = varToTable[req.body.tableName];
+  const tableName = charterVarToTable[req.body.tableName];
   // console.log("filter", filter);
   // console.log("req.body", req.body);
 
@@ -59,7 +64,7 @@ searchCharterRouter.post("/charter", async (req, res) => {
              FROM information_schema.columns
              WHERE table_name = '${tableName}'
              AND table_schema = 'Marisail'
-             AND column_name = '${varToColumn[key]}'`
+             AND column_name = '${charterVarToColumn[key]}'`
       );
 
       // Check if the column exists
@@ -67,9 +72,9 @@ searchCharterRouter.post("/charter", async (req, res) => {
         // console.log(columnCheck )
         // console.log("inside if");
         const tables = await connection.query(
-          `SELECT ${varToColumn[key]}, COUNT(*) AS occurrence_cnt 
+          `SELECT ${charterVarToColumn[key]}, COUNT(*) AS occurrence_cnt 
                  FROM ${tableName} 
-                 GROUP BY ${varToColumn[key]};`
+                 GROUP BY ${charterVarToColumn[key]};`
         );
 
         console.log(tables[0]);
@@ -108,16 +113,18 @@ searchCharterRouter.post("/charterData", async (req, res) => {
     // console.log(key);
     // console.log(req.body[key]);
   }
-  console.log(filter);
+  console.log("filter :>", filter);
 
   try {
     connection = await dbConnection.getConnection();
 
-    var required1 = "Marisail_Charter_ID, Summer_Cruising_Areas, Boarding_Port FROM Accommodation_Location";
+    // var required1 =
+    //   "Summer_Cruising_Area, Boardingport_Time, Charter_ID FROM Charter_Location";
+    var required1 =
+      "Marisail_Charter_ID, Summer_Cruising_Areas, Boarding_Port FROM Location";
     // var required2 = "Price_PW FROM Pricing";
 
     var basic = `SELECT ${required1} `;
-
     if (Object.keys(filter).length > 0) {
       basic += `WHERE `;
 
@@ -132,13 +139,14 @@ searchCharterRouter.post("/charterData", async (req, res) => {
         temp += `) OR `;
         basic += temp;
       }
+      console.log("basic  :>> ", basic);
 
       basic = basic.slice(0, -3);
     }
-      
+
     basic += `LIMIT 60 OFFSET ${page * 30};`;
     basic += `;`;
-    console.log(basic);
+    console.log("basic", basic);
 
     const tables = await connection.query(basic);
 
@@ -152,7 +160,6 @@ searchCharterRouter.post("/charterData", async (req, res) => {
   }
 });
 
-
 searchCharterRouter.get("/charter-detail/:id", async (req, res) => {
   console.log("Marisail Charter ID:", req.params.id);
   const { id } = req.params; // Get the engine ID from the URL parameter
@@ -164,33 +171,90 @@ searchCharterRouter.get("/charter-detail/:id", async (req, res) => {
 
     var query = `SELECT`;
 
-    uniqueTable.forEach((table) => {
+    charterUniqueTable.forEach((table) => {
       query += ` ${table}.*,`;
     });
 
     query = query.slice(0, -1);
-    query += ` FROM ${uniqueTable[0]}`;
+    query += ` FROM ${charterUniqueTable[0]}`;
 
-    for (let i = 1; i < uniqueTable.length; i++) {
-      query += ` JOIN ${uniqueTable[i]} ON ${uniqueTable[0]}.Marisail_Charter_ID = ${uniqueTable[i]}.Marisail_Charter_ID`;
+    for (let i = 1; i < charterUniqueTable.length; i++) {
+      query += ` JOIN ${charterUniqueTable[i]} ON ${charterUniqueTable[0]}.Charter_ID = ${charterUniqueTable[i]}.Charter_ID`;
     }
 
-    query += ` WHERE ${uniqueTable[0]}.Marisail_Charter_ID = ${id};`;
+    query += ` WHERE ${charterUniqueTable[0]}.Charter_ID = ${id};`;
 
     console.log(query);
 
-    const tables = await connection.query(
-      query
-    );
+    const tables = await connection.query(query);
 
     console.log(tables);
 
-    return res.status(200).json({ ok: true, res: tables});
+    return res.status(200).json({ ok: true, res: tables });
   } catch (err) {
     return res.status(500).json({ ok: false, message: err.message });
   } finally {
     if (connection) connection.release();
   }
-})
+});
 
+export const countDropDownCharters = async (
+  connection,
+  actualColumn,
+  currentcolumn,
+  appliedFilters,
+  result
+) => {
+  delete appliedFilters[currentcolumn];
+  if (!result || result.length === 0) return;
+
+  var wherePart = "";
+
+  for (const key of Object.keys(appliedFilters)) {
+    var columnKey = charterVarToColumn[key];
+    if (appliedFilters[key].length === 0) continue;
+    wherePart += "(";
+    for (const value of appliedFilters[key]) {
+      if (columnKey === "Accommodation_Location")
+        columnKey = "al.Accommodation_Location";
+      wherePart += ` ${columnKey} = '${value}' OR`;
+    }
+    wherePart = wherePart.slice(0, -3);
+    wherePart += ") AND ";
+  }
+  wherePart = wherePart.slice(0, -4);
+  if (wherePart !== "") wherePart = `WHERE ${wherePart}`;
+  var sumString = "";
+  const diffValueOfResult = result.map((obj) => obj[actualColumn]);
+  for (const obj of diffValueOfResult) {
+    sumString += `SUM(CASE WHEN ${
+      actualColumn === "Accommodation_Location"
+        ? "al.Accommodation_Location"
+        : actualColumn
+    } = '${obj}' THEN 1 ELSE 0 END) AS \`${obj}\`,`;
+  }
+
+  var query = `SELECT ${sumString.slice(0, -1)} FROM Accommodation_Location al
+LEFT JOIN Requirements req ON al.Accommodation_ID = req.Accommodation_ID
+LEFT JOIN Policy pol ON al.Accommodation_ID = pol.Accommodation_ID
+LEFT JOIN Safety_Measures sm ON al.Accommodation_ID = sm.Accommodation_ID
+LEFT JOIN Charter_Costs cc ON al.Accommodation_ID = cc.Accommodation_ID
+LEFT JOIN Dates d ON al.Accommodation_ID = d.Accommodation_ID
+LEFT JOIN Charter_Payment cp ON al.Accommodation_ID = cp.Accommodation_ID
+LEFT JOIN Charter_Sales cs ON al.Accommodation_ID = cs.Accommodation_ID
+${wherePart}
+;`;
+
+  const [check] = await connection.query(query, []);
+  result.map((item) => {
+    // Find the matching value from the check array
+    const itemCount = check[0][item[actualColumn]];
+
+    if (itemCount) {
+      // Add the check value to occurrence_cnt
+      item.occurrence_cnt = parseInt(itemCount);
+    }
+    return item;
+  });
+};
 export default searchCharterRouter;

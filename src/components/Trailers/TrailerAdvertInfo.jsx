@@ -21,6 +21,56 @@ export const typeDef = {
       mandatory: true,
       radioOptions: null,
     },
+    type: { value: "", type: "radio", mandatory: true, radioOptions: null },
+    gvwr: {
+      value: "",
+      type: "dual",
+      mandatory: true,
+      radioOptions: [
+        { label: "lbs", value: "lbs", id: 1 },
+        { label: "Kgs", value: "Kgs", id: 2 },
+      ],
+    },
+    loadCapacity: {
+      value: "",
+      type: "dual",
+      mandatory: true,
+      radioOptions: [
+        { label: "lbs", value: "lbs", id: 1 },
+        { label: "Kgs", value: "Kgs", id: 2 },
+      ],
+    },
+    length: {
+      value: "",
+      type: "dual",
+      mandatory: true,
+      radioOptions: [
+        { label: "ft", value: "ft", id: 1 },
+        { label: "mtrs", value: "mtrs", id: 2 },
+      ],
+    },
+    width: {
+      value: "",
+      type: "dual",
+      mandatory: true,
+      radioOptions: [
+        { label: "ft", value: "ft", id: 1 },
+        { label: "mtrs", value: "mtrs", id: 2 },
+      ],
+    },
+    totalHeight: {
+      value: "",
+      type: "radio",
+      mandatory: true,
+      radioOptions: null,
+    },
+    axleHeightFromGround: {
+      value: "",
+      type: "radio",
+      mandatory: true,
+      radioOptions: null,
+    },
+    
   },
   basics: {
     type: { value: "", type: "radio", mandatory: true, radioOptions: null },
@@ -137,6 +187,18 @@ export const typeDef = {
       radioOptions: null,
     },
     maintenanceSchedule: {
+      value: "",
+      type: "radio",
+      mandatory: false, 
+      radioOptions: null,
+    },
+    corrosionProtection: {
+      value: "",
+      type: "radio",
+      mandatory: true,
+      radioOptions: null,
+    },
+    rustInhibitors: {
       value: "",
       type: "radio",
       mandatory: false,
@@ -729,6 +791,54 @@ export const typeDef = {
       type: "radio",
       mandatory: false,
       radioOptions: null,
+    },
+    storage: { value: "", type: "radio", mandatory: false, radioOptions: null },
+    tieDownPoints: {
+      value: "",
+      type: "radio",
+      mandatory: true,
+      radioOptions: null,
+    },
+    toolBox: { value: "", type: "radio", mandatory: false, radioOptions: null },
+    bumperType: {
+      value: "",
+      type: "radio",
+      mandatory: false,
+      radioOptions: null,
+    },
+    wheelLocks: {
+      value: "",
+      type: "radio",
+      mandatory: true,
+      radioOptions: null,
+    },
+    lockType: { value: "", type: "radio", mandatory: true, radioOptions: null },
+    alarmSystem: {
+      value: "",
+      type: "radio",
+      mandatory: true,
+      radioOptions: null,
+    },
+    gps_TrackingDevice: {
+      value: "",
+      type: "radio",
+      mandatory: true,
+      radioOptions: null,
+    },
+    maximumSpeedRating: {
+      value: "",
+      type: "radio",
+      mandatory: true,
+      radioOptions: null,
+    },
+    turningRadius: {
+      value: "",
+      type: "dual",
+      mandatory: true,
+      radioOptions: [
+        { label: "ft", value: "ft", id: 1 },
+        { label: "mtrs", value: "mtrs", id: 2 },
+      ],
     },
   },
   regulatoryCompliance: {

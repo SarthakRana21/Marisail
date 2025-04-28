@@ -7,40 +7,90 @@ import {
 
 const advertTransportRouter = Router();
 
+// advertTransportRouter.post("/transport", async (req, res) => {
+//   let connection;
+//   const filter = req.body;
+
+//   try {
+//     connection = await dbConnection.getConnection();
+//     for (const key of Object.keys(filter)) {
+//       const tableInfo = TRANSPORT_ADVERT.find((item) => item.key === key);
+//       if (!tableInfo) continue;
+
+//       const columnCheck = await connection.query(
+//         `SELECT COLUMN_NAME
+//         FROM information_schema.columns
+//         WHERE table_name = '${tableInfo.tableName}'
+//         AND table_schema = 'Marisail'
+//         AND column_name = '${tableInfo.columnName}'`
+//       );
+//       if (columnCheck[0].length > 0) {
+//         const tables = await connection.query(
+//           `SELECT distinct ${tableInfo.columnName}
+//           FROM ${tableInfo.tableName} WHERE ${tableInfo.columnName} IS NOT NULL
+//           GROUP BY ${tableInfo.columnName}`
+//         );
+//         filter[key] = tables?.[0].map((table) => Object.values(table));
+//       }
+//     }
+
+//     return res.status(200).json({ ok: true, res: filter });
+//   } catch (err) {
+//     return res.status(500).json({ ok: false, message: err.message });
+//   } finally {
+//     if (connection) connection.release();
+//   }
+// });
+
 advertTransportRouter.post("/transport", async (req, res) => {
   let connection;
-  const filter = req.body;
+  const { sectionKey, fieldKey } = req.body; // Extract the specific section and field
 
   try {
     connection = await dbConnection.getConnection();
-    for (const key of Object.keys(filter)) {
-      const tableInfo = TRANSPORT_ADVERT.find((item) => item.key === key);
-      if (!tableInfo) continue;
 
-      const columnCheck = await connection.query(
-        `SELECT COLUMN_NAME
-        FROM information_schema.columns
-        WHERE table_name = '${tableInfo.tableName}'
-        AND table_schema = 'Marisail'
-        AND column_name = '${tableInfo.columnName}'`
-      );
-      if (columnCheck[0].length > 0) {
-        const tables = await connection.query(
-          `SELECT distinct ${tableInfo.columnName}
-          FROM ${tableInfo.tableName} WHERE ${tableInfo.columnName} IS NOT NULL
-          GROUP BY ${tableInfo.columnName}`
-        );
-        filter[key] = tables?.[0].map((table) => Object.values(table));
-      }
+    // Find the corresponding table and column info
+    const tableInfo = TRANSPORT_ADVERT.find((item) => item.key === fieldKey);
+    if (!tableInfo) {
+      return res.status(400).json({ ok: false, message: "Invalid field key" });
     }
 
-    return res.status(200).json({ ok: true, res: filter });
+    // Check if the column exists in the database
+    const columnCheck = await connection.query(
+      `SELECT 1
+      FROM information_schema.columns
+      WHERE table_name = '${tableInfo.tableName}'
+      AND table_schema = 'marisail'
+      AND column_name = '${tableInfo.columnName}'`
+    );
+
+    if (columnCheck[0].length === 0) {
+      return res.status(404).json({ ok: false, message: "Column not found" });
+    }
+
+    // Fetch distinct values for the specified column
+    const tables = await connection.query(
+      `SELECT DISTINCT ${tableInfo.columnName}
+      FROM ${tableInfo.tableName} 
+      WHERE ${tableInfo.columnName} IS NOT NULL
+      GROUP BY ${tableInfo.columnName}`
+    );
+
+    const formattedData = tables[0].map((row) => Object.values(row));
+
+    return res
+      .status(200)
+      .json({ ok: true, res: { [fieldKey]: formattedData } });
   } catch (err) {
-    return res.status(500).json({ ok: false, message: err.message });
+    console.error("Database error:", err);
+    return res
+      .status(500)
+      .json({ ok: false, message: "Internal server error" });
   } finally {
     if (connection) connection.release();
   }
 });
+
 advertTransportRouter.post("/:tableName/:fetchColumn", async (req, res) => {
   let connection;
   try {

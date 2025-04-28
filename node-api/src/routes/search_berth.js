@@ -1,12 +1,140 @@
 import { Router } from "express";
 import dbConnection from "../config/dbConfig.js";
 import {
-  varToColumn,
-  varToTable,
-  uniqueTable,
+  berthUniqueTable,
+  berthVarToTable,
+  berthVarToColumn,
 } from "../config/berthSearchConfig.js";
+import {
+  charterVarToColumn,
+  charterVarToTable,
+} from "../config/charterSearchConfig.js";
+import {
+  engineVarToColumn,
+  engineVarToTable,
+} from "../config/engineSearchConfig.js";
+import {
+  trailerVarToColumn,
+  trailerVarToTable,
+} from "../config/trailerSearchConfig.js";
+import {
+  transportVarToColumn,
+  transportVarToTable,
+} from "../config/transportSearchConfig.js";
 
 const searchBerthRouter = Router();
+
+const countDropDown = async (
+  connection,
+  actualColumn,
+  currentcolumn,
+  appliedFilters,
+  result
+) => {
+  delete appliedFilters[currentcolumn];
+  if (!result || result.length === 0) return;
+
+  var wherePart = "";
+
+  for (const key of Object.keys(appliedFilters)) {
+    var columnKey = berthVarToColumn[key];
+    if (appliedFilters[key].length === 0) continue;
+    wherePart += "(";
+    for (const value of appliedFilters[key]) {
+      if (columnKey === "Location") columnKey = "mp.Location";
+      wherePart += ` ${columnKey} = '${value}' OR`;
+    }
+    wherePart = wherePart.slice(0, -3);
+    wherePart += ") AND ";
+  }
+  wherePart = wherePart.slice(0, -4);
+  if (wherePart !== "") wherePart = `WHERE ${wherePart}`;
+  var sumString = "";
+  const diffValueOfResult = result.map((obj) => obj[actualColumn]);
+  for (const obj of diffValueOfResult) {
+    sumString += `SUM(CASE WHEN ${
+      actualColumn === "Location" ? "mp.Location" : actualColumn
+    } = '${obj}' THEN 1 ELSE 0 END) AS \`${obj}\`,`;
+  }
+
+  var query = `SELECT ${sumString.slice(0, -1)} FROM Marina_Port mp
+LEFT JOIN Berths b ON mp.Marisail_Berth_ID = b.Marisail_Berth_ID
+LEFT JOIN Amenities a ON mp.Marisail_Berth_ID = a.Marisail_Berth_ID
+LEFT JOIN Family f ON mp.Marisail_Berth_ID = f.Marisail_Berth_ID
+LEFT JOIN Local_Area la ON mp.Marisail_Berth_ID = la.Marisail_Berth_ID
+LEFT JOIN Berths_Features bf ON mp.Marisail_Berth_ID = bf.Marisail_Berth_ID
+LEFT JOIN Events e ON mp.Marisail_Berth_ID = e.Marisail_Berth_ID
+LEFT JOIN Operations o ON mp.Marisail_Berth_ID = o.Marisail_Berth_ID
+LEFT JOIN Repairs r ON mp.Marisail_Berth_ID = r.Marisail_Berth_ID
+LEFT JOIN Accessibility acc ON mp.Marisail_Berth_ID = acc.Marisail_Berth_ID
+LEFT JOIN Connectivity c ON mp.Marisail_Berth_ID = c.Marisail_Berth_ID
+LEFT JOIN Environment env ON mp.Marisail_Berth_ID = env.Marisail_Berth_ID
+LEFT JOIN Safety s ON mp.Marisail_Berth_ID = s.Marisail_Berth_ID
+LEFT JOIN Legal l ON mp.Marisail_Berth_ID = l.Marisail_Berth_ID
+LEFT JOIN Insurance ins ON mp.Marisail_Berth_ID = ins.Marisail_Berth_ID
+LEFT JOIN Financial fin ON mp.Marisail_Berth_ID = fin.Marisail_Berth_ID
+LEFT JOIN Pricing p ON mp.Marisail_Berth_ID = p.Marisail_Berth_ID
+LEFT JOIN Payment bp ON mp.Marisail_Berth_ID = bp.Marisail_Berth_ID 
+${wherePart}
+;`;
+
+  const [check] = await connection.query(query, []);
+  result.map((item) => {
+    // Find the matching value from the check array
+    const itemCount = check[0][item[actualColumn]];
+
+    if (itemCount) {
+      // Add the check value to occurrence_cnt
+      item.occurrence_cnt = parseInt(itemCount);
+    }
+    return item;
+  });
+};
+
+const categoryMappings = {
+  berths: {
+    varToTable: berthVarToTable,
+    varToColumn: berthVarToColumn,
+    countDropDown: countDropDown, // Already declared in this file
+  },
+  charters: {
+    varToTable: charterVarToTable,
+    varToColumn: charterVarToColumn,
+    countDropDown: async () =>
+      (await import("./search_charter.js")).countDropDownCharters,
+  },
+  engines: {
+    varToTable: engineVarToTable,
+    varToColumn: engineVarToColumn,
+    countDropDown: async () =>
+      (await import("./search_engine.js")).countDropDownEngines,
+  },
+  trailers: {
+    varToTable: trailerVarToTable,
+    varToColumn: trailerVarToColumn,
+    countDropDown: async () =>
+      (await import("./search_trailer.js")).countDropDownTrailers,
+  },
+  transports: {
+    varToTable: transportVarToTable,
+    varToColumn: transportVarToColumn,
+    countDropDown: async () =>
+      (await import("./search_transport.js")).countDropDownTransports,
+  },
+};
+
+export const withDatabaseConnection = async (callback) => {
+  let connection;
+  try {
+    connection = await dbConnection.getConnection();
+    return await callback(connection);
+  } catch (err) {
+    console.error("Database error:", err);
+    throw err;
+  } finally {
+    if (connection) connection.release();
+  }
+};
 
 searchBerthRouter.get("/berths", async (req, res) => {
   let connection;
@@ -15,7 +143,7 @@ searchBerthRouter.get("/berths", async (req, res) => {
     console.log("Database connection established.");
 
     const siteDetailsTable = varToTable.siteDetails;
-    const siteDetailsColumn = varToColumn.termsAndConditions;
+    const siteDetailsColumn = berthVarToColumn.termsAndConditions;
 
     // Check if the column exists in the table
     const columnCheckQuery = `
@@ -31,7 +159,7 @@ searchBerthRouter.get("/berths", async (req, res) => {
     if (columnCheck[0].length === 0) {
       return res.status(400).json({
         ok: false,
-        message: `Column '${siteDetailsColumn}' does not exist in table '${siteDetailsTable}'.`
+        message: `Column '${siteDetailsColumn}' does not exist in table '${siteDetailsTable}'.`,
       });
     }
 
@@ -45,7 +173,7 @@ searchBerthRouter.get("/berths", async (req, res) => {
     const dataResults = await connection.query(dataQuery);
 
     // Extract the site details
-    const siteDetailsData = dataResults[0].map(row => row[siteDetailsColumn]);
+    const siteDetailsData = dataResults[0].map((row) => row[siteDetailsColumn]);
 
     // Prepare the response
     res.status(200).json({
@@ -53,16 +181,15 @@ searchBerthRouter.get("/berths", async (req, res) => {
       siteDetails: {
         table: siteDetailsTable,
         column: siteDetailsColumn,
-        data: siteDetailsData
-      }
+        data: siteDetailsData,
+      },
     });
-
   } catch (err) {
     console.error("Error in /berths GET:", err);
     res.status(500).json({
       ok: false,
       message: "An error occurred while fetching berth data.",
-      details: err.message
+      details: err.message,
     });
   } finally {
     if (connection) {
@@ -72,80 +199,6 @@ searchBerthRouter.get("/berths", async (req, res) => {
   }
 });
 
-searchBerthRouter.put("/berths", async (req, res) => {
-  let connection;
-  try {
-    const { siteDetailsTable, siteDetailsColumn } = req.body;
-    connection = await dbConnection.getConnection();
-    console.log("Database connection established.");
-
-    // Get actual table/column names from config
-    const actualTable = varToTable[siteDetailsTable];
-    const actualColumn = varToColumn[siteDetailsColumn];
-
-    // Validate config mappings
-    if (!actualTable || !actualColumn) {
-      return res.status(400).json({
-        ok: false,
-        message: "Invalid table or column mapping configuration"
-      });
-    }
-
-    // Parameterized column check query
-    const columnCheckQuery = `
-      SELECT column_name
-      FROM information_schema.columns
-      WHERE table_name = ?
-      AND table_schema = 'marisail'
-      AND column_name = ?;
-    `;
-
-    const [columnCheck] = await connection.query(columnCheckQuery, [
-      actualTable,
-      actualColumn
-    ]);
-
-    if (columnCheck.length === 0) {
-      return res.status(400).json({
-        ok: false,
-        message: `Column '${actualColumn}' does not exist in table '${actualTable}'.`
-      });
-    }
-
-    // Safe query using backticks for identifiers
-    const dataQuery = `
-      SELECT \`${actualColumn}\`, COUNT(*) AS occurrence_cnt
-      FROM \`${actualTable}\`
-      GROUP BY \`${actualColumn}\`;
-    `;
-
-    const [dataResults] = await connection.query(dataQuery);
-
-    const siteDetailsData = dataResults.map(row => row[actualColumn]);
-
-    res.status(200).json({
-      ok: true,
-      siteDetails: {
-        table: actualTable,
-        column: actualColumn,
-        data: siteDetailsData
-      }
-    });
-
-  } catch (err) {
-    console.error("Error in /berths PUT:", err);
-    res.status(500).json({
-      ok: false,
-      message: "An error occurred while fetching berth data.",
-      details: err.message
-    });
-  } finally {
-    if (connection) {
-      connection.release();
-      console.log("Database connection released.");
-    }
-  }
-});
 searchBerthRouter.put("/berths/mapping", async (req, res) => {
   let connection;
   try {
@@ -155,18 +208,20 @@ searchBerthRouter.put("/berths/mapping", async (req, res) => {
     if (!columnCategory || !tableCategory) {
       return res.status(400).json({
         ok: false,
-        message: "Both 'columnCategory' and 'tableCategory' are required."
+        message: "Both 'columnCategory' and 'tableCategory' are required.",
       });
     }
 
     // Get mappings
-    const column = varToColumn[columnCategory];
+    const column = berthVarToColumn[columnCategory];
     const table = varToTable[tableCategory];
 
     if (!column || !table) {
       return res.status(404).json({
         ok: false,
-        message: `Mapping not found for ${!column ? "column" : "table"} category`
+        message: `Mapping not found for ${
+          !column ? "column" : "table"
+        } category`,
       });
     }
 
@@ -184,7 +239,7 @@ searchBerthRouter.put("/berths/mapping", async (req, res) => {
     if (columnCheck[0].length === 0) {
       return res.status(400).json({
         ok: false,
-        message: `Column '${column}' does not exist in table '${table}'`
+        message: `Column '${column}' does not exist in table '${table}'`,
       });
     }
 
@@ -211,33 +266,124 @@ searchBerthRouter.put("/berths/mapping", async (req, res) => {
 
     res.status(200).json({
       ok: true,
-      data: result[0].map(row => Object.values(row))
+      data: result[0].map((row) => Object.values(row)),
     });
-
   } catch (err) {
     console.error("Error in /berths/mapping PUT:", err);
     res.status(500).json({
       ok: false,
       message: "Internal server error",
-      details: err.message
+      details: err.message,
     });
   } finally {
     if (connection) connection.release();
   }
 });
+
+searchBerthRouter.put("/:category", async (req, res) => {
+  let connection;
+  try {
+    const {
+      siteDetailsTable,
+      siteDetailsColumn,
+      searchString,
+      offSet = 0,
+      appliedFilters,
+    } = req.body;
+    const { category } = req.params; // Get category dynamically
+
+    // Ensure category exists in the mapping
+    if (!categoryMappings[category]) {
+      return res.status(400).json({ ok: false, message: "Invalid category" });
+    }
+
+    const { varToTable, varToColumn, countDropDown } =
+      categoryMappings[category];
+
+    const dataResults = await withDatabaseConnection(async (connection) => {
+      console.log("Category:", category, "Table:", siteDetailsTable);
+
+      const actualTable = varToTable[siteDetailsTable];
+      const actualColumn = varToColumn[siteDetailsColumn];
+
+      // Validate config mappings
+      if (!actualTable || !actualColumn) {
+        throw new Error("Invalid table or column mapping configuration");
+      }
+
+      // Parameterized column check query
+      const columnCheckQuery = `
+        SELECT column_name
+        FROM information_schema.columns
+        WHERE table_name = ?
+        AND table_schema = 'marisail'
+        AND column_name = ?;
+      `;
+
+      const [columnCheck] = await connection.query(columnCheckQuery, [
+        actualTable,
+        actualColumn,
+      ]);
+
+      if (columnCheck.length === 0) {
+        throw new Error(
+          `Column '${actualColumn}' does not exist in table '${actualTable}'.`
+        );
+      }
+
+      // Safe query using backticks for identifiers
+      let dataQuery = `
+        SELECT \`${actualColumn}\`, COUNT(*) AS occurrence_cnt
+        FROM \`${actualTable}\`
+      `;
+
+      // Apply search filtering if searchString is provided
+      let queryParams = [];
+      if (searchString) {
+        dataQuery += ` WHERE \`${actualColumn}\` LIKE ? `;
+        queryParams.push(`%${searchString}%`);
+      }
+
+      dataQuery += ` GROUP BY \`${actualColumn}\` LIMIT 20 OFFSET ${offSet};`;
+      const [result] = await connection.query(dataQuery, queryParams);
+
+      // Call category-specific countDropDown function
+      await countDropDown(
+        connection,
+        actualColumn,
+        siteDetailsColumn,
+        appliedFilters,
+        result
+      );
+
+      return result;
+    });
+
+    res.status(200).json({
+      ok: true,
+      siteDetails: {
+        data: dataResults,
+      },
+    });
+  } catch (err) {
+    console.error("Error in API:", err);
+    res.status(500).json({
+      ok: false,
+      message: "An error occurred while fetching data.",
+      details: err.message,
+    });
+  } finally {
+    if (connection) {
+      connection.release();
+      console.log("Database connection released.");
+    }
+  }
+});
+
 searchBerthRouter.post("/berthsData", async (req, res) => {
   let connection;
   var page = req.body.page;
-  var filter = {};
-  for (const key of Object.keys(req.body.selectedOptions)) {
-    let val = key,
-      key2 = req.body.selectedOptions[key];
-    if (filter[key2] === undefined) {
-      filter[key2] = [val];
-    } else {
-      filter[key2].push(val);
-    }
-  }
+  var filter = req.body.selectedOptions;
 
   try {
     connection = await dbConnection.getConnection();
@@ -245,25 +391,28 @@ searchBerthRouter.post("/berthsData", async (req, res) => {
     var required1 = "Marisail_Berth_ID, Location, Type FROM Marina_Port";
 
     var basic = `SELECT ${required1} `;
-
+    const queryParams = [];
     if (Object.keys(filter).length > 0) {
-      basic += `WHERE `;
+      var temp = `WHERE `;
 
       for (const key of Object.keys(filter)) {
-        var temp = `${key} IN (`;
-        for (const val of filter[key]) {
-          temp += `'${val}',`;
+        if (filter[key].length > 0) {
+          const jointValues = filter[key].map(() => "?").join(", ");
+          temp += `${berthVarToColumn[key]} IN (${jointValues}) AND `;
+          queryParams.push(...filter[key]);
         }
-        temp = temp.slice(0, -1);
-        temp += `) OR `;
-        basic += temp;
       }
 
-      basic = basic.slice(0, -3);
+      if (temp !== `WHERE `) {
+        temp = temp.slice(0, -5); // Remove trailing AND
+        basic += temp;
+      }
     }
 
-    basic += `LIMIT 60 OFFSET ${page * 30};`;
-    const tables = await connection.query(basic);
+    basic += ` LIMIT 60 OFFSET ${page * 30};`;
+
+    const tables = await connection.query(basic, queryParams);
+
     return res.status(200).json({ ok: true, res: tables });
   } catch (err) {
     console.error("Error in /berthsData POST:", err);
@@ -279,18 +428,18 @@ searchBerthRouter.get("/berth-detail/:id", async (req, res) => {
   try {
     connection = await dbConnection.getConnection();
     var query = `SELECT`;
-    uniqueTable.forEach((table) => {
+    berthUniqueTable.forEach((table) => {
       query += ` ${table}.*,`;
     });
 
     query = query.slice(0, -1);
-    query += ` FROM ${uniqueTable[0]}`;
+    query += ` FROM ${berthUniqueTable[0]}`;
 
-    for (let i = 1; i < uniqueTable.length; i++) {
-      query += ` JOIN ${uniqueTable[i]} ON ${uniqueTable[0]}.Trailer_ID = ${uniqueTable[i]}.Trailer_ID`;
+    for (let i = 1; i < berthUniqueTable.length; i++) {
+      query += ` JOIN ${berthUniqueTable[i]} ON ${berthUniqueTable[0]}.Trailer_ID = ${berthUniqueTable[i]}.Trailer_ID`;
     }
 
-    query += ` WHERE ${uniqueTable[0]}.Trailer_ID = ${id};`;
+    query += ` WHERE ${berthUniqueTable[0]}.Trailer_ID = ${id};`;
     const tables = await connection.query(query);
     return res.status(200).json({ ok: true, res: tables });
   } catch (err) {
@@ -300,217 +449,45 @@ searchBerthRouter.get("/berth-detail/:id", async (req, res) => {
     if (connection) connection.release();
   }
 });
-searchBerthRouter.get("/allFilters", async (req, res) => {
-  let connection;
-  try {
-    connection = await dbConnection.getConnection();
 
-    const filtersConfig = {
-      // Site Details
-      siteDetails: { table: varToTable.siteDetails, column: varToColumn.siteDetails },
-      termsAndConditions: { table: varToTable.siteDetails, column: varToColumn.termsAndConditions },
-      type: { table: varToTable.siteDetails, column: varToColumn.type },
-      marinaName: { table: varToTable.siteDetails, column: varToColumn.marinaName },
-      location: { table: varToTable.siteDetails, column: varToColumn.location },
-      ownership: { table: varToTable.siteDetails, column: varToColumn.ownership },
-      yearEstablished: { table: varToTable.siteDetails, column: varToColumn.yearEstablished },
-      operatingHours: { table: varToTable.siteDetails, column: varToColumn.operatingHours },
-      contactDetails: { table: varToTable.siteDetails, column: varToColumn.contactDetails },
-      seasonalOperation: { table: varToTable.siteDetails, column: varToColumn.seasonalOperation },
-      languageServices: { table: varToTable.siteDetails, column: varToColumn.languageServices },
+// // Endpoint to fetch dynamic counts for dropdowns
+// searchBerthRouter.post("/dropdown-counts", async (req, res) => {
+//   try {
+//     const { tableKey, columnKey, selectedFilters } = req.body;
 
-      // General Information
-      dockTypes: { table: varToTable.generalInformation, column: varToColumn.dockTypes },
-      numberOfDocks: { table: varToTable.generalInformation, column: varToColumn.numberOfDocks },
-      boatSlipSizes: { table: varToTable.generalInformation, column: varToColumn.boatSlipSizes },
-      numberOfBerthsAvailable: { table: varToTable.generalInformation, column: varToColumn.numberOfBerthsAvailable },
-      length: { table: varToTable.generalInformation, column: varToColumn.length },
-      beam: { table: varToTable.generalInformation, column: varToColumn.beam },
-      draft: { table: varToTable.generalInformation, column: varToColumn.draft },
-      slipWidth: { table: varToTable.generalInformation, column: varToColumn.slipWidth },
-      slipLength: { table: varToTable.generalInformation, column: varToColumn.slipLength },
-      mooringType: { table: varToTable.generalInformation, column: varToColumn.mooringType },
-      tideRange: { table: varToTable.generalInformation, column: varToColumn.tideRange },
+//     // Validate table and column mappings
+//     const { actualTable, actualColumn } = validateMappings(tableKey, columnKey);
 
-      // Amenities & Services
-      storage: { table: varToTable.amenitiesAndServices, column: varToColumn.storage },
-      electricityAvailable: { table: varToTable.amenitiesAndServices, column: varToColumn.electricityAvailable },
-      waterSupply: { table: varToTable.amenitiesAndServices, column: varToColumn.waterSupply },
-      wifiAvailability: { table: varToTable.amenitiesAndServices, column: varToColumn.wifiAvailability },
-      carParking: { table: varToTable.amenitiesAndServices, column: varToColumn.carParking },
-      conciergeServices: { table: varToTable.amenitiesAndServices, column: varToColumn.conciergeServices },
-      businessServices: { table: varToTable.amenitiesAndServices, column: varToColumn.businessServices },
-      conferenceRooms: { table: varToTable.amenitiesAndServices, column: varToColumn.conferenceRooms },
+//     const data = await withDatabaseConnection(async (connection) => {
+//       // Build the WHERE clause based on selected filters
+//       let whereClause = "";
+//       if (selectedFilters && Object.keys(selectedFilters).length > 0) {
+//         whereClause = "WHERE " + Object.entries(selectedFilters)
+//           .map(([filterColumn, filterValues]) => {
+//             const actualFilterColumn = varToColumn[filterColumn];
+//             return `\`${actualFilterColumn}\` IN (${filterValues.map(val => `'${val}'`).join(",")})`;
+//           })
+//           .join(" AND ");
+//       }
 
-      // Family Facilities
-      laundryFacilities: { table: varToTable.familyFacilities, column: varToColumn.laundryFacilities },
-      restaurant: { table: varToTable.familyFacilities, column: varToColumn.restaurant },
-      bar: { table: varToTable.familyFacilities, column: varToColumn.bar },
-      shoppingFacilities: { table: varToTable.familyFacilities, column: varToColumn.shoppingFacilities },
-      retailShops: { table: varToTable.familyFacilities, column: varToColumn.retailShops },
-      hospitalityServices: { table: varToTable.familyFacilities, column: varToColumn.hospitalityServices },
-      clubhouseAccess: { table: varToTable.familyFacilities, column: varToColumn.clubhouseAccess },
-      swimmingPool: { table: varToTable.familyFacilities, column: varToColumn.swimmingPool },
-      fitnessCenter: { table: varToTable.familyFacilities, column: varToColumn.fitnessCenter },
-      marinaStore: { table: varToTable.familyFacilities, column: varToColumn.marinaStore },
-      chandlery: { table: varToTable.familyFacilities, column: varToColumn.chandlery },
-      laundryServices: { table: varToTable.familyFacilities, column: varToColumn.laundryServices },
-      gymFacilities: { table: varToTable.familyFacilities, column: varToColumn.gymFacilities },
-      sanitationnFacilities: { table: varToTable.familyFacilities, column: varToColumn.sanitationnFacilities },
-      familyFriendlyAmenities: { table: varToTable.familyFacilities, column: varToColumn.familyFriendlyAmenities },
-      petFriendlyServices: { table: varToTable.familyFacilities, column: varToColumn.petFriendlyServices },
-      iceAvailability: { table: varToTable.familyFacilities, column: varToColumn.iceAvailability },
-      picnicAndBBQAreas: { table: varToTable.familyFacilities, column: varToColumn.picnicAndBBQAreas },
-      childrensPlayArea: { table: varToTable.familyFacilities, column: varToColumn.childrensPlayArea },
+//       // Fetch data with counts, filtered by selected filters
+//       const query = `
+//         SELECT \`${actualColumn}\`, COUNT(*) AS count
+//         FROM \`${actualTable}\`
+//         ${whereClause}
+//         GROUP BY \`${actualColumn}\`;
+//       `;
+//       console.log(query);
+//       return {};
+//       // return executeQuery(connection, query);
+//     });
 
-      // Financial Information
-      currency: { table: varToTable.financialInformation, column: varToColumn.currency },
-    };
-
-    const queries = [];
-    for (const filterKey in filtersConfig) {
-      const { table, column } = filtersConfig[filterKey];
-      if (!table || !column) {
-        console.warn(`Invalid table or column for filter: ${filterKey}`);
-        continue;
-      }
-      const query = `SELECT \`${column}\`, COUNT(*) AS occurrence_cnt FROM \`${table}\` GROUP BY \`${column}\`;`;
-      console.log(`Executing query for ${filterKey}: ${query}`);
-      queries.push(connection.query(query));
-    }
-
-    const results = await Promise.all(queries);
-
-    const filterData = {};
-    Object.keys(filtersConfig).forEach((filterKey, index) => {
-      filterData[filterKey] = results[index][0];
-    });
-
-    return res.status(200).json({
-      ok: true,
-      filters: filterData
-    });
-  } catch (err) {
-    console.error("Error in /allFilters:", err);
-    return res.status(500).json({ ok: false, message: err.message });
-  } finally {
-    if (connection) connection.release();
-  }
-});
-searchBerthRouter.post("/filterByTable", async (req, res) => {
-  const { tableName, filterColumns, filterName } = req.body;
-
-  // Validate request payload
-  if (!tableName || !filterColumns || !filterName) {
-    return res.status(400).json({ ok: false, message: "All fields (tableName, filterColumns, filterName) are required." });
-  }
-
-  let connection;
-  try {
-    // Define filtersConfig
-    const filtersConfig = {
-      // Site Details
-      siteDetails: { table: varToTable.siteDetails, column: varToColumn.siteDetails },
-      termsAndConditions: { table: varToTable.siteDetails, column: varToColumn.termsAndConditions },
-      type: { table: varToTable.siteDetails, column: varToColumn.type },
-      marinaName: { table: varToTable.siteDetails, column: varToColumn.marinaName },
-      location: { table: varToTable.siteDetails, column: varToColumn.location },
-      ownership: { table: varToTable.siteDetails, column: varToColumn.ownership },
-      yearEstablished: { table: varToTable.siteDetails, column: varToColumn.yearEstablished },
-      operatingHours: { table: varToTable.siteDetails, column: varToColumn.operatingHours },
-      contactDetails: { table: varToTable.siteDetails, column: varToColumn.contactDetails },
-      seasonalOperation: { table: varToTable.siteDetails, column: varToColumn.seasonalOperation },
-      languageServices: { table: varToTable.siteDetails, column: varToColumn.languageServices },
-
-      // General Information
-      dockTypes: { table: varToTable.generalInformation, column: varToColumn.dockTypes },
-      numberOfDocks: { table: varToTable.generalInformation, column: varToColumn.numberOfDocks },
-      boatSlipSizes: { table: varToTable.generalInformation, column: varToColumn.boatSlipSizes },
-      numberOfBerthsAvailable: { table: varToTable.generalInformation, column: varToColumn.numberOfBerthsAvailable },
-      length: { table: varToTable.generalInformation, column: varToColumn.length },
-      beam: { table: varToTable.generalInformation, column: varToColumn.beam },
-      draft: { table: varToTable.generalInformation, column: varToColumn.draft },
-      slipWidth: { table: varToTable.generalInformation, column: varToColumn.slipWidth },
-      slipLength: { table: varToTable.generalInformation, column: varToColumn.slipLength },
-      mooringType: { table: varToTable.generalInformation, column: varToColumn.mooringType },
-      tideRange: { table: varToTable.generalInformation, column: varToColumn.tideRange },
-
-      // Amenities & Services
-      storage: { table: varToTable.amenitiesAndServices, column: varToColumn.storage },
-      electricityAvailable: { table: varToTable.amenitiesAndServices, column: varToColumn.electricityAvailable },
-      waterSupply: { table: varToTable.amenitiesAndServices, column: varToColumn.waterSupply },
-      wifiAvailability: { table: varToTable.amenitiesAndServices, column: varToColumn.wifiAvailability },
-      carParking: { table: varToTable.amenitiesAndServices, column: varToColumn.carParking },
-      conciergeServices: { table: varToTable.amenitiesAndServices, column: varToColumn.conciergeServices },
-      businessServices: { table: varToTable.amenitiesAndServices, column: varToColumn.businessServices },
-      conferenceRooms: { table: varToTable.amenitiesAndServices, column: varToColumn.conferenceRooms },
-
-      // Family Facilities
-      laundryFacilities: { table: varToTable.familyFacilities, column: varToColumn.laundryFacilities },
-      restaurant: { table: varToTable.familyFacilities, column: varToColumn.restaurant },
-      bar: { table: varToTable.familyFacilities, column: varToColumn.bar },
-      shoppingFacilities: { table: varToTable.familyFacilities, column: varToColumn.shoppingFacilities },
-      retailShops: { table: varToTable.familyFacilities, column: varToColumn.retailShops },
-      hospitalityServices: { table: varToTable.familyFacilities, column: varToColumn.hospitalityServices },
-      clubhouseAccess: { table: varToTable.familyFacilities, column: varToColumn.clubhouseAccess },
-      swimmingPool: { table: varToTable.familyFacilities, column: varToColumn.swimmingPool },
-      fitnessCenter: { table: varToTable.familyFacilities, column: varToColumn.fitnessCenter },
-      marinaStore: { table: varToTable.familyFacilities, column: varToColumn.marinaStore },
-      chandlery: { table: varToTable.familyFacilities, column: varToColumn.chandlery },
-      laundryServices: { table: varToTable.familyFacilities, column: varToColumn.laundryServices },
-      gymFacilities: { table: varToTable.familyFacilities, column: varToColumn.gymFacilities },
-      sanitationnFacilities: { table: varToTable.familyFacilities, column: varToColumn.sanitationnFacilities },
-      familyFriendlyAmenities: { table: varToTable.familyFacilities, column: varToColumn.familyFriendlyAmenities },
-      petFriendlyServices: { table: varToTable.familyFacilities, column: varToColumn.petFriendlyServices },
-      iceAvailability: { table: varToTable.familyFacilities, column: varToColumn.iceAvailability },
-      picnicAndBBQAreas: { table: varToTable.familyFacilities, column: varToColumn.picnicAndBBQAreas },
-      childrensPlayArea: { table: varToTable.familyFacilities, column: varToColumn.childrensPlayArea },
-
-      // Financial Information
-      currency: { table: varToTable.financialInformation, column: varToColumn.currency },
-    };
-
-    // Validate filterName against filtersConfig
-    if (!filtersConfig[filterName]) {
-      return res.status(400).json({ ok: false, message: "Invalid filter name." });
-    }
-
-    // Ensure the tableName matches the expected table in the filter config
-    const filterConfig = filtersConfig[filterName];
-    if (filterConfig.table !== tableName) {
-      return res.status(400).json({ ok: false, message: "Invalid table for the given filterName." });
-    }
-
-    connection = await dbConnection.getConnection();
-
-    // Prepare and execute query for the requested columns
-    const queries = filterColumns.map(col => {
-      if (col !== filterConfig.column) {
-        return null;
-      }
-      return `SELECT \`${col}\`, COUNT(*) AS occurrence_cnt FROM \`${tableName}\` GROUP BY \`${col}\`;`;
-    }).filter(query => query !== null);
-
-    const results = await Promise.all(queries.map(query => connection.query(query)));
-
-    // Prepare the response data
-    const responseData = {};
-    filterColumns.forEach((col, index) => {
-      responseData[col] = results[index];
-    });
-
-    return res.status(200).json({
-      ok: true,
-      data: responseData,
-    });
-
-  } catch (err) {
-    console.error("Error in /filterByTable:", err);
-    return res.status(500).json({ ok: false, message: err.message });
-  } finally {
-    if (connection) connection.release();
-  }
-});
-
+//     // Return the data with counts
+//     res.status(200).json({ ok: true, data });
+//   } catch (err) {
+//     console.error("Error in /dropdown-counts POST:", err);
+//     res.status(500).json({ ok: false, message: err.message });
+//   }
+// });
 
 export default searchBerthRouter;

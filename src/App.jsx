@@ -16,6 +16,8 @@ import Services from "./pages/Services";
 import EngineDetailPage from "./components/Engine/EngineDetail";
 import TrailerDetail from "./components/Trailers/TrailerDetail";
 import Auction from "./pages/Auction";
+import TransportDetail from "./components/Transport/TransportDetail";
+import CharterDetail from "./components/Charter/CharterDetails";
 
 function App() {
   const navbarRef = useRef();
@@ -84,6 +86,8 @@ function App() {
         <Route path="/trailer/:id" element={<TrailerDetail />} />
         {/* have to change it to berthdetail */}
         <Route path="/berth/:id" element={<TrailerDetail />} />
+        <Route path="/transport/:id" element={<TransportDetail />} />
+        <Route path="/charter/:id" element={<CharterDetail />} />
       </Routes>
     </BrowserRouter>
   );
