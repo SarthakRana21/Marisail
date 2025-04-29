@@ -29,9 +29,7 @@ const Register = () => {
       alert("Passwords do not match");
       return;
     }
-
     setLoading(true);
-
     try {
       const response = await fetch(`${URL}/auth/register`, {
         method: "POST",

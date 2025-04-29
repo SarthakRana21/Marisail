@@ -10,11 +10,8 @@ authRouter.post("/register", async (req, res) => {
     try {
         const { firstName, lastName, email, password, confirmPassword } = req.body;
         const pool = await dbConnection.getConnection();
-        if (password !== confirmPassword) {
-            return res.status(400).json({ message: "Passwords do not match." });
-        }
 
-        const [existingUser] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+        const [existingUser] = await pool.query('SELECT * FROM Contact_Details WHERE email = ?', [email]);
         if (existingUser.length > 0) {
             return res.status(400).json({ message: "Email already registered." });
         }
@@ -22,7 +19,7 @@ authRouter.post("/register", async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         await pool.query(
-            'INSERT INTO users (first_name, last_name, email, password) VALUES (?, ?, ?, ?)',
+            'INSERT INTO Contact_Details (first_name, last_name, email, password) VALUES (?, ?, ?, ?)',
             [firstName, lastName, email, hashedPassword]
         );
 
