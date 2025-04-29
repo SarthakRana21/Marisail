@@ -411,37 +411,30 @@ export default function EngineAdvert() {
 
   const sections = {
     engineDetails,
-    dimensions,
-     condition,
+    condition,
     performance,
-    engineParts,
-     general,
+    general,
     transmission,
     cylinders,
-    torque,
-    
     propulsion,
     fuelSystem,
-    oil,
-    
-    equipment,
-    coolingSystem,
-    fuelConsumption,
     serviceAndMaintenance,
     installationAndMounting,
     safetyAndMonitoring,
-
-    
-     rpm,
-    
+    fuelConsumption,
+    torque,
+    rpm,
+    oil,
     emissionsAndEnvironment,
-    
+    dimensions,
     electricalSystem,
-    
-     engineType,
+    engineShaft,
+    engineType,
     engineRoom,
     engineMeasurements,
-   
+    engineParts,
+    equipment,
+    coolingSystem,
    
   };
 
