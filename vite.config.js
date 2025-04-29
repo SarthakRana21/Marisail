@@ -1,14 +1,13 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
-  plugins: [react(), tailwindcss(),],
+  plugins: [react()],
   server: {
     port: 5173,
     allowedHosts: [
-      'e57c-2a09-bac1-3680-1f0-00-2a8-62.ngrok-free.app',
-      'https://test.marisail.com',
+      'e57c-2a09-bac1-3680-1f0-00-2a8-62.ngrok-free.app', 
+      'https://test.marisail.com', 
     ],
   },
 });

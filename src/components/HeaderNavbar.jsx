@@ -2,7 +2,6 @@ import { Container, Nav, Navbar, NavDropdown } from "react-bootstrap";
 import BrandIcon from "./BrandIcon";
 import PropTypes from "prop-types";
 import { NavLink } from "react-router-dom";
-import ProfileDropdown from "./Profile";
 
 const HeaderNavbar = ({ navbarRef }) => {
   return (
@@ -39,7 +38,7 @@ const HeaderNavbar = ({ navbarRef }) => {
                   sell
                 </NavDropdown.Item>
               </NavDropdown>
-              <NavDropdown title="berths">
+              <NavDropdown title='berths'>
                 <NavDropdown.Item
                   as={NavLink}
                   to="/berths"
@@ -153,46 +152,45 @@ const HeaderNavbar = ({ navbarRef }) => {
                 </NavDropdown.Item>
               </NavDropdown> */}
 
-              <NavDropdown title="services">
+              <NavDropdown title='services'>
                 <NavDropdown.Item
                   as={NavLink}
-                  to="/services"
-                  className="text-capitalize"
+                  to='/services'
+                  className='text-capitalize'
                 >
                   My Engines
                 </NavDropdown.Item>
                 <NavDropdown.Item
                   as={NavLink}
-                  to="/view-charter"
-                  className="text-capitalize"
+                  to='/view-charter'
+                  className='text-capitalize'
                 >
                   My Charters
                 </NavDropdown.Item>
                 <NavDropdown.Item
                   as={NavLink}
-                  to="/view-trailer"
-                  className="text-capitalize"
+                  to='/view-trailer'
+                  className='text-capitalize'
                 >
                   My Trailers
                 </NavDropdown.Item>
                 <NavDropdown.Item
                   as={NavLink}
-                  to="/view-berth"
-                  className="text-capitalize"
+                  to='/view-berth'
+                  className='text-capitalize'
                 >
                   My Berths
                 </NavDropdown.Item>
                 <NavDropdown.Item
                   as={NavLink}
-                  to="/view-transport"
-                  className="text-capitalize"
+                  to='/view-transport'
+                  className='text-capitalize'
                 >
                   My Transport
                 </NavDropdown.Item>
               </NavDropdown>
             </Nav>
           </Navbar.Collapse>
-          <ProfileDropdown />
         </Container>
       </Navbar>
     </header>
