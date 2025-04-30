@@ -8,17 +8,21 @@ COPY . .
 
 RUN npm install 
 
-RUN npm run build
-
-# nginx image
-FROM nginx:alpine
-
-RUN rm /etc/nginx/conf.d/default.conf
-
-COPY frontend.conf /etc/nginx/conf.d/default.conf
-
-COPY --from=base /app/dist /usr/share/nginx/html
-
 EXPOSE 5173
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["npm", "run", "preview", "--", "--host"]
+
+# RUN npm run build
+
+# # nginx image
+# FROM nginx:alpine
+
+# RUN rm /etc/nginx/conf.d/default.conf
+
+# COPY frontend.conf /etc/nginx/conf.d/default.conf
+
+# COPY --from=base /app/dist /usr/share/nginx/html
+
+# EXPOSE 5173
+
+# CMD ["nginx", "-g", "daemon off;"]
