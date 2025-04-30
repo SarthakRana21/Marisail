@@ -88,22 +88,22 @@ export const typeDef = {
     lastSurveyDate: { value: "", type: "date", mandatory: true },
     brokerValuation: { value: "", type: "radio", mandatory: true },
   },
-   general: {
-     engineClassification: { value: "", type: "radio", mandatory: true },
-     certification: { value: "", type: "radio", mandatory: true },
-     manufacturerWarranty: { value: "", type: "radio", mandatory: false },
-     engineSerialNumber: { value: "", type: "radio", mandatory: false },
-     ce_DesignCategory: { value: "", type: "radio", mandatory: true },
-     numberDrives: { value: "", type: "radio", mandatory: true },
-     numberEngines: { value: "", type: "radio", mandatory: true },
-     rangeMiles: { value: "", type: "radio", mandatory: true },
-     cruisingSpeed: { value: "", type: "radio", mandatory: true },
-     driveType: { value: "", type: "radio", mandatory: true },
-     engineHours: { value: "", type: "radio", mandatory: true },
-     ignitionSystem: { value: "", type: "radio", mandatory: true },
-     noiseLevel: { value: "", type: "radio", mandatory: true },
-     engineSoundproofingKits: { value: "", type: "radio", mandatory: true },
-   },
+  // general: {
+  //   engineClassification: { value: "", type: "radio", mandatory: true },
+  //   certification: { value: "", type: "radio", mandatory: true },
+  //   manufacturerWarranty: { value: "", type: "radio", mandatory: false },
+  //   engineSerialNumber: { value: "", type: "radio", mandatory: false },
+  //   ce_DesignCategory: { value: "", type: "radio", mandatory: true },
+  //   numberDrives: { value: "", type: "radio", mandatory: true },
+  //   numberEngines: { value: "", type: "radio", mandatory: true },
+  //   rangeMiles: { value: "", type: "radio", mandatory: true },
+  //   cruisingSpeed: { value: "", type: "radio", mandatory: true },
+  //   driveType: { value: "", type: "radio", mandatory: true },
+  //   engineHours: { value: "", type: "radio", mandatory: true },
+  //   ignitionSystem: { value: "", type: "radio", mandatory: true },
+  //   noiseLevel: { value: "", type: "radio", mandatory: true },
+  //   engineSoundproofingKits: { value: "", type: "radio", mandatory: true },
+  // },
   transmission: {
     transmissionType: { value: "", type: "radio", mandatory: true },
     gearShift: { value: "", type: "radio", mandatory: false },
@@ -225,11 +225,11 @@ export const typeDef = {
     bore: { value: "", type: "radio", mandatory: false },
     stroke: { value: "", type: "radio", mandatory: true },
   },
-   rpm: {
-     idleRPM: { value: "", type: "radio", mandatory: false },
-     ratedSpeedRPM: { value: "", type: "radio", mandatory: true },
-     rpmAtMaxPower: { value: "", type: "radio", mandatory: false },
-   },
+  // rpm: {
+  //   idleRPM: { value: "", type: "radio", mandatory: false },
+  //   ratedSpeedRPM: { value: "", type: "radio", mandatory: true },
+  //   rpmAtMaxPower: { value: "", type: "radio", mandatory: false },
+  // },
   torque: {
     maximumTorque: { value: "", type: "radio", mandatory: false },
     maximumTorqueAtSpeed: { value: "", type: "radio", mandatory: true },
@@ -449,17 +449,17 @@ export const typeDef = {
     engineShaftTube: { value: "", type: "radio", mandatory: false },
     engineShaftWasher: { value: "", type: "radio", mandatory: false }
   },
-   engineType:{
-     ecuEngineControlUnit: { value: "", type: "radio", mandatory: true },
-     engineFuelType: { value: "", type: "radio", mandatory: true },
-     engineStroke: { value: "", type: "radio", mandatory: true },
-     engineTier: { value: "", type: "radio", mandatory: false },
-     inboardOutboard: { value: "", type: "radio", mandatory: true },
-     mainOrAuxiliary: { value: "", type: "radio", mandatory: true },
-     podEngine: { value: "", type: "radio", mandatory: false },
-     saildriveEngine: { value: "", type: "radio", mandatory: false },
-     steeringAndEngineControls: { value: "", type: "radio", mandatory: false },
-     sternDriveEngine: { value: "", type: "radio", mandatory: false },
-     engineType: { value: "", type: "radio", mandatory: true }
-   }
+  // engineType:{
+  //   ecuEngineControlUnit: { value: "", type: "radio", mandatory: true },
+  //   engineFuelType: { value: "", type: "radio", mandatory: true },
+  //   engineStroke: { value: "", type: "radio", mandatory: true },
+  //   engineTier: { value: "", type: "radio", mandatory: false },
+  //   inboardOutboard: { value: "", type: "radio", mandatory: true },
+  //   mainOrAuxiliary: { value: "", type: "radio", mandatory: true },
+  //   podEngine: { value: "", type: "radio", mandatory: false },
+  //   saildriveEngine: { value: "", type: "radio", mandatory: false },
+  //   steeringAndEngineControls: { value: "", type: "radio", mandatory: false },
+  //   sternDriveEngine: { value: "", type: "radio", mandatory: false },
+  //   engineType: { value: "", type: "radio", mandatory: true }
+  // }
 };

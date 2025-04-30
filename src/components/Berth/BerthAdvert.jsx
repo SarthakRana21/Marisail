@@ -36,20 +36,20 @@ export default function BerthAdvert() {
         seasonalOperation: "",
         languageServices: "",
     });
-     const [generalInformation, setGeneralInformation] = useState({
-          dockTypes: "",
-          numberOfDocks: "",
-          boatSlipSizes: "",
-          numberBerthsAvailable: "",
-          length: "",
-          beam: "",
-          draft: "",
-          slipWidth: "",
-          slipDepth: "",
-          slipLength: "",
-          mooringType: "",
-          tideRange: "",
-     });
+    // const [generalInformation, setGeneralInformation] = useState({
+    //     // dockTypes: "",
+    //     // numberOfDocks: "",
+    //     // boatSlipSizes: "",
+    //     // numberBerthsAvailable: "",
+    //     // length: "",
+    //     // beam: "",
+    //     // draft: "",
+    //     // slipWidth: "",
+    //     // slipDepth: "",
+    //     // slipLength: "",
+    //     // mooringType: "",
+    //     // tideRange: "",
+    // });
     const [amenitiesAndServices, setAmenitiesAndServices] = useState({
         storage: "",
         electricityAvailable: "",
@@ -318,29 +318,37 @@ export default function BerthAdvert() {
       };*/
 
     const sections = {
-        siteDetails,
-        generalInformation,
+       
+        connectivityAndTransportation,
+        
+        
         environmentalConsiderations,
-        communityAndSocial,
+        securityAndSafety,
+      
+        familyFacilities,
+        // generalInformation,
         amenitiesAndServices,
         surroundingArea,
-        securityAndSafety,
-        familyFacilities,
+        
         services,
-        connectivityAndTransportation,
-        additionalFeatures,
+        // financialInformation,
+        paymentTerms,
+       
         repairAndMaintenance,
         accessibility,
-        legalAndCompliance,
-        financialInformation,
-        insuranceAndRegulations,
+       
         pricingAndLeaseTerms,
-        paymentTerms,
+        insuranceAndRegulations,
+        legalAndCompliance,
+        additionalFeatures,
+        siteDetails,
+       
+        communityAndSocial,
     };
 
     const setStateFunctions = {
         siteDetails: setSiteDetails,
-        generalInformation: setGeneralInformation,
+        // generalInformation: setGeneralInformation,
         amenitiesAndServices: setAmenitiesAndServices,
         communityAndSocial: setCommunityAndSocial,
         familyFacilities: setFamilyFacilities,
@@ -354,7 +362,7 @@ export default function BerthAdvert() {
         securityAndSafety: setSecurityAndSafety,
         legalAndCompliance: setLegalAndCompliance,
         insuranceAndRegulations: setInsuranceAndRegulations,
-        financialInformation: setFinancialInformation,
+        // financialInformation: setFinancialInformation,
         pricingAndLeaseTerms: setPricingAndLeaseTerms,
         paymentTerms: setPaymentTerms,
     };
