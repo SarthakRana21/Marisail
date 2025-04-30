@@ -9,7 +9,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 var server = express();
-const allowOrigins = ["https://test.marisail.com", "http://localhost:5173"];
+const allowOrigins = ['https://test.marisail.com', 'http://localhost:5173', 'http://37.148.203.193:4173']
 const corsOptions = {
   // origin: ['*'],
   origin: allowOrigins,

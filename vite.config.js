@@ -6,8 +6,12 @@ export default defineConfig({
   server: {
     port: 5173,
     allowedHosts: [
-      'e57c-2a09-bac1-3680-1f0-00-2a8-62.ngrok-free.app', 
-      'https://test.marisail.com', 
+      'e57c-2a09-bac1-3680-1f0-00-2a8-62.ngrok-free.app',
+      'https://test.marisail.com',
     ],
+  },
+  preview: {
+    allowedHosts: true, // Allow access from any host
+    port: 4173,
   },
 });
