@@ -6,7 +6,7 @@ import logger from "morgan";
 import authRoutes from "./index.js";
 import uploadRouter from "./routes/upload-media.js"; // Import your upload route
 var server = express();
-const allowOrigins = ['https://test.marisail.com', 'http://localhost:5173']
+const allowOrigins = ['https://test.marisail.com', 'http://localhost:5173', 'http://37.148.203.193:3006/']
 const corsOptions = {
   // origin: ['*'],
   origin: allowOrigins,
