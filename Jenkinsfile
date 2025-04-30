@@ -33,7 +33,7 @@ pipeline {
                     def frontendDeployStatus = sh(script: """
                         set -a
                         . /var/lib/jenkins/workspace/${NAME}/.env
-                        docker run -dit -p 5173:5173 --name ${NAME}_frontend_${env.BUILD_NUMBER} ${NAME}_frontend_${env.BUILD_NUMBER}
+                        docker run -dit -p 4173:4173 --name ${NAME}_frontend_${env.BUILD_NUMBER} ${NAME}_frontend_${env.BUILD_NUMBER}
                         set +a
                     """, returnStatus: true)
 
