@@ -11,7 +11,7 @@ export default defineConfig({
     ],
   },
   preview: {
-    allowedHosts: true, // Allow access from any host
+    allowedHosts: ['test.marisail.com'], // Allow access from any host
     port: 4173,
   },
 });
