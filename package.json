@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.5.0",
+    "@tailwindcss/vite": "^4.1.4",
     "axios": "^1.7.4",
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
@@ -30,6 +31,7 @@
     "react-select-country-list": "^2.2.3",
     "react-time-picker": "^7.0.0",
     "rsuite": "^5.75.0",
+    "tailwindcss": "^4.1.4",
     "uuid": "^11.1.0"
   },
   "devDependencies": {
