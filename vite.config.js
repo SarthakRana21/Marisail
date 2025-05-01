@@ -7,11 +7,11 @@ export default defineConfig({
     port: 5173,
     allowedHosts: [
       'e57c-2a09-bac1-3680-1f0-00-2a8-62.ngrok-free.app',
-      'https://test.marisail.com',
+      'test.marisail.com',
     ],
   },
   preview: {
-    allowedHosts: ['test.marisail.com'], // Allow access from any host
+    allowedHosts: ['test.marisail.com'], 
     port: 4173,
   },
 });
