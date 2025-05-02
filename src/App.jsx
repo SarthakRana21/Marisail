@@ -72,7 +72,6 @@ function App() {
   return (
     <BrowserRouter>
       <AppRoutes />
-      test ci/cd
     </BrowserRouter>
   );
 }
