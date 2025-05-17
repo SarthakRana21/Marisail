@@ -158,18 +158,7 @@ export default function TrailersAdvert() {
       rollerMaterial: "",
       rollerAxleDiameter: "",
     });
-  // const [securityFeatures, setSecurityFeatures] = useState({
-   
-  // });
-  // const [
-  //   environmentalAndCorrosionResistance,
-  //   setEnvironmentalAndCorrosionResistance,
-  // ] = useState({
-    
-  // });
-  // const [performanceAndHandling, setPerformanceAndHandling] = useState({
-   
-  // });
+
   const [tongue, setTongue] = useState({
     tongueMaterial: "",
     tongueShape: "",
@@ -226,48 +215,13 @@ export default function TrailersAdvert() {
     }));
   };
 
-  /*const checkRequired = () => {
-    const errors = {};
-    Object.keys(typeDef).forEach((sectionKey) => {
-      const section = typeDef[sectionKey];
-      const sectionData = sections[sectionKey];
-      Object.keys(section).forEach((fieldKey) => {
-        const field = section[fieldKey];
-        if (field.mandatory) {
-          const fieldValue = sectionData[fieldKey];
-          if (field.type === "radio") {
-            // if(field.value){
-            //   console.log("001 field value--",field);
-            // }
-            if (!field.value || String(field.value).trim() === "") {
-              errors[`${fieldKey}`] = true;
-            }
-          } else if (field.type === "number") {
-            if (
-              fieldValue === undefined ||
-              fieldValue === "" ||
-              isNaN(fieldValue)
-            ) {
-              errors[`${fieldKey}`] = true;
-            }
-          }
-        }
-      });
-    });
-
-    setError(errors);
-    return Object.keys(errors).length === 0;
-  };*/
-
+ 
   const sections = {
     identification,
     winchAndWrinchAccessories,
     specialFeatures,
     maintenanceFeatures,
    
-    // basics,
-    // userFeatures,
-    // securityFeatures,
     additionalAccessories,
     customizationOptions,
     axlesAndSuspension,
@@ -303,9 +257,6 @@ export default function TrailersAdvert() {
     lightingAndElectrical: setLightingAndElectrical,
     acessories: setAcessories,
     loadingAndTransportFeatures: setLoadingAndTransportFeatures,
-    // securityFeatures: setSecurityFeatures,
-    // environmentalAndCorrosionResistance: setEnvironmentalAndCorrosionResistance,
-    // performanceAndHandling: setPerformanceAndHandling,
     tongue: setTongue,
     documentation: setDocumentation,
     regulatoryCompliance: setRegulatoryCompliance,
@@ -371,31 +322,6 @@ export default function TrailersAdvert() {
 
   const cacheKey = "trailersFilterData";
   const URL = apiUrl + "/trailers/";
-
-  // const fetchDistinctData = useCallback(async () => {
-  //   try {
-  //     setLoading(true);
-  //     const promises = Object.keys(sections).map(async (key) => {
-  //       const response = await fetch(`${URL}trailers`, {
-  //         method: "POST",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //         body: JSON.stringify(sections[key]),
-  //       });
-  //       const data = await response.json();
-  //       return { key, data: data.res };
-  //     });
-  //     const results = await Promise.all(promises);
-  //     results.forEach(({ key, data }) => {
-  //       setPageData(key, data);
-  //     });
-  //   } catch (err) {
-  //     console.error(err);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // }, [URL, sections, setPageData]);
 
   const fetchDistinctData = useCallback(
     async (sectionKey, fieldKey) => {
@@ -541,17 +467,6 @@ export default function TrailersAdvert() {
     }
   };
 
-  // useEffect(() => {
-  //   const cachedData = localStorage.getItem(cacheKey);
-  //   if (cachedData) {
-  //     setPageData(JSON.parse(cachedData));
-  //   } else {
-  //     if (!hasFetched.current) {
-  //       fetchDistinctData();
-  //       hasFetched.current = true;
-  //     }
-  //   }
-  // }, [setPageData, fetchDistinctData]);
 
   const handleInputChange = (title, fieldKey, newValue) => {
     setTrailers((prevTrailers) => ({

@@ -192,33 +192,10 @@ export default function MyCharter() {
         },
       };
 
-      /*if (category === "guestAccomodation" && field === "crewAccommodations") {
-                      const {
-                          guestCapacity,
-                          bedroomConfiguration,
-                          bathroomConfiguration,
-                          crewAccommodations,
-                      } = updatedOptions.guestAccomodation;
-                      fetchRelevantOptions(
-                          guestCapacity,
-                          bedroomConfiguration,
-                          bathroomConfiguration,
-                          crewAccommodations
-                      );
-                  }*/
-
+     
       return updatedOptions;
     });
 
-    /*if (
-                category === "guestAccomodation" &&
-                (   field === "guestCapacity" ||
-                    field === "bedroomConfiguration" ||
-                    field === "bathroomConfiguration"
-                )
-            ) {
-                fetchGuestAccomodationSectionOptions(category, selectedOption, field);
-            }*/
   };
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -274,119 +251,6 @@ export default function MyCharter() {
       console.log("done");
     }
   };
-  /*const fetchRelevantOptions = async (
-          guestCapacity,
-          bedroomConfiguration,
-          bathroomConfiguration,
-          crewAccommodations
-      ) => {
-          try {
-              setLoading(true);
-              const requestBody = {
-                  guestCapacity,
-                  bedroomConfiguration,
-                  bathroomConfiguration,
-                  crewAccommodations,
-              };
-              const response = await fetch(`${URL}relevant_data`, {
-                  method: "POST",
-                  headers: {
-                      "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({ requestBody }),
-              });
-              const data = await response.json();
-              const result = data?.result;
-  
-              if (result) {
-                  const updatePromises = Object.keys(result).map((fieldKey) => {
-                      if (Object.keys(requestBody).includes(fieldKey)) {
-                          return Promise.resolve();
-                      }
-                      return Promise.all(
-                          Object.keys(sections).map((sectionKey) => {
-                              return new Promise((resolve) => {
-                                  if (sections[sectionKey][fieldKey] !== undefined) {
-                                      const fieldValue =
-                                          Array.isArray(result[fieldKey]) &&
-                                              result[fieldKey].length > 0
-                                              ? result[fieldKey]?.[0]
-                                              : sections[sectionKey][fieldKey];
-  
-                                      setAllSelectedOptions((prevState) => ({
-                                          ...prevState,
-                                          [sectionKey]: {
-                                              ...prevState[sectionKey],
-                                              [fieldKey]: [fieldValue],
-                                          },
-                                      }));
-  
-                                      resolve();
-                                  } else {
-                                      resolve();
-                                  }
-                              });
-                          })
-                      );
-                  });
-  
-                  // Wait for all updates to complete
-                  await Promise.all(updatePromises);
-              }
-          } catch (error) {
-              console.error("Error fetching other section:", error);
-          } finally {
-              setLoading(false);
-          }
-      };
-      const fetchGuestAccomodationSectionOptions = async (
-          category,
-          selectedOption,
-          Key
-      ) => {
-          try {
-              setLoading(true);
-              const tableName = "Accommodation_Location";
-              const keyHierarchy = [
-                  "guestCapacity",
-                  "bedroomConfiguration",
-                  "bathroomConfiguration",
-                  "crewAccommodations",
-              ];
-  
-              const currentKeyIndex = keyHierarchy.indexOf(Key);
-              const fetchColumn = keyHierarchy[currentKeyIndex + 1];
-              let requestBody = {};
-              for (let i = 0; i <= currentKeyIndex; i++) {
-                  const key = keyHierarchy[i];
-                  requestBody[key] =
-                      key === Key ? selectedOption : allSelectedOptions[category]?.[key];
-              }
-  
-              if (!fetchColumn) {
-                  throw new Error(
-                      "No further data to fetch. All selections are complete."
-                  );
-              }
-              const response = await fetch(`${URL}${tableName}/${fetchColumn}`, {
-                  method: "POST",
-                  headers: {
-                      "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({ requestBody }),
-              });
-  
-              const data = await response.json();
-              setPageData(category, {
-                  ...sections[category],
-                  [fetchColumn]: data.result,
-              });
-          } catch (error) {
-              console.error("Error fetching manufacturers:", error);
-          } finally {
-              setLoading(false);
-          }
-      };*/
 
   useEffect(() => {
     const cachedData = localStorage.getItem(cacheKey);

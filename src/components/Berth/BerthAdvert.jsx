@@ -287,36 +287,7 @@ export default function BerthAdvert() {
         vat: "",
         totalPrice: "",
     });
-    /*const checkRequired = () => {
-          const errors = {};
-          Object.keys(typeDef).forEach((sectionKey) => {
-              const section = typeDef[sectionKey];
-              const sectionData = sections[sectionKey];
-              Object.keys(section).forEach((fieldKey) => {
-                  const field = section[fieldKey];
-                  if (field.mandatory) {
-                      const fieldValue = sectionData[fieldKey];
-                      if (field.type === "radio") {
-                          if (!field.value || String(field.value).trim() === "") {
-                              errors[`${fieldKey}`] = true;
-                          }
-                      } else if (field.type === "number") {
-                          if (
-                              fieldValue === undefined ||
-                              fieldValue === "" ||
-                              isNaN(fieldValue)
-                          ) {
-                              errors[`${fieldKey}`] = true;
-                          }
-                      }
-                  }
-              });
-          });
   
-          setError(errors);
-          return Object.keys(errors).length === 0;
-      };*/
-
     const sections = {
        
         connectivityAndTransportation,

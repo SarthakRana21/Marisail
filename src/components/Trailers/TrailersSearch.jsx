@@ -337,19 +337,7 @@ export default function TrailersSearch() {
                       }}
                     >
                       <span>{varToScreen[key]?.displayText}</span>
-                      {/* <span
-                                className="count-badge"
-                                style={{
-                                  background: "#007BFF",
-                                  color: "#fff",
-                                  padding: "5px 12px",
-                                  borderRadius: "15px",
-                                  fontSize: "14px",
-                                  fontWeight: "600",
-                                }}
-                              >
-                                {allSelectedOptions[key]}
-                              </span> */}
+                  
                     </h6>
                   </legend>
                   {Object.keys(filters[key]).map((key2) => {

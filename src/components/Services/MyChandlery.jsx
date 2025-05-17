@@ -54,38 +54,6 @@ export default function MyChandlery() {
         vat: "",
         totalPrice: "",
     });
-    /*const checkRequired = () => {
-        const errors = {};
-        Object.keys(typeDef).forEach((sectionKey) => {
-            const section = typeDef[sectionKey];
-            const sectionData = sections[sectionKey];
-            Object.keys(section).forEach((fieldKey) => {
-                const field = section[fieldKey];
-                if (field.mandatory) {
-                    const fieldValue = sectionData[fieldKey];
-                    if (field.type === "radio") {
-                        // if(field.value){
-                        //   console.log("001 field value--",field);
-                        // }
-                        if (!field.value || String(field.value).trim() === "") {
-                            errors[`${fieldKey}`] = true;
-                        }
-                    } else if (field.type === "number") {
-                        if (
-                            fieldValue === undefined ||
-                            fieldValue === "" ||
-                            isNaN(fieldValue)
-                        ) {
-                            errors[`${fieldKey}`] = true;
-                        }
-                    }
-                }
-            });
-        });
-
-        setError(errors);
-        return Object.keys(errors).length === 0;
-    };*/
 
     const sections = {
         shopDetails,
@@ -107,21 +75,10 @@ export default function MyChandlery() {
                 },
             };
 
-            /*if (category === "identification" && field === "model") {
-                const { trailerId, manufacturer, make, model } =
-                    updatedOptions.identification;
-                fetchRelevantOptions(trailerId, manufacturer, make, model);
-            }*/
-
+        
             return updatedOptions;
         });
 
-        /*if (
-            category === "identification" &&
-            (field === "trailerId" || field === "manufacturer" || field === "make")
-        ) {
-            fetchIdentificationSectionOptions(category, selectedOption, field);
-        }*/
     };
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -177,113 +134,7 @@ export default function MyChandlery() {
             setLoading(false);
         }
     };
-    /*const fetchRelevantOptions = async (trailerId, manufacturer, make, model) => {
-        try {
-            setLoading(true);
-
-            const requestBody = {
-                trailerId,
-                manufacturer,
-                make,
-                model,
-            };
-
-            const response = await fetch(`${URL}relevant_data`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(requestBody),
-            });
-
-            const data = await response.json();
-            const result = data?.result;
-
-            if (result) {
-                // Create an array of promises to update each section asynchronously
-                const updatePromises = Object.keys(result).map((fieldKey) => {
-                    if (Object.keys(requestBody).includes(fieldKey)) {
-                        return Promise.resolve();
-                    }
-                    return Promise.all(
-                        Object.keys(sections).map((sectionKey) => {
-                            return new Promise((resolve) => {
-                                if (sections[sectionKey][fieldKey] !== undefined) {
-                                    const fieldValue =
-                                        Array.isArray(result[fieldKey]) &&
-                                            result[fieldKey].length > 0
-                                            ? result[fieldKey]?.[0]
-                                            : sections[sectionKey][fieldKey];
-
-                                    setAllSelectedOptions((prevState) => ({
-                                        ...prevState,
-                                        [sectionKey]: {
-                                            ...prevState[sectionKey],
-                                            [fieldKey]: [fieldValue],
-                                        },
-                                    }));
-
-                                    resolve();
-                                } else {
-                                    resolve();
-                                }
-                            });
-                        })
-                    );
-                });
-                await Promise.all(updatePromises);
-            }
-        } catch (error) {
-            console.error("Error fetching relevant options:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const fetchIdentificationSectionOptions = async (
-        category,
-        selectedOption,
-        Key
-    ) => {
-        try {
-            setLoading(true);
-            const tableName = "Chandlery";
-            const keyHierarchy = ["manufacturer", "make", "model"];
-            const currentKeyIndex = keyHierarchy.indexOf(Key);
-            const fetchColumn = keyHierarchy[currentKeyIndex + 1];
-            let requestBody = {};
-            for (let i = 0; i <= currentKeyIndex; i++) {
-                const key = keyHierarchy[i];
-                requestBody[key] =
-                    key === Key ? selectedOption : allSelectedOptions[category]?.[key];
-            }
-
-            if (!fetchColumn) {
-                throw new Error(
-                    "No further data to fetch. All selections are complete."
-                );
-            }
-
-            const response = await fetch(`${URL}${tableName}/${fetchColumn}`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ requestBody }),
-            });
-
-            const data = await response.json();
-
-            setPageData(category, {
-                ...sections[category],
-                [fetchColumn]: data.result,
-            });
-        } catch (error) {
-            console.error("Error fetching manufacturers:", error);
-        } finally {
-            setLoading(false);
-        }
-    };*/
+   
     useEffect(() => {
         const cachedData = localStorage.getItem(cacheKey);
         if (cachedData) {
