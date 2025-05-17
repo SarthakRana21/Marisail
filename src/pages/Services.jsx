@@ -4,7 +4,6 @@ import MyBerth from "../components/Services/MyBerth";
 import MyTrailer from "../components/Services/MyTrailer";
 import MyTransport from "../components/Services/MyTransport";
 import MyCharter from "../components/Services/MyCharter";
-import MyChandlery from "../components/Services/MyChandlery";
 
 const Services = ({ type }) => {
   // Example user object
@@ -35,9 +34,7 @@ const Services = ({ type }) => {
         <MyTransport />
       ) : type === "myTrailer" ? (
         <MyTrailer />
-      ): type === "myChandlery" ? (
-        <MyChandlery />
-      ) : (
+      ): (
         <MyCharter />
       )}
 

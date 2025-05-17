@@ -44,13 +44,7 @@ router.post("/upload-media", upload.array("payloads"), async (req, res) => {
     if (!previewUrls || files.length === 0) {
       return res.status(400).json({ message: "Invalid input" });
     }
-    // Create a connection to the MariaDB database
-    // const connection = await createConnection({
-    //   host: 'localhost',
-    //   user: 'saildb',
-    //   password: '',
-    //   database: 'marisail',
-    // });
+
 
     // Prepare the SQL statement
     const sql = "INSERT INTO media_uploads (url, file_location) VALUES (?, ?)";
@@ -60,11 +54,6 @@ router.post("/upload-media", upload.array("payloads"), async (req, res) => {
       return connection.execute(sql, [url, fileLocation]);
     });
 
-    // // Execute all insert operations
-    // await Promise.all(promises);
-
-    // Close the database connection
-    // await connection.end();
 
     res.status(200).json({
       message: "Files uploaded and data saved successfully",

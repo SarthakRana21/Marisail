@@ -171,36 +171,6 @@ export default function TransportAdvert() {
     vat: "",
   });
 
-  /*const checkRequired = () => {
-          const errors = {};
-          Object.keys(typeDef).forEach((sectionKey) => {
-              const section = typeDef[sectionKey];
-              const sectionData = sections[sectionKey];
-              Object.keys(section).forEach((fieldKey) => {
-                  const field = section[fieldKey];
-                  if (field.mandatory) {
-                      const fieldValue = sectionData[fieldKey];
-                      if (field.type === "radio") {
-                          if (!field.value || String(field.value).trim() === "") {
-                              errors[`${fieldKey}`] = true;
-                          }
-                      } else if (field.type === "number") {
-                          if (
-                              fieldValue === undefined ||
-                              fieldValue === "" ||
-                              isNaN(fieldValue)
-                          ) {
-                              errors[`${fieldKey}`] = true;
-                          }
-                      }
-                  }
-              });
-          });
-  
-          setError(errors);
-          return Object.keys(errors).length === 0;
-      };*/
-
   const sections = {
     jobDescription,
     feedback,
@@ -287,32 +257,6 @@ export default function TransportAdvert() {
   const cacheKey = "transportFilterData";
   const URL = apiUrl + "/advert_transport/";
 
-  //   const fetchDistinctData = useCallback(async () => {
-  //     try {
-  //       setLoading(true);
-  //       const promises = Object.keys(sections).map(async (key) => {
-  //         const response = await fetch(`${URL}transport`, {
-  //           method: "POST",
-  //           headers: {
-  //             "Content-Type": "application/json",
-  //           },
-  //           body: JSON.stringify(sections[key]),
-  //         });
-  //         const data = await response.json();
-  //         return { key, data: data.res };
-  //       });
-  //       const results = await Promise.all(promises);
-  //       results.forEach(({ key, data }) => {
-  //         setPageData(key, data);
-  //       });
-  //     } catch (err) {
-  //       console.error(err);
-  //     } finally {
-  //       setLoading(false);
-  //       console.log("done");
-  //     }
-  //   }, [sections, URL, setPageData]);
-
   const fetchDistinctData = useCallback(
     async (sectionKey, fieldKey) => {
       try {
@@ -346,113 +290,6 @@ export default function TransportAdvert() {
     },
     [URL, sections, setPageData]
   );
-
-  /*const fetchRelevantOptions = async (marisailTransportId, category, title) => {
-          try {
-              setLoading(true);
-              const requestBody = { marisailTransportId, category, title };
-              const response = await fetch(`${URL}relevant_data`, {
-                  method: "POST",
-                  headers: {
-                      "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({ requestBody }),
-              });
-              const data = await response.json();
-              const result = data?.result;
-  
-              if (result) {
-                  const updatePromises = Object.keys(result).map((fieldKey) => {
-                      if (Object.keys(requestBody).includes(fieldKey)) {
-                          return Promise.resolve();
-                      }
-                      return Promise.all(
-                          Object.keys(sections).map((sectionKey) => {
-                              return new Promise((resolve) => {
-                                  if (sections[sectionKey][fieldKey] !== undefined) {
-                                      const fieldValue =
-                                          Array.isArray(result[fieldKey]) &&
-                                              result[fieldKey].length > 0
-                                              ? result[fieldKey]?.[0]
-                                              : sections[sectionKey][fieldKey];
-  
-                                      setAllSelectedOptions((prevState) => ({
-                                          ...prevState,
-                                          [sectionKey]: {
-                                              ...prevState[sectionKey],
-                                              [fieldKey]: [fieldValue],
-                                          },
-                                      }));
-  
-                                      resolve();
-                                  } else {
-                                      resolve();
-                                  }
-                              });
-                          })
-                      );
-                  });
-  
-                  // Wait for all updates to complete
-                  await Promise.all(updatePromises);
-              }
-          } catch (error) {
-              console.error("Error fetching other section:", error);
-          } finally {
-              setLoading(false);
-          }
-      };
-      const fetchJDSectionOptions = async (category, selectedOption, Key) => {
-          try {
-              setLoading(true);
-              const tableName = "Job";
-              const keyHierarchy = ["marisailTransportId", "category"];
-  
-              const currentKeyIndex = keyHierarchy.indexOf(Key);
-              const fetchColumn = keyHierarchy[currentKeyIndex + 1];
-              let requestBody = {};
-              for (let i = 0; i <= currentKeyIndex; i++) {
-                  const key = keyHierarchy[i];
-                  requestBody[key] =
-                      key === Key ? selectedOption : allSelectedOptions[category]?.[key];
-              }
-  
-              if (!fetchColumn) {
-                  throw new Error(
-                      "No further data to fetch. All selections are complete."
-                  );
-              }
-              const response = await fetch(`${URL}${tableName}/${fetchColumn}`, {
-                  method: "POST",
-                  headers: {
-                      "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({ requestBody }),
-              });
-  
-              const data = await response.json();
-              setPageData(category, {
-                  ...sections[category],
-                  [fetchColumn]: data.result,
-              });
-          } catch (error) {
-              console.error("Error fetching data:", error);
-          } finally {
-              setLoading(false);
-          }
-      };*/
-
-  //   useEffect(() => {
-  //     const cachedData = localStorage.getItem(cacheKey);
-  //     if (cachedData) {
-  //       setPageData(JSON.parse(cachedData));
-  //     } else {
-  //       if (!hasFetched.current) {
-  //         fetchDistinctData();
-  //         hasFetched.current = true;
-  //       }
-  //     }
-  //   }, [setPageData, fetchDistinctData]);
 
   const handleInputChange = (title, fieldKey, newValue) => {
     setTransport((oldValue) => ({

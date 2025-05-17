@@ -450,44 +450,4 @@ searchBerthRouter.get("/berth-detail/:id", async (req, res) => {
   }
 });
 
-// // Endpoint to fetch dynamic counts for dropdowns
-// searchBerthRouter.post("/dropdown-counts", async (req, res) => {
-//   try {
-//     const { tableKey, columnKey, selectedFilters } = req.body;
-
-//     // Validate table and column mappings
-//     const { actualTable, actualColumn } = validateMappings(tableKey, columnKey);
-
-//     const data = await withDatabaseConnection(async (connection) => {
-//       // Build the WHERE clause based on selected filters
-//       let whereClause = "";
-//       if (selectedFilters && Object.keys(selectedFilters).length > 0) {
-//         whereClause = "WHERE " + Object.entries(selectedFilters)
-//           .map(([filterColumn, filterValues]) => {
-//             const actualFilterColumn = varToColumn[filterColumn];
-//             return `\`${actualFilterColumn}\` IN (${filterValues.map(val => `'${val}'`).join(",")})`;
-//           })
-//           .join(" AND ");
-//       }
-
-//       // Fetch data with counts, filtered by selected filters
-//       const query = `
-//         SELECT \`${actualColumn}\`, COUNT(*) AS count
-//         FROM \`${actualTable}\`
-//         ${whereClause}
-//         GROUP BY \`${actualColumn}\`;
-//       `;
-//       console.log(query);
-//       return {};
-//       // return executeQuery(connection, query);
-//     });
-
-//     // Return the data with counts
-//     res.status(200).json({ ok: true, data });
-//   } catch (err) {
-//     console.error("Error in /dropdown-counts POST:", err);
-//     res.status(500).json({ ok: false, message: err.message });
-//   }
-// });
-
 export default searchBerthRouter;
