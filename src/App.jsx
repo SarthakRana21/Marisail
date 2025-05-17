@@ -6,14 +6,12 @@ import Transport from "./pages/Transport";
 import Charters from "./pages/Charters";
 import Engines from "./pages/Engines";
 import Trailers from "./pages/Trailers";
-import Chandlery from "./pages/Chandlery";
 import Berths from "./pages/Berths";
 import Buy from "./pages/Buy";
 import Sell from "./pages/Sell";
 import Services from "./pages/Services";
 import EngineDetailPage from "./components/Engine/EngineDetail";
 import TrailerDetail from "./components/Trailers/TrailerDetail";
-import Auction from "./pages/Auction";
 import TransportDetail from "./components/Transport/TransportDetail";
 import CharterDetail from "./components/Charter/CharterDetails";
 import Register from "./pages/auth/Registration";
@@ -34,8 +32,6 @@ function AppRoutes() {
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Home />} />
-        <Route path="/auction" element={<Auction type="search" />} />
-        <Route path="/advert-auction" element={<Auction type="advert" />} />
         <Route path="/transport" element={<Transport type="search" />} />
         <Route path="/advert-transport" element={<Transport type="advert" />} />
         <Route path="/advert-charters" element={<Charters type="advert" />} />
@@ -44,8 +40,6 @@ function AppRoutes() {
         <Route path="/advert-engines" element={<Engines type="search" />} />
         <Route path="/trailers" element={<Trailers type="search" />} />
         <Route path="/advert-trailers" element={<Trailers type="advert" />} />
-        <Route path="/advert-chandlery" element={<Chandlery type="advert" />} />
-        <Route path="/chandlery" element={<Chandlery type="search" />} />
         <Route path="/berths" element={<Berths type="search" />} />
         <Route path="/advert-berth" element={<Berths type="advert" />} />
         <Route path="/buy" element={<Buy />} />
