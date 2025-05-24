@@ -63,17 +63,7 @@ const EngineDetail = () => {
           "Broker Valuation": engine.broker_valuation,
         },
       },
-      // {
-      //   title: "Condition",
-      //   details: {
-      //     Condition: engine.condition_1,
-      //     "Used Condition": engine.used_condition,
-      //     Seller: engine.seller,
-      //     "Offered By (Dealer)": engine.offered_by,
-      //     "Last Survey Date": engine.lastsurvey_date,
-      //     "Broker Valuation": engine.broker_valuation,
-      //   },
-      // },
+   
       {
         title: "Transmission",
         details: {
@@ -126,14 +116,7 @@ const EngineDetail = () => {
           "Last Service Date": engine.last_servicedate,
         },
       },
-      // {
-      //   title: "RPM",
-      //   details: {
-      //     "Idle RPM": engine.idle_rpm,
-      //     "Rated Speed (RPM)": engine.rated_speed,
-      //     "RPM at Max Power": engine.rpm_maxpower,
-      //   },
-      // },
+  
       {
         title: "Torque",
         details: {
@@ -168,24 +151,6 @@ const EngineDetail = () => {
           "Raw Water Pump Type": engine.rawwater_pumptype,
         },
       },
-      // {
-      //   title: "General",
-      //   details: {
-      //     "Engine Classification": engine.engine_classifiable,
-      //     Certification: engine.engine_certification,
-      //     "Manufacturer Warranty": engine.manufacture_warranty,
-      //     "Engine Serial Number": engine.engine_serial,
-      //     "CE Design Category": engine.ce_category,
-      //     "Number Drives": engine.number_drives,
-      //     "Number Engines": engine.number_engines,
-      //     "Range (Miles)": engine.engine_range,
-      //     "Cruising Speed (Knots)": engine.cruise_speed,
-      //     "Drive Type": engine.drive_type,
-      //     "Ignition System (Starting)": engine.ignition_system,
-      //     "Noise Level (dB)": engine.noiselevel_db,
-      //     "Engine Soundproofing Kits": engine.enginesound_proofingkits,
-      //   },
-      // },
 
       {
         title: "Equipment",

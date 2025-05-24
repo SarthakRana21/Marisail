@@ -4,44 +4,6 @@ import { BERTHS_ADVERT, UNIQUE_TABLE } from "../config/berthAdvertConfig.js";
 
 const advertBerthRouter = Router();
 
-// advertBerthRouter.post("/berths", async (req, res) => {
-//   let connection;
-//   const filter = req.body;
-
-//   try {
-//     connection = await dbConnection.getConnection();
-//     for (const key of Object.keys(filter)) {
-//       const tableInfo = BERTHS_ADVERT.find((item) => item.key === key);
-
-//       // console.log("tableInfo :>> ", tableInfo);
-//       if (!tableInfo) continue;
-
-//       const columnCheck = await connection.query(
-//         `SELECT *
-//         FROM information_schema.columns
-//         WHERE table_name = '${tableInfo.tableName}'
-//         AND table_schema = 'marisail'
-//         AND column_name = '${tableInfo.columnName}'`
-//       );
-//       if (columnCheck[0].length > 0) {
-//         const tables = await connection.query(
-//           `SELECT distinct ${tableInfo.columnName}
-//           FROM ${tableInfo.tableName} WHERE ${tableInfo.columnName} IS NOT NULL
-//           GROUP BY ${tableInfo.columnName}`
-//         );
-//         console.log("tables :>> ", tables);
-//         filter[key] = tables?.[0].map((table) => Object.values(table));
-//       }
-//     }
-
-//     return res.status(200).json({ ok: true, res: filter });
-//   } catch (err) {
-//     console.log("err :>> ", err);
-//     return res.status(500).json({ ok: false, message: err.message });
-//   } finally {
-//     if (connection) connection.release();
-//   }
-// });
 
 advertBerthRouter.post("/berths", async (req, res) => {
   let connection;

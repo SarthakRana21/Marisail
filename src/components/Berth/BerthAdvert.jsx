@@ -36,20 +36,20 @@ export default function BerthAdvert() {
         seasonalOperation: "",
         languageServices: "",
     });
-    // const [generalInformation, setGeneralInformation] = useState({
-    //     // dockTypes: "",
-    //     // numberOfDocks: "",
-    //     // boatSlipSizes: "",
-    //     // numberBerthsAvailable: "",
-    //     // length: "",
-    //     // beam: "",
-    //     // draft: "",
-    //     // slipWidth: "",
-    //     // slipDepth: "",
-    //     // slipLength: "",
-    //     // mooringType: "",
-    //     // tideRange: "",
-    // });
+     const [generalInformation, setGeneralInformation] = useState({
+          dockTypes: "",
+          numberOfDocks: "",
+          boatSlipSizes: "",
+          numberBerthsAvailable: "",
+          length: "",
+          beam: "",
+          draft: "",
+          slipWidth: "",
+          slipDepth: "",
+          slipLength: "",
+          mooringType: "",
+          tideRange: "",
+     });
     const [amenitiesAndServices, setAmenitiesAndServices] = useState({
         storage: "",
         electricityAvailable: "",
@@ -287,68 +287,31 @@ export default function BerthAdvert() {
         vat: "",
         totalPrice: "",
     });
-    /*const checkRequired = () => {
-          const errors = {};
-          Object.keys(typeDef).forEach((sectionKey) => {
-              const section = typeDef[sectionKey];
-              const sectionData = sections[sectionKey];
-              Object.keys(section).forEach((fieldKey) => {
-                  const field = section[fieldKey];
-                  if (field.mandatory) {
-                      const fieldValue = sectionData[fieldKey];
-                      if (field.type === "radio") {
-                          if (!field.value || String(field.value).trim() === "") {
-                              errors[`${fieldKey}`] = true;
-                          }
-                      } else if (field.type === "number") {
-                          if (
-                              fieldValue === undefined ||
-                              fieldValue === "" ||
-                              isNaN(fieldValue)
-                          ) {
-                              errors[`${fieldKey}`] = true;
-                          }
-                      }
-                  }
-              });
-          });
   
-          setError(errors);
-          return Object.keys(errors).length === 0;
-      };*/
-
     const sections = {
-       
-        connectivityAndTransportation,
-        
-        
+        siteDetails,
+        generalInformation,
         environmentalConsiderations,
-        securityAndSafety,
-      
-        familyFacilities,
-        // generalInformation,
+        communityAndSocial,
         amenitiesAndServices,
         surroundingArea,
-        
+        securityAndSafety,
+        familyFacilities,
         services,
-        // financialInformation,
-        paymentTerms,
-       
+        connectivityAndTransportation,
+        additionalFeatures,
         repairAndMaintenance,
         accessibility,
-       
-        pricingAndLeaseTerms,
-        insuranceAndRegulations,
         legalAndCompliance,
-        additionalFeatures,
-        siteDetails,
-       
-        communityAndSocial,
+        financialInformation,
+        insuranceAndRegulations,
+        pricingAndLeaseTerms,
+        paymentTerms,
     };
 
     const setStateFunctions = {
         siteDetails: setSiteDetails,
-        // generalInformation: setGeneralInformation,
+        generalInformation: setGeneralInformation,
         amenitiesAndServices: setAmenitiesAndServices,
         communityAndSocial: setCommunityAndSocial,
         familyFacilities: setFamilyFacilities,
@@ -362,7 +325,7 @@ export default function BerthAdvert() {
         securityAndSafety: setSecurityAndSafety,
         legalAndCompliance: setLegalAndCompliance,
         insuranceAndRegulations: setInsuranceAndRegulations,
-        // financialInformation: setFinancialInformation,
+        financialInformation: setFinancialInformation,
         pricingAndLeaseTerms: setPricingAndLeaseTerms,
         paymentTerms: setPaymentTerms,
     };

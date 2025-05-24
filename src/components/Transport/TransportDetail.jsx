@@ -77,25 +77,7 @@ const TransportDetail = () => {
   return (
     <div className="engine-detail-page">
       <div className="engine-main-section">
-        {/* <div className="engine-image-gallery">
-          <img
-            src="../images/engine.jpg"
-            alt="Engine"
-            className="engine-main-image"
-          />
-          <div className="engine-thumbnails">
-            <img
-              src="../images/engine.jpg"
-              alt="Thumbnail 1"
-              className="thumbnail"
-            />
-            <img
-              src="../images/engine.jpg"
-              alt="Thumbnail 2"
-              className="thumbnail"
-            />
-          </div>
-        </div> */}
+        
         <div>
           <Row>
             {Object.keys(trailer).map((key) => (

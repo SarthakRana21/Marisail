@@ -32,30 +32,30 @@ export default function EngineAdvert() {
     lastSurveyDate: new Date(),
     brokerValuation: "",
   });
-  // const [condition, setCondition] = useState({
-  //   condition: "",
-  //   usedCondition: "",
-  //   seller: "",
-  //   offeredBy: "",
-  //   lastSurveyDate: new Date(),
-  //   brokerValuation: "",
-  // });
-  // const [general, setGeneral] = useState({
-  //   engineClassification: "",
-  //   certification: "",
-  //   manufacturerWarranty: "",
-  //   engineSerialNumber: "",
-  //   ce_DesignCategory: "",
-  //   numberDrives: "",
-  //   numberEngines: "",
-  //   rangeMiles: "",
-  //   cruisingSpeed: "",
-  //   driveType: "",
-  //   engineHours: "",
-  //   ignitionSystem: "",
-  //   noiseLevel: "",
-  //   engineSoundproofingKits: "",
-  // });
+   const [condition, setCondition] = useState({
+     condition: "",
+     usedCondition: "",
+     seller: "",
+     offeredBy: "",
+     lastSurveyDate: new Date(),
+     brokerValuation: "",
+   });
+   const [general, setGeneral] = useState({
+     engineClassification: "",
+     certification: "",
+     manufacturerWarranty: "",
+     engineSerialNumber: "",
+     ce_DesignCategory: "",
+     numberDrives: "",
+     numberEngines: "",
+     rangeMiles: "",
+     cruisingSpeed: "",
+     driveType: "",
+     engineHours: "",
+     ignitionSystem: "",
+     noiseLevel: "",
+     engineSoundproofingKits: "",
+   });
   const [transmission, setTransmission] = useState({
     transmissionType: "",
     gearShift: "",
@@ -161,11 +161,11 @@ export default function EngineAdvert() {
     bore: "",
     stroke: "",
   });
-  // const [rpm, setRpm] = useState({
-  //   idleRPM: "",
-  //   ratedSpeedRPM: "",
-  //   rpmAtMaxPower: "",
-  // });
+   const [rpm, setRpm] = useState({
+     idleRPM: "",
+     ratedSpeedRPM: "",
+     rpmAtMaxPower: "",
+   });
   const [torque, setTorque] = useState({
     maximumTorque: "",
     maximumTorqueAtSpeed: "",
@@ -365,90 +365,56 @@ export default function EngineAdvert() {
     engineShaftTube: "",
     engineShaftWasher: "",
   });
-  // const [engineType, setEngineType] = useState({
-  //   ecuEngineControlUnit: "",
-  //   engineFuelType: "",
-  //   engineStroke: "",
-  //   engineTier: "",
-  //   inboardOutboard: "",
-  //   mainOrAuxiliary: "",
-  //   podEngine: "",
-  //   saildriveEngine: "",
-  //   steeringAndEngineControls: "",
-  //   sternDriveEngine: "",
-  //   engineType: "",
-  // });
 
-  /*const checkRequired = () => {
-    const errors = {};
-    Object.keys(typeDef).forEach((sectionKey) => {
-      const section = typeDef[sectionKey];
-      const sectionData = sections[sectionKey];
-      Object.keys(section).forEach((fieldKey) => {
-        const field = section[fieldKey];
-        if (field.mandatory) {
-          const fieldValue = sectionData[fieldKey];
-          if (field.type === "radio") {
-            if (!field.value || String(field.value).trim() === "") {
-              errors[`${fieldKey}`] = true;
-            }
-          } else if (field.type === "number") {
-            if (
-              fieldValue === undefined ||
-              fieldValue === "" ||
-              isNaN(fieldValue)
-            ) {
-              errors[`${fieldKey}`] = true;
-            }
-          }
-        }
-      });
+  const [engineType, setEngineType] = useState({
+     ecuEngineControlUnit: "",
+     engineFuelType: "",
+     engineStroke: "",
+     engineTier: "",
+     inboardOutboard: "",
+    mainOrAuxiliary: "",
+     podEngine: "",
+    saildriveEngine: "",
+     steeringAndEngineControls: "",
+     sternDriveEngine: "",
+     engineType: "",
     });
 
-    setError(errors);
-    return Object.keys(errors).length === 0;
-  };*/
+
 
   const sections = {
     engineDetails,
-    dimensions,
-    // condition,
+    condition,
+    general,
     performance,
-    engineParts,
-    // general,
     transmission,
     cylinders,
-    torque,
-    
     propulsion,
     fuelSystem,
-    oil,
-    
-    equipment,
-    coolingSystem,
     fuelConsumption,
     serviceAndMaintenance,
     installationAndMounting,
     safetyAndMonitoring,
-
-    
-    // rpm,
-    
+    torque,
+    rpm,
+    oil,
     emissionsAndEnvironment,
-    
+    dimensions,
     electricalSystem,
-    
-    // engineType,
+    engineShaft,
+    engineType,
     engineRoom,
     engineMeasurements,
-   
+    engineParts,
+    equipment,
+    coolingSystem,
    
   };
 
   const setStateFunctions = {
     engineDetails: setEngineDetails,
-    // condition: setCondition,
-    // general: setGeneral,
+    condition: setCondition,
+    general: setGeneral,
     transmission: setTransmission,
     installationAndMounting: setInstallationAndMounting,
     serviceAndMaintenance: setServiceAndMaintenance,
@@ -456,7 +422,7 @@ export default function EngineAdvert() {
     dimensions: setDimensions,
     performance: setPerformance,
     cylinders: setCylinders,
-    // rpm: setRpm,
+    rpm: setRpm,
     torque: setTorque,
     coolingSystem: setCoolingSystem,
     propulsion: setPropulsion,
@@ -470,7 +436,7 @@ export default function EngineAdvert() {
     engineMeasurements: setEngineMeasurements,
     engineRoom: setEngineRoom,
     engineShaft: setEngineShaft,
-    // engineType: setEngineType,
+    engineType: setEngineType,
   };
 
   const handleOptionSelect = (category, field, selectedOption) => {
@@ -521,10 +487,7 @@ export default function EngineAdvert() {
       console.log("001 Form is valid, submitting...");
       localStorage.setItem("EngineData", JSON.stringify(allSelectedOptions));
       navigate("/view-engine");
-      // localStorage.setItem("advertise_engine", JSON.stringify(form));
-      // } else {
-      //     console.warn(error);
-      // }
+   
     } catch (error) {
       console.error(error);
     }
@@ -544,31 +507,6 @@ export default function EngineAdvert() {
   const cacheKey = "enginesFilterData";
   const URL = apiUrl + "/advert_engine/";
 
-  // const fetchDistinctData = async () => {
-  //   try {
-  //     setLoading(true);
-  //     const promises = Object.keys(sections).map(async (key) => {
-  //       const response = await fetch(`${URL}engines`, {
-  //         method: "POST",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //         body: JSON.stringify(sections[key]),
-  //       });
-  //       const data = await response.json();
-  //       return { key, data: data.res };
-  //     });
-  //     const results = await Promise.all(promises);
-  //     results.forEach(({ key, data }) => {
-  //       setPageData(key, data);
-  //     });
-  //   } catch (err) {
-  //     console.error(err);
-  //   } finally {
-  //     setLoading(false);
-  //     console.log("done");
-  //   }
-  // };
 
   const fetchDistinctData = useCallback(
     async (sectionKey, fieldKey) => {
@@ -732,19 +670,7 @@ export default function EngineAdvert() {
     } finally {
       setLoading(false);
     }
-  };
-
-  // useEffect(() => {
-  //   const cachedData = localStorage.getItem(cacheKey);
-  //   if (cachedData) {
-  //     setPageData(JSON.parse(cachedData));
-  //   } else {
-  //     if (!hasFetched.current) {
-  //       fetchDistinctData();
-  //       hasFetched.current = true;
-  //     }
-  //   }
-  // }, [setPageData]);
+  };;
 
   const handleInputChange = (title, fieldKey, newValue) => {
     setEngines((prevTrailers) => ({

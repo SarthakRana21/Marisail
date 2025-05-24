@@ -280,72 +280,6 @@ export default function BerthSearch() {
     }
   };
 
-  // const fetchDropdownCounts = async () => {
-  //   const fetchDropdownData = async (tableKey, columnKey, search, offSet) => {
-  //     console.log(
-  //       "Fetching dropdown data for: if before",
-  //       tableKey,
-  //       columnKey,
-  //       search
-  //     );
-
-  //     if (varToScreen[columnKey]?.type === "range") {
-  //       return;
-  //     }
-
-  //     console.log("Fetching dropdown data for:", tableKey, columnKey, search);
-
-  //     try {
-  //       if (!varToScreen[columnKey]) {
-  //         console.error(`Missing varToScreen mapping for ${columnKey}`);
-  //         return;
-  //       }
-  //       console.log("/berths Put");
-  //       setFetching(true);
-  //       const response = await fetch(`${URL}berths`, {
-  //         method: "PUT",
-  //         headers: { "Content-Type": "application/json" },
-  //         body: JSON.stringify({
-  //           siteDetailsTable: tableKey,
-  //           siteDetailsColumn: columnKey,
-  //           searchString: search,
-  //           offSet: offSet,
-  //         }),
-  //       });
-  //       setFetching(false);
-  //       if (!response.ok) {
-  //         throw new Error(`HTTP error! status: ${response.status}`);
-  //       }
-
-  //       const data = await response.json();
-
-  //       if (!data?.ok || !data?.siteDetails?.data) {
-  //         console.error("Invalid response format:", data);
-  //         return;
-  //       }
-
-  //       // Clean and validate the data
-  //       var cleanData = data.siteDetails.data
-  //         .filter(Boolean) // Remove null/undefined values
-  //         .map((value) => value); // Convert to string and trim whitespace
-
-  //       // Update the state with the cleaned data
-  //       // console.log(data,"Clean********************************")
-  //       const setStateFunction = setStateFunctions[tableKey];
-  //       if (setStateFunction) {
-  //         // console.log("***********",cleanData,filters[tableKey][columnKey].length,offSet, offSet ==0)
-  //         setStateFunction((prev) => ({
-  //           ...prev,
-  //           [columnKey]:
-  //             offSet !== 0 ? [...prev[columnKey], ...cleanData] : cleanData,
-  //         }));
-  //       }
-  //     } catch (err) {
-  //       console.error("Fetch error:", err);
-  //     }
-  //   };
-  // };
-
   const [berths, setBerths] = useState([]);
 
   // Fetch berth data when filters or page changes
@@ -429,19 +363,7 @@ export default function BerthSearch() {
                       }}
                     >
                       <span>{varToScreen[key]?.displayText}</span>
-                      {/* <span
-                        className="count-badge"
-                        style={{
-                          background: "#007BFF",
-                          color: "#fff",
-                          padding: "5px 12px",
-                          borderRadius: "15px",
-                          fontSize: "14px",
-                          fontWeight: "600",
-                        }}
-                      >
-                        {allSelectedOptions[key]}
-                      </span> */}
+                     
                     </h6>
                   </legend>
                   {Object.keys(filters[key]).map((key2) => {
